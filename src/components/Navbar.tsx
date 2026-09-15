@@ -101,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="text-[10px] uppercase tracking-widest font-sans font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 px-1.5 py-0.5 rounded ml-1.5">India</span>
             </span>
             <span className="block text-[10px] tracking-widest uppercase text-stone-400 -mt-0.5 font-sans">
-              Royal Heritage Expeditions
+              Curated Travel &amp; Expeditions
             </span>
           </div>
         </div>
@@ -137,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => onScrollToSection('testimonials')} 
             className="hover:text-amber-400 transition-colors cursor-pointer"
           >
-            Royal Guests
+            Guest Reviews
           </button>
         </nav>
 
@@ -163,10 +163,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onReplayLogoIntro}
               className="hidden lg:inline-flex items-center gap-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm"
-              title="Reveal Royal Logo Animation"
+              title="Watch Intro Animation"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Royal Crest</span>
+              <span>Intro Animation</span>
             </button>
           )}
 
@@ -273,7 +273,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="flex items-center gap-2 w-full bg-amber-500/20 text-amber-300 border border-amber-500/30 p-2.5 rounded-lg text-sm font-medium"
               >
                 <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>Reveal Royal Logo Animation</span>
+                <span>Watch Brand Intro Animation</span>
               </button>
             )}
             <button

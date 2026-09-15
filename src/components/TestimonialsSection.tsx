@@ -6,18 +6,18 @@ export const TestimonialsSection: React.FC = () => {
     {
       name: 'Julian & Camilla Mercer',
       location: 'London, United Kingdom',
-      tour: 'Royal Palaces of Rajasthan & Thar Desert',
+      tour: 'Heritage of Rajasthan & Thar Desert',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       rating: 5,
-      comment: 'From the private boat arrival at Taj Lake Palace Udaipur to the starlit desert camp in Jaisalmer, every second was sheer magic. The owner concierge dispatched assistance instantly. Unmatched royal hospitality.'
+      comment: 'From the private boat arrival at Taj Lake Palace Udaipur to the starlit desert camp in Jaisalmer, every second was sheer magic. The owner concierge dispatched assistance instantly. Unmatched warm hospitality.'
     },
     {
       name: 'Harrison Sterling',
       location: 'San Francisco, CA',
-      tour: 'Ranthambore Royal Tiger Safari',
+      tour: 'Ranthambore Tiger Safari',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
       rating: 5,
-      comment: 'We saw three Royal Bengal Tigers in their natural sanctuary with veteran naturalists who knew every trail. The luxury tented lodge and private plunge pool exceeded any safari in Africa.'
+      comment: 'We saw three Bengal Tigers in their natural sanctuary with veteran naturalists who knew every trail. The luxury tented lodge and private plunge pool exceeded any safari in Africa.'
     },
     {
       name: 'Dr. Evelyn Sato',
@@ -35,13 +35,13 @@ export const TestimonialsSection: React.FC = () => {
         
         <div className="text-center max-w-2xl mx-auto mb-14">
           <span className="text-xs font-bold uppercase tracking-widest text-amber-700">
-            Real Stories, Royal Journeys
+            Real Stories, Memorable Journeys
           </span>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-stone-900 tracking-tight mt-1">
             Endorsed by Discerning Explorers
           </h2>
           <p className="text-sm text-stone-600 mt-2">
-            Read unedited feedback from travelers who booked our signature Indian royal expeditions.
+            Read unedited feedback from travelers who booked our signature Indian expeditions.
           </p>
         </div>
 

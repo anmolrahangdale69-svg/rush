@@ -8,486 +8,399 @@ import {
   ShieldCheck, 
   Zap, 
   Info,
-  Minus,
-  Plus
+  Users,
+  ArrowRight,
+  Car
 } from 'lucide-react';
 import { soundFx } from '../utils/soundEffects';
 
-export interface RideOption {
+export interface CabRideOption {
   id: string;
   name: string;
-  type: string;
+  type: 'mini-cab' | 'sedan' | 'suv' | 'six-seven-seater' | 'outstation-cab';
   pricePerKm: number;
   baseFare: number;
+  capacity: string;
+  seatsCount: number;
   description: string;
   eta: string;
-  capacity: string;
   highlightBadge?: string;
-  colorTheme: {
-    accent: string;
-    bgPill: string;
-    textPill: string;
-  };
 }
 
-export const RIDE_OPTIONS: RideOption[] = [
+export const RIDE_OPTIONS: CabRideOption[] = [
   {
-    id: 'ride-bike',
-    name: 'Bike',
-    type: 'commuter-bike',
-    pricePerKm: 8,
-    baseFare: 20,
-    description: 'Fast & affordable',
-    eta: '3 min away',
-    capacity: '1 Seat • Helmet included',
-    highlightBadge: 'Fastest in Traffic',
-    colorTheme: {
-      accent: 'amber-600',
-      bgPill: 'bg-amber-100',
-      textPill: 'text-amber-900'
-    }
-  },
-  {
-    id: 'ride-scooty',
-    name: 'Scooty',
-    type: 'city-scooter',
-    pricePerKm: 7,
-    baseFare: 20,
-    description: 'Easy city rides',
-    eta: '4 min away',
-    capacity: '1 Seat • Pocket friendly',
-    highlightBadge: 'Lowest Price',
-    colorTheme: {
-      accent: 'orange-600',
-      bgPill: 'bg-orange-100',
-      textPill: 'text-orange-900'
-    }
-  },
-  {
-    id: 'ride-auto',
-    name: 'Auto',
-    type: 'auto-rickshaw',
-    pricePerKm: 12,
-    baseFare: 30,
-    description: 'Comfortable for short trips',
-    eta: '5 min away',
-    capacity: 'Up to 3 Seats • Doorstep pickup',
-    highlightBadge: 'Indian Classic',
-    colorTheme: {
-      accent: 'emerald-600',
-      bgPill: 'bg-emerald-100',
-      textPill: 'text-emerald-900'
-    }
-  },
-  {
-    id: 'ride-erickshaw',
-    name: 'E-Rickshaw',
-    type: 'electric-rickshaw',
-    pricePerKm: 10,
-    baseFare: 25,
-    description: 'Eco-friendly city ride',
-    eta: '6 min away',
-    capacity: 'Up to 4 Seats • 100% Electric',
-    highlightBadge: 'Zero Emission',
-    colorTheme: {
-      accent: 'teal-600',
-      bgPill: 'bg-teal-100',
-      textPill: 'text-teal-900'
-    }
-  },
-  {
-    id: 'ride-minicab',
+    id: 'ride-mini-cab',
     name: 'Mini Cab',
-    type: 'city-hatchback',
-    pricePerKm: 15,
-    baseFare: 40,
-    description: 'Affordable cab',
-    eta: '5 min away',
-    capacity: '4 Seats • Full Air Conditioning',
-    highlightBadge: 'AC Comfort',
-    colorTheme: {
-      accent: 'blue-600',
-      bgPill: 'bg-blue-100',
-      textPill: 'text-blue-900'
-    }
+    type: 'mini-cab',
+    pricePerKm: 12,
+    baseFare: 20,
+    capacity: '4 seats',
+    seatsCount: 4,
+    description: 'Affordable everyday travel',
+    eta: '3 min away',
+    highlightBadge: 'Everyday Saver'
   },
   {
-    id: 'ride-premiumcab',
-    name: 'Premium Cab',
-    type: 'executive-sedan',
-    pricePerKm: 22,
-    baseFare: 60,
-    description: 'Extra comfort',
-    eta: '7 min away',
-    capacity: '4 Seats • Elite Chauffeur & Sedan',
-    highlightBadge: 'Royal Luxury',
-    colorTheme: {
-      accent: 'purple-600',
-      bgPill: 'bg-purple-100',
-      textPill: 'text-purple-900'
-    }
+    id: 'ride-sedan',
+    name: 'Sedan',
+    type: 'sedan',
+    pricePerKm: 15,
+    baseFare: 30,
+    capacity: '4 seats',
+    seatsCount: 4,
+    description: 'Comfortable rides for city and highway travel',
+    eta: '4 min away',
+    highlightBadge: 'Most Popular'
+  },
+  {
+    id: 'ride-suv',
+    name: 'SUV',
+    type: 'suv',
+    pricePerKm: 20,
+    baseFare: 40,
+    capacity: '6 seats',
+    seatsCount: 6,
+    description: 'More space for families and luggage',
+    eta: '5 min away',
+    highlightBadge: 'Spacious & Luggage'
+  },
+  {
+    id: 'ride-six-seven-seater',
+    name: '6/7 Seater',
+    type: 'six-seven-seater',
+    pricePerKm: 24,
+    baseFare: 50,
+    capacity: '6–7 seats',
+    seatsCount: 7,
+    description: 'Perfect for families and groups',
+    eta: '6 min away',
+    highlightBadge: 'Family & Group'
+  },
+  {
+    id: 'ride-outstation-cab',
+    name: 'Outstation Cab',
+    type: 'outstation-cab',
+    pricePerKm: 14,
+    baseFare: 100,
+    capacity: '4–6 seats',
+    seatsCount: 6,
+    description: 'Comfortable travel between cities',
+    eta: '15 min away',
+    highlightBadge: 'Highway Long Drive'
   }
 ];
 
-// Bespoke Indian Vehicle Illustrations
-const VehicleIllustration: React.FC<{ type: string; isSelected: boolean }> = ({ type, isSelected }) => {
+// Bespoke, original SVG illustrations for Indian cab categories
+export const CabVehicleIllustration: React.FC<{ type: CabRideOption['type']; isSelected: boolean }> = ({ type, isSelected }) => {
+  const primaryColor = isSelected ? '#d97706' : '#292524';
+  const secondaryColor = isSelected ? '#b45309' : '#44403c';
+  const windowColor = isSelected ? '#fed7aa' : '#e7e5e4';
+
   switch (type) {
-    case 'commuter-bike':
+    case 'mini-cab':
+      // Compact City Hatchback
       return (
-        <svg viewBox="0 0 120 80" className="w-20 h-14 sm:w-24 sm:h-16 transition-transform duration-300 group-hover:scale-105">
-          {/* Ground shadow */}
-          <ellipse cx="60" cy="70" rx="46" ry="4" fill="#e2e8f0" />
+        <svg viewBox="0 0 140 85" className="w-20 h-14 sm:w-24 sm:h-16 transition-transform duration-300 group-hover:scale-105 select-none" aria-label="Mini Cab Illustration">
+          <ellipse cx="70" cy="74" rx="55" ry="4.5" fill="#e7e5e4" />
           {/* Wheels */}
-          <g>
-            <circle cx="28" cy="54" r="15" fill="#1e293b" />
-            <circle cx="28" cy="54" r="10" fill="#f8fafc" stroke="#94a3b8" strokeWidth="2" />
-            <circle cx="28" cy="54" r="4" fill="#334155" />
-            {/* Spokes */}
-            <line x1="28" y1="44" x2="28" y2="64" stroke="#94a3b8" strokeWidth="1.5" />
-            <line x1="18" y1="54" x2="38" y2="54" stroke="#94a3b8" strokeWidth="1.5" />
-          </g>
-          <g>
-            <circle cx="92" cy="54" r="15" fill="#1e293b" />
-            <circle cx="92" cy="54" r="10" fill="#f8fafc" stroke="#94a3b8" strokeWidth="2" />
-            <circle cx="92" cy="54" r="4" fill="#334155" />
-            <line x1="92" y1="44" x2="92" y2="64" stroke="#94a3b8" strokeWidth="1.5" />
-            <line x1="82" y1="54" x2="102" y2="54" stroke="#94a3b8" strokeWidth="1.5" />
-          </g>
-          {/* Engine block */}
-          <rect x="52" y="44" width="16" height="14" rx="2" fill="#475569" />
-          <path d="M54 52 h12" stroke="#cbd5e1" strokeWidth="1.5" />
-          {/* Exhaust pipe */}
-          <path d="M66 54 L84 57 L96 55" fill="none" stroke="#64748b" strokeWidth="3" strokeLinecap="round" />
-          {/* Chassis frame */}
-          <path d="M28 54 L52 38 L72 38 L92 54 L62 52 Z" fill="none" stroke="#1e293b" strokeWidth="3.5" strokeLinejoin="round" />
-          {/* Fuel tank (Indian commuter red/amber) */}
-          <path d="M48 36 C52 28 68 28 72 36 L50 38 Z" fill="#dc2626" />
-          <path d="M52 32 C58 29 64 29 68 33" stroke="#fef08a" strokeWidth="1.5" fill="none" />
-          {/* Rider Seat */}
-          <path d="M68 36 C74 34 84 34 86 39 L70 39 Z" fill="#0f172a" />
-          {/* Handlebars & Headlamp */}
-          <path d="M38 28 L46 42" stroke="#334155" strokeWidth="3" />
-          <path d="M34 26 L42 28" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" />
-          <circle cx="34" cy="34" r="4.5" fill="#fef08a" stroke="#ca8a04" strokeWidth="1" />
-          {/* Rear mudguard & indicator */}
-          <path d="M82 46 C86 42 94 42 98 47" fill="none" stroke="#334155" strokeWidth="3" />
-          <circle cx="100" cy="46" r="2" fill="#ea580c" />
-        </svg>
-      );
-
-    case 'city-scooter':
-      return (
-        <svg viewBox="0 0 120 80" className="w-20 h-14 sm:w-24 sm:h-16 transition-transform duration-300 group-hover:scale-105">
-          {/* Ground shadow */}
-          <ellipse cx="60" cy="70" rx="44" ry="4" fill="#e2e8f0" />
-          {/* Wheels */}
-          <circle cx="30" cy="56" r="13" fill="#1e293b" />
-          <circle cx="30" cy="56" r="8" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2" />
-          <circle cx="90" cy="56" r="13" fill="#1e293b" />
-          <circle cx="90" cy="56" r="8" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2" />
-          {/* Indian Activa-style step-through body */}
-          <path d="M32 54 L44 32 C46 28 50 28 52 32 L54 52 L74 52 C78 40 84 36 96 42 L94 56 Z" fill="#0284c7" />
-          {/* Flat floorboard */}
-          <rect x="52" y="52" width="22" height="4" rx="1.5" fill="#1e293b" />
-          {/* Front Apron & Headlamp */}
-          <path d="M38 24 L48 24 L44 38 L36 38 Z" fill="#0369a1" />
-          <ellipse cx="43" cy="24" rx="4.5" ry="3" fill="#fef08a" stroke="#f59e0b" strokeWidth="1" />
-          {/* Handlebar & mirror */}
-          <line x1="43" y1="20" x2="43" y2="24" stroke="#334155" strokeWidth="2.5" />
-          <circle cx="38" cy="18" r="2" fill="#64748b" />
-          {/* Comfy dual seat */}
-          <path d="M68 38 C74 34 88 34 94 38 L92 44 L68 44 Z" fill="#1e293b" />
-          {/* Grab rail & tail light */}
-          <path d="M92 38 L97 42" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" />
-          <rect x="94" y="44" width="3" height="4" rx="1" fill="#dc2626" />
-        </svg>
-      );
-
-    case 'auto-rickshaw':
-      return (
-        <svg viewBox="0 0 120 80" className="w-20 h-14 sm:w-24 sm:h-16 transition-transform duration-300 group-hover:scale-105">
-          {/* Ground shadow */}
-          <ellipse cx="60" cy="71" rx="48" ry="4" fill="#e2e8f0" />
-          {/* Wheels: 1 front, 2 rear */}
-          <circle cx="26" cy="57" r="12" fill="#1e293b" />
-          <circle cx="26" cy="57" r="7" fill="#cbd5e1" stroke="#475569" strokeWidth="2" />
-          <circle cx="88" cy="57" r="13" fill="#1e293b" />
-          <circle cx="88" cy="57" r="7" fill="#cbd5e1" stroke="#475569" strokeWidth="2" />
-          
-          {/* Auto Rickshaw Lower Body (Classic Green) */}
-          <path d="M22 55 L32 42 L52 42 L52 56 L96 56 C98 56 100 52 98 44 L96 36 L48 36 L30 42 Z" fill="#15803d" />
-          
-          {/* Auto Rickshaw Upper Canopy & Roof (Classic Yellow) */}
-          <path d="M32 40 L38 22 C40 20 46 20 54 20 L94 20 C98 20 100 24 100 32 L98 38 L52 38 Z" fill="#eab308" />
-          
-          {/* Black Canvas Hood Accent */}
-          <path d="M42 20 L94 20 C98 20 100 22 100 28 L40 28 Z" fill="#1e293b" />
-          
-          {/* Windshield */}
-          <path d="M34 40 L40 24 L52 24 L50 40 Z" fill="#bae6fd" opacity="0.8" stroke="#38bdf8" strokeWidth="1" />
-          
-          {/* Open passenger side entrance */}
-          <rect x="56" y="30" width="34" height="22" rx="2" fill="#f8fafc" opacity="0.25" stroke="#facc15" strokeWidth="1.5" />
-          
-          {/* Passenger bench seat inside */}
-          <rect x="74" y="44" width="20" height="8" rx="2" fill="#78350f" />
-          
-          {/* Front Single Headlight */}
-          <circle cx="20" cy="48" r="4" fill="#fef08a" stroke="#ca8a04" strokeWidth="1" />
-          {/* Indicator & mudguard */}
-          <circle cx="24" cy="52" r="1.5" fill="#ea580c" />
-          <path d="M18 55 C20 48 30 48 34 55" fill="none" stroke="#1e293b" strokeWidth="2.5" />
-        </svg>
-      );
-
-    case 'electric-rickshaw':
-      return (
-        <svg viewBox="0 0 120 80" className="w-20 h-14 sm:w-24 sm:h-16 transition-transform duration-300 group-hover:scale-105">
-          {/* Ground shadow */}
-          <ellipse cx="60" cy="71" rx="46" ry="4" fill="#e2e8f0" />
-          {/* Wheels */}
-          <circle cx="26" cy="58" r="11" fill="#1e293b" />
-          <circle cx="26" cy="58" r="6" fill="#cbd5e1" stroke="#0d9488" strokeWidth="2" />
-          <circle cx="90" cy="58" r="12" fill="#1e293b" />
-          <circle cx="90" cy="58" r="6" fill="#cbd5e1" stroke="#0d9488" strokeWidth="2" />
-
-          {/* Electric Rickshaw Tubular Blue/Teal Frame */}
-          <path d="M24 55 L34 38 L98 38 L98 56 L44 56 Z" fill="#0d9488" />
-          
-          {/* Battery pack compartment */}
-          <rect x="44" y="52" width="38" height="6" rx="1.5" fill="#134e4a" />
-          {/* Eco Battery Lightning Bolt */}
-          <path d="M60 53 L58 56 L61 56 L59 59" stroke="#fef08a" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-
-          {/* Modern Canopy Roof */}
-          <path d="M32 20 L96 20 C100 20 102 23 102 26 L98 38 L36 38 Z" fill="#f0fdf4" stroke="#0d9488" strokeWidth="1.5" />
-          <rect x="36" y="20" width="62" height="4" fill="#14b8a6" />
-
-          {/* Windshield */}
-          <path d="M30 42 L36 24 L48 24 L44 42 Z" fill="#ccfbf1" opacity="0.85" stroke="#2dd4bf" strokeWidth="1" />
-
-          {/* Passenger seating area */}
-          <rect x="52" y="28" width="40" height="22" fill="none" stroke="#5eead4" strokeWidth="1.5" strokeDasharray="2 2" />
-          <rect x="68" y="44" width="26" height="6" rx="1.5" fill="#334155" />
-
-          {/* Front LED Headlamp */}
-          <rect x="20" y="44" width="5" height="4" rx="1" fill="#fef08a" stroke="#0d9488" strokeWidth="1" />
-        </svg>
-      );
-
-    case 'city-hatchback':
-      return (
-        <svg viewBox="0 0 120 80" className="w-20 h-14 sm:w-24 sm:h-16 transition-transform duration-300 group-hover:scale-105">
-          {/* Ground shadow */}
-          <ellipse cx="60" cy="71" rx="50" ry="4" fill="#e2e8f0" />
-          {/* Wheels */}
-          <circle cx="32" cy="58" r="12" fill="#1e293b" />
-          <circle cx="32" cy="58" r="7" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" />
-          <circle cx="88" cy="58" r="12" fill="#1e293b" />
-          <circle cx="88" cy="58" r="7" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" />
-
-          {/* Compact City Hatchback Body */}
-          <path d="M16 54 C16 48 22 46 28 46 L38 34 C44 26 50 26 62 26 L80 26 C88 26 94 32 98 42 L104 46 C108 48 108 54 104 56 L20 56 Z" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="1.5" />
-          
+          <circle cx="36" cy="65" r="13" fill="#1c1917" />
+          <circle cx="36" cy="65" r="6.5" fill="#a8a29e" />
+          <circle cx="104" cy="65" r="13" fill="#1c1917" />
+          <circle cx="104" cy="65" r="6.5" fill="#a8a29e" />
+          {/* Body */}
+          <path d="M18 52 C20 46 28 42 42 42 L56 26 C62 20 74 19 92 20 L108 34 C116 36 122 42 122 52 C122 61 116 64 108 64 L30 64 C20 64 18 59 18 52 Z" fill={primaryColor} />
           {/* Windows */}
-          <path d="M40 34 L58 34 L58 44 L32 44 Z" fill="#bae6fd" opacity="0.8" />
-          <path d="M62 34 L80 34 L88 44 L62 44 Z" fill="#bae6fd" opacity="0.8" />
-
-          {/* Door line & handle */}
-          <line x1="60" y1="34" x2="60" y2="54" stroke="#cbd5e1" strokeWidth="1.5" />
-          <rect x="64" y="46" width="6" height="2" rx="1" fill="#475569" />
-
-          {/* Front Headlamp */}
-          <path d="M18 48 C20 46 24 46 26 48 L22 52 Z" fill="#fef08a" stroke="#ca8a04" strokeWidth="1" />
-          {/* Tail light */}
-          <path d="M102 46 C104 46 106 48 106 50 L102 52 Z" fill="#ef4444" />
-          
-          {/* AC Badge */}
-          <rect x="50" y="48" width="10" height="4" rx="1" fill="#0284c7" />
-          <text x="52" y="51" fontSize="3" fill="#ffffff" fontWeight="bold">AC</text>
+          <path d="M58 28 L72 28 L72 40 L45 40 Z" fill={windowColor} />
+          <path d="M76 28 L91 28 L104 40 L76 40 Z" fill={windowColor} />
+          {/* Headlight & Taillight */}
+          <path d="M118 48 L122 50 L122 56 L117 56 Z" fill="#f59e0b" />
+          <path d="M18 48 L22 48 L22 56 L18 54 Z" fill="#ef4444" />
+          {/* Door line */}
+          <line x1="74" y1="28" x2="74" y2="62" stroke={secondaryColor} strokeWidth="2" strokeLinecap="round" />
+          <line x1="48" y1="46" x2="56" y2="46" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+          <line x1="82" y1="46" x2="90" y2="46" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
         </svg>
       );
 
-    case 'executive-sedan':
-    default:
+    case 'sedan':
+      // Streamlined Sedan
       return (
-        <svg viewBox="0 0 120 80" className="w-20 h-14 sm:w-24 sm:h-16 transition-transform duration-300 group-hover:scale-105">
-          {/* Ground shadow */}
-          <ellipse cx="60" cy="72" rx="54" ry="4" fill="#e2e8f0" />
-          {/* Wheels with luxury multi-spoke rims */}
-          <circle cx="28" cy="58" r="12" fill="#0f172a" />
-          <circle cx="28" cy="58" r="7" fill="#e2e8f0" stroke="#f59e0b" strokeWidth="1.5" />
-          <circle cx="92" cy="58" r="12" fill="#0f172a" />
-          <circle cx="92" cy="58" r="7" fill="#e2e8f0" stroke="#f59e0b" strokeWidth="1.5" />
+        <svg viewBox="0 0 150 85" className="w-22 h-14 sm:w-26 sm:h-16 transition-transform duration-300 group-hover:scale-105 select-none" aria-label="Sedan Illustration">
+          <ellipse cx="75" cy="74" rx="64" ry="4.5" fill="#e7e5e4" />
+          {/* Wheels */}
+          <circle cx="38" cy="65" r="13" fill="#1c1917" />
+          <circle cx="38" cy="65" r="6" fill="#a8a29e" />
+          <circle cx="114" cy="65" r="13" fill="#1c1917" />
+          <circle cx="114" cy="65" r="6" fill="#a8a29e" />
+          {/* Sedan Sleek Body */}
+          <path d="M12 52 C14 46 22 42 38 42 L52 24 C58 18 84 18 100 24 L118 42 L132 44 C138 46 140 54 138 62 L24 62 C15 62 12 58 12 52 Z" fill={primaryColor} />
+          {/* Front & Rear Windows */}
+          <path d="M54 26 L73 26 L73 40 L40 40 Z" fill={windowColor} />
+          <path d="M77 26 L98 26 L114 40 L77 40 Z" fill={windowColor} />
+          {/* Lights */}
+          <path d="M134 46 L139 50 L137 56 L131 54 Z" fill="#f59e0b" />
+          <path d="M12 48 L17 48 L17 56 L13 54 Z" fill="#ef4444" />
+          {/* Door & Handles */}
+          <line x1="75" y1="26" x2="75" y2="60" stroke={secondaryColor} strokeWidth="2" />
+          <line x1="48" y1="46" x2="56" y2="46" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+          <line x1="84" y1="46" x2="92" y2="46" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
 
-          {/* Sleek Royal Executive Sedan Body (Dark Obsidian / Metallic Charcoal) */}
-          <path d="M12 53 C12 46 18 44 26 44 L40 32 C46 24 54 24 72 24 L86 24 C94 24 98 30 102 38 L110 44 C116 46 116 52 110 56 L16 56 Z" fill="#1c1917" stroke="#44403c" strokeWidth="1" />
-          
-          {/* Luxury Chrome Waistline */}
-          <path d="M16 50 L108 50" stroke="#f59e0b" strokeWidth="1" opacity="0.7" />
+    case 'suv':
+      // Tall, rugged Indian SUV
+      return (
+        <svg viewBox="0 0 150 85" className="w-22 h-14 sm:w-26 sm:h-16 transition-transform duration-300 group-hover:scale-105 select-none" aria-label="SUV Illustration">
+          <ellipse cx="75" cy="76" rx="64" ry="4.5" fill="#e7e5e4" />
+          {/* Roof Rail */}
+          <rect x="50" y="12" width="58" height="3" rx="1.5" fill="#78716c" />
+          <rect x="58" y="15" width="4" height="4" fill="#78716c" />
+          <rect x="98" y="15" width="4" height="4" fill="#78716c" />
+          {/* High Ground Clearance Wheels */}
+          <circle cx="36" cy="65" r="14.5" fill="#1c1917" />
+          <circle cx="36" cy="65" r="7" fill="#d6d3d1" />
+          <circle cx="114" cy="65" r="14.5" fill="#1c1917" />
+          <circle cx="114" cy="65" r="7" fill="#d6d3d1" />
+          {/* Tall SUV Body */}
+          <path d="M14 54 C15 44 24 38 42 36 L52 18 C56 16 88 16 112 18 L124 36 L134 40 C140 44 140 56 138 63 L26 63 C16 63 14 59 14 54 Z" fill={primaryColor} />
+          {/* 3 Windows */}
+          <path d="M54 22 L72 22 L72 34 L43 34 Z" fill={windowColor} />
+          <path d="M76 22 L94 22 L94 34 L76 34 Z" fill={windowColor} />
+          <path d="M98 22 L110 22 L120 34 L98 34 Z" fill={windowColor} />
+          {/* Lights */}
+          <path d="M133 42 L139 44 L138 52 L132 50 Z" fill="#f59e0b" />
+          <path d="M14 46 L18 46 L18 56 L14 54 Z" fill="#ef4444" />
+          {/* Door pillars */}
+          <line x1="74" y1="22" x2="74" y2="60" stroke={secondaryColor} strokeWidth="2" />
+          <line x1="96" y1="22" x2="96" y2="60" stroke={secondaryColor} strokeWidth="2" />
+          <line x1="48" y1="42" x2="56" y2="42" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+          <line x1="78" y1="42" x2="86" y2="42" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
 
-          {/* Dark Tinted Executive Windows */}
-          <path d="M42 32 L64 32 L64 42 L34 42 Z" fill="#38bdf8" opacity="0.35" stroke="#44403c" strokeWidth="0.8" />
-          <path d="M68 32 L86 32 L94 42 L68 42 Z" fill="#38bdf8" opacity="0.35" stroke="#44403c" strokeWidth="0.8" />
+    case 'six-seven-seater':
+      // 6/7 Seater MUV (Innova Style)
+      return (
+        <svg viewBox="0 0 160 85" className="w-24 h-14 sm:w-28 sm:h-16 transition-transform duration-300 group-hover:scale-105 select-none" aria-label="6/7 Seater MUV Illustration">
+          <ellipse cx="80" cy="76" rx="70" ry="4.5" fill="#e7e5e4" />
+          {/* Roof rack */}
+          <line x1="52" y1="12" x2="124" y2="12" stroke="#78716c" strokeWidth="3" strokeLinecap="round" />
+          <line x1="64" y1="12" x2="64" y2="16" stroke="#78716c" strokeWidth="3" />
+          <line x1="112" y1="12" x2="112" y2="16" stroke="#78716c" strokeWidth="3" />
+          {/* Wheels */}
+          <circle cx="36" cy="65" r="14" fill="#1c1917" />
+          <circle cx="36" cy="65" r="6.5" fill="#d6d3d1" />
+          <circle cx="124" cy="65" r="14" fill="#1c1917" />
+          <circle cx="124" cy="65" r="6.5" fill="#d6d3d1" />
+          {/* Long MUV body */}
+          <path d="M12 54 C13 42 22 36 38 34 L48 16 C52 14 116 14 128 20 L144 38 L148 44 C154 50 152 60 148 63 L24 63 C14 63 12 59 12 54 Z" fill={primaryColor} />
+          {/* Windows (3 rows) */}
+          <path d="M50 20 L72 20 L72 32 L40 32 Z" fill={windowColor} />
+          <path d="M76 20 L102 20 L102 32 L76 32 Z" fill={windowColor} />
+          <path d="M106 20 L124 20 L136 32 L106 32 Z" fill={windowColor} />
+          {/* Lights */}
+          <path d="M145 42 L150 44 L148 52 L143 50 Z" fill="#f59e0b" />
+          <path d="M12 44 L16 44 L16 54 L12 52 Z" fill="#ef4444" />
+          {/* Door separators */}
+          <line x1="74" y1="20" x2="74" y2="60" stroke={secondaryColor} strokeWidth="2" />
+          <line x1="104" y1="20" x2="104" y2="60" stroke={secondaryColor} strokeWidth="2" />
+          <line x1="52" y1="40" x2="60" y2="40" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+          <line x1="82" y1="40" x2="90" y2="40" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
 
-          {/* Door handles */}
-          <rect x="52" y="45" width="6" height="1.8" rx="0.9" fill="#d97706" />
-          <rect x="74" y="45" width="6" height="1.8" rx="0.9" fill="#d97706" />
-
-          {/* Matrix LED Projector Headlamp */}
-          <path d="M14 47 C16 45 20 45 22 47 L18 51 Z" fill="#ffffff" filter="drop-shadow(0 0 2px #38bdf8)" />
-          {/* Tail light (Ruby Red LED bar) */}
-          <path d="M106 46 C108 46 112 47 112 49 L108 52 Z" fill="#ef4444" />
+    case 'outstation-cab':
+      // Outstation Highway Cruiser with Luggage Carrier
+      return (
+        <svg viewBox="0 0 160 85" className="w-24 h-14 sm:w-28 sm:h-16 transition-transform duration-300 group-hover:scale-105 select-none" aria-label="Outstation Cab Illustration">
+          <ellipse cx="80" cy="76" rx="70" ry="4.5" fill="#e7e5e4" />
+          {/* Rooftop Luggage Bags */}
+          <rect x="58" y="7" width="22" height="9" rx="2" fill="#d97706" />
+          <rect x="84" y="6" width="26" height="10" rx="2" fill="#0284c7" />
+          <line x1="50" y1="16" x2="118" y2="16" stroke="#44403c" strokeWidth="3" strokeLinecap="round" />
+          {/* Wheels */}
+          <circle cx="36" cy="65" r="14" fill="#1c1917" />
+          <circle cx="36" cy="65" r="6" fill="#a8a29e" />
+          <circle cx="124" cy="65" r="14" fill="#1c1917" />
+          <circle cx="124" cy="65" r="6" fill="#a8a29e" />
+          {/* Touring Body */}
+          <path d="M12 52 C14 42 24 38 42 36 L52 18 C56 16 108 16 122 24 L138 40 L146 44 C152 50 150 60 146 63 L24 63 C14 63 12 58 12 52 Z" fill={primaryColor} />
+          {/* Tinted Windows */}
+          <path d="M54 22 L76 22 L76 34 L42 34 Z" fill={windowColor} />
+          <path d="M80 22 L104 22 L104 34 L80 34 Z" fill={windowColor} />
+          <path d="M108 22 L120 22 L132 34 L108 34 Z" fill={windowColor} />
+          {/* Lights */}
+          <path d="M142 44 L148 46 L146 54 L140 52 Z" fill="#f59e0b" />
+          <path d="M12 44 L16 44 L16 54 L12 52 Z" fill="#ef4444" />
+          {/* Highway Cruiser Stencil / Stripe */}
+          <line x1="30" y1="48" x2="134" y2="48" stroke={isSelected ? '#fbbf24' : '#78716c'} strokeWidth="1.5" strokeDasharray="3 3" />
         </svg>
       );
   }
 };
 
-export const ChooseYourRideSection: React.FC = () => {
-  // User entered distance in Kilometers
-  const [distanceKm, setDistanceKm] = useState<number>(5);
-  // Selected Ride Option (defaults to Auto)
-  const [selectedRideId, setSelectedRideId] = useState<string>('ride-auto');
-  // Booking confirmation toast feedback
+interface ChooseYourRideSectionProps {
+  initialDistanceKm?: number;
+  onBookRide?: (ride: CabRideOption, distanceKm: number, calculatedFare: number) => void;
+  selectedPickup?: string;
+  selectedDrop?: string;
+}
+
+export const ChooseYourRideSection: React.FC<ChooseYourRideSectionProps> = ({
+  initialDistanceKm = 15,
+  onBookRide,
+  selectedPickup,
+  selectedDrop
+}) => {
+  const [distanceKm, setDistanceKm] = useState<number>(initialDistanceKm);
+  const [selectedRideId, setSelectedRideId] = useState<string>('ride-sedan');
   const [bookedFeedback, setBookedFeedback] = useState<string | null>(null);
 
-  const selectedRide = RIDE_OPTIONS.find((r) => r.id === selectedRideId) || RIDE_OPTIONS[2];
-
-  // Calculate final fare: baseFare + (distance × pricePerKm)
-  const calculateFare = (ride: RideOption, dist: number): number => {
+  // Dynamic Fare Calculation Formula: finalFare = baseFare + (distance * pricePerKm)
+  const calculateFare = (ride: CabRideOption, dist: number): number => {
     return Math.round(ride.baseFare + dist * ride.pricePerKm);
   };
 
-  const handleSelectRide = (ride: RideOption) => {
-    soundFx.playTap();
+  const selectedRide = RIDE_OPTIONS.find((r) => r.id === selectedRideId) || RIDE_OPTIONS[1];
+
+  const handleSelectRide = (ride: CabRideOption) => {
     setSelectedRideId(ride.id);
+    try {
+      soundFx.playClick();
+    } catch {
+      // Ignore audio error if not supported
+    }
   };
 
-  const handleConfirmRide = () => {
-    soundFx.playRideConfirmed();
+  const handleContinueBooking = () => {
     const fare = calculateFare(selectedRide, distanceKm);
-    setBookedFeedback(`Ride Request Dispatched! Your ${selectedRide.name} arrives in ${selectedRide.eta} (Estimated Fare: ₹${fare}).`);
-    setTimeout(() => {
-      setBookedFeedback(null);
-    }, 6000);
+    try {
+      soundFx.playSuccess();
+    } catch {
+      // Fallback
+    }
+
+    if (onBookRide) {
+      onBookRide(selectedRide, distanceKm, fare);
+    } else {
+      setBookedFeedback(
+        `Selected ${selectedRide.name} for ${distanceKm} km (Fare: ₹${fare}). Proceeding to trip confirmation!`
+      );
+    }
   };
 
-  const distancePresets = [2, 5, 8, 12, 18, 25];
+  const distancePresets = [5, 15, 25, 50, 100, 200];
 
   return (
-    <section id="choose-ride" className="py-16 sm:py-24 bg-stone-100/70 border-b border-stone-200 select-none">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="choose-ride" className="py-16 sm:py-24 bg-stone-50 border-b border-stone-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 text-xs font-bold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Instant Indian City Mobility</span>
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-amber-700 mb-2">
+            <Car className="w-3.5 h-3.5" />
+            Reliable Fleet &amp; Simple Rates
           </div>
-
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-stone-900 tracking-tight">
             Choose Your Ride
           </h2>
-          
-          <p className="text-sm text-stone-600 mt-2 font-normal leading-relaxed">
-            Transparent distance-based fares with zero hidden surcharges. Fast, clean, and trusted Indian city mobility options.
+          <p className="text-sm sm:text-base text-stone-600 mt-2">
+            Comfortable rides. Simple pricing. Easy travel. Real-time transparent rates for local city and outstation journeys.
           </p>
+
+          {(selectedPickup || selectedDrop) && (
+            <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-stone-200 text-xs font-medium text-stone-700 shadow-sm">
+              <MapPin className="w-3.5 h-3.5 text-amber-600" />
+              <span>{selectedPickup || 'Current Location'}</span>
+              <ArrowRight className="w-3 h-3 text-stone-400" />
+              <span>{selectedDrop || 'Destination'}</span>
+            </div>
+          )}
         </div>
 
-        {/* Interactive Distance Selector Box */}
-        <div className="max-w-3xl mx-auto mb-10 bg-white rounded-2xl p-5 sm:p-6 border border-stone-200/90 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-stone-100">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 font-bold shrink-0">
-                <MapPin className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-stone-700 block">
-                  Trip Distance
-                </span>
-                <span className="text-xs text-stone-500">
-                  Select your estimated travel distance in kilometres
-                </span>
-              </div>
+        {/* Interactive Trip Distance Controller (Dynamic Calculation Driver) */}
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200/90 shadow-sm mb-8 max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-600 block">
+                Trip Distance
+              </span>
+              <span className="text-xs text-stone-500">
+                Fare formula: <strong className="text-stone-700">Base Fare + (Distance × Price/km)</strong>
+              </span>
             </div>
 
-            {/* Distance Number Input & Steppers */}
-            <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 px-3 py-1.5 rounded-xl">
-              <button
-                type="button"
-                onClick={() => setDistanceKm((d) => Math.max(1, d - 1))}
-                className="w-7 h-7 rounded-lg bg-white hover:bg-stone-200 text-stone-700 border border-stone-200 flex items-center justify-center transition-colors cursor-pointer"
-                title="Decrease distance"
-                aria-label="Decrease distance"
-              >
-                <Minus className="w-3.5 h-3.5" />
-              </button>
-
-              <div className="flex items-baseline gap-1 px-2">
-                <span className="font-mono text-xl font-bold text-stone-900">
-                  {distanceKm}
-                </span>
-                <span className="text-xs font-semibold text-stone-500">km</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setDistanceKm((d) => Math.min(60, d + 1))}
-                className="w-7 h-7 rounded-lg bg-white hover:bg-stone-200 text-stone-700 border border-stone-200 flex items-center justify-center transition-colors cursor-pointer"
-                title="Increase distance"
-                aria-label="Increase distance"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Quick preset pills */}
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-semibold text-stone-500 flex items-center gap-1">
-              <Zap className="w-3.5 h-3.5 text-amber-500" />
-              Quick Presets:
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {distancePresets.map((preset) => (
+            {/* Stepper & Live Kilometer Display */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center bg-stone-100 rounded-xl p-1 border border-stone-200">
                 <button
-                  key={preset}
                   type="button"
-                  onClick={() => setDistanceKm(preset)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    distanceKm === preset
-                      ? 'bg-amber-600 text-white shadow-sm'
-                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-900'
-                  }`}
+                  disabled={distanceKm <= 1}
+                  onClick={() => setDistanceKm(Math.max(1, distanceKm - 1))}
+                  className="w-8 h-8 rounded-lg bg-white text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center font-bold text-base shadow-xs cursor-pointer"
+                  aria-label="Decrease distance"
                 >
-                  {preset} km
+                  -
                 </button>
-              ))}
+                <span className="font-mono text-base sm:text-lg font-bold text-stone-900 px-3 min-w-[70px] text-center">
+                  {distanceKm} km
+                </span>
+                <button
+                  type="button"
+                  disabled={distanceKm >= 1000}
+                  onClick={() => setDistanceKm(Math.min(1000, distanceKm + 1))}
+                  className="w-8 h-8 rounded-lg bg-white text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center font-bold text-base shadow-xs cursor-pointer"
+                  aria-label="Increase distance"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Distance Slider */}
-          <div className="mt-4 pt-2">
+          {/* Quick Distance Presets */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-stone-500 font-medium mr-1">Quick Select:</span>
+            {distancePresets.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => setDistanceKm(preset)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  distanceKm === preset
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-900'
+                }`}
+              >
+                {preset} km
+              </button>
+            ))}
+          </div>
+
+          {/* Interactive Distance Slider */}
+          <div className="mt-4 pt-1">
             <input
               type="range"
               min={1}
-              max={50}
+              max={300}
               step={1}
-              value={distanceKm}
+              value={distanceKm > 300 ? 300 : distanceKm}
               onChange={(e) => setDistanceKm(Number(e.target.value))}
               className="w-full h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
-              aria-label="Adjust trip distance in kilometers"
+              aria-label="Adjust trip distance"
             />
             <div className="flex justify-between text-[11px] text-stone-400 font-medium mt-1">
-              <span>1 km (Local short trip)</span>
-              <span>25 km (Across city)</span>
-              <span>50 km (Airport / Outstation)</span>
+              <span>1 km (City Local)</span>
+              <span>15 km (Across Town)</span>
+              <span>50 km (Suburban)</span>
+              <span>150 km (Intercity)</span>
+              <span>300+ km (Outstation)</span>
             </div>
           </div>
         </div>
 
-        {/* 6 Ride Selection Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {/* 5 Polished Horizontal Ride Selection Cards */}
+        <div className="max-w-4xl mx-auto flex flex-col gap-3.5">
           {RIDE_OPTIONS.map((ride) => {
             const isSelected = ride.id === selectedRideId;
             const fare = calculateFare(ride, distanceKm);
@@ -504,75 +417,75 @@ export const ChooseYourRideSection: React.FC = () => {
                     handleSelectRide(ride);
                   }
                 }}
-                className={`group relative rounded-2xl p-4 sm:p-5 transition-all duration-300 cursor-pointer flex items-center justify-between gap-4 outline-none select-none ${
+                className={`group relative rounded-2xl p-4 sm:p-5 transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 outline-none select-none ${
                   isSelected
-                    ? 'bg-white border-2 border-amber-600 shadow-xl shadow-amber-900/10 ring-4 ring-amber-500/15 -translate-y-1'
-                    : 'bg-white border border-stone-200/90 hover:border-amber-400/80 shadow-sm hover:shadow-md hover:-translate-y-0.5'
+                    ? 'bg-white border-2 border-amber-600 shadow-lg shadow-amber-900/10 ring-4 ring-amber-500/10'
+                    : 'bg-white border border-stone-200/90 hover:border-amber-400/80 shadow-xs hover:shadow-md'
                 }`}
               >
-                {/* Active checkmark indicator badge */}
+                {/* Active Checkmark Pill */}
                 {isSelected && (
                   <div className="absolute -top-2.5 -right-2.5 bg-amber-600 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white animate-in zoom-in-50 duration-200">
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                   </div>
                 )}
 
-                {/* Top optional badge (Fastest, Lowest Price, etc.) */}
-                {ride.highlightBadge && (
-                  <div className="absolute top-2.5 right-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200/60">
-                      {ride.highlightBadge}
-                    </span>
-                  </div>
-                )}
-
-                {/* LEFT: Vehicle Illustration Viewport */}
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className={`w-20 h-16 sm:w-22 sm:h-18 rounded-xl flex items-center justify-center p-1 shrink-0 transition-colors ${
-                    isSelected ? 'bg-amber-50/70 border border-amber-200' : 'bg-stone-50 border border-stone-100 group-hover:bg-amber-50/30'
+                {/* Card Main Body */}
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  {/* LEFT: Vehicle Illustration */}
+                  <div className={`w-20 h-16 sm:w-24 sm:h-18 rounded-xl flex items-center justify-center p-1 shrink-0 transition-colors ${
+                    isSelected ? 'bg-amber-50/80 border border-amber-200' : 'bg-stone-50 border border-stone-100 group-hover:bg-amber-50/30'
                   }`}>
-                    <VehicleIllustration type={ride.type} isSelected={isSelected} />
+                    <CabVehicleIllustration type={ride.type} isSelected={isSelected} />
                   </div>
 
-                  {/* Middle: Vehicle Name & Meta */}
-                  <div className="min-w-0 pr-1">
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-bold text-stone-900 text-base sm:text-lg leading-tight truncate">
+                  {/* MIDDLE: Vehicle Name, Description, Capacity, Rate, ETA */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-bold text-stone-900 text-base sm:text-lg leading-tight">
                         {ride.name}
                       </h3>
+                      {ride.highlightBadge && (
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200/60">
+                          {ride.highlightBadge}
+                        </span>
+                      )}
                     </div>
 
-                    <p className="text-xs text-stone-500 mt-0.5 leading-snug truncate">
+                    <p className="text-xs text-stone-500 mt-0.5 leading-snug line-clamp-1">
                       {ride.description}
                     </p>
 
-                    {/* ETA pill */}
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+                      <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
                         <Clock className="w-3 h-3 text-emerald-600" />
                         {ride.eta}
                       </span>
-                      <span className="text-[11px] text-stone-400 font-medium">
-                        &bull; ₹{ride.pricePerKm}/km
+                      <span className="inline-flex items-center gap-1 text-stone-600 bg-stone-100 px-2 py-0.5 rounded-md font-medium">
+                        <Users className="w-3 h-3 text-stone-500" />
+                        {ride.capacity}
+                      </span>
+                      <span className="text-stone-500 font-medium">
+                        ₹{ride.pricePerKm}/km &bull; Base ₹{ride.baseFare}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* RIGHT: Calculated Fare and Select Button */}
-                <div className="text-right shrink-0 flex flex-col items-end justify-center pl-2">
-                  <div className="font-mono text-xl sm:text-2xl font-bold text-stone-900 leading-none">
-                    ₹{fare}
-                  </div>
-                  
-                  <div className="text-[10px] text-stone-400 mt-1 font-mono">
-                    Base ₹{ride.baseFare}
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-stone-100 pt-2 sm:pt-0 shrink-0">
+                  <div className="text-left sm:text-right">
+                    <div className="font-mono text-xl sm:text-2xl font-bold text-stone-900 leading-none">
+                      ₹{fare}
+                    </div>
+                    <div className="text-[10px] text-stone-400 mt-0.5 font-mono">
+                      estimated fare
+                    </div>
                   </div>
 
-                  {/* Visual Select indicator */}
-                  <div className={`mt-2.5 text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all ${
+                  <div className={`sm:mt-2 text-xs font-bold px-3 py-1.5 rounded-xl transition-all ${
                     isSelected
-                      ? 'bg-amber-600 text-white shadow-sm'
+                      ? 'bg-amber-600 text-white shadow-xs'
                       : 'bg-stone-100 text-stone-700 group-hover:bg-amber-500 group-hover:text-stone-950'
                   }`}>
                     {isSelected ? 'Selected' : 'Select'}
@@ -584,20 +497,19 @@ export const ChooseYourRideSection: React.FC = () => {
           })}
         </div>
 
-        {/* Selected Ride Confirmation & Action Area */}
-        <div className="mt-10 max-w-3xl mx-auto">
+        {/* Small Confirmation Area: Selected Ride, Distance, Estimated Fare, [ Continue Booking ] */}
+        <div className="mt-8 max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl p-5 sm:p-6 border-2 border-amber-500/40 shadow-lg shadow-amber-900/5 flex flex-col sm:flex-row items-center justify-between gap-5">
             
-            {/* Summary Left */}
             <div className="flex items-center gap-4 w-full sm:w-auto">
               <div className="w-14 h-14 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 p-1">
-                <VehicleIllustration type={selectedRide.type} isSelected={true} />
+                <CabVehicleIllustration type={selectedRide.type} isSelected={true} />
               </div>
 
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-bold uppercase tracking-wider text-amber-700">
-                    Selected Vehicle:
+                    Selected Ride:
                   </span>
                   <span className="font-bold text-stone-900 text-lg">
                     {selectedRide.name}
@@ -607,24 +519,26 @@ export const ChooseYourRideSection: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="text-xs text-stone-600 mt-1 flex flex-wrap items-center gap-3">
-                  <span className="flex items-center gap-1 font-semibold text-emerald-700">
-                    <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                    Arrives in {selectedRide.eta}
+                <div className="text-xs text-stone-600 mt-1 flex flex-wrap items-center gap-2 sm:gap-3">
+                  <span className="font-medium text-stone-700">
+                    Distance: <strong className="font-mono text-stone-900">{distanceKm} km</strong>
                   </span>
-                  <span className="text-stone-400">&bull;</span>
-                  <span>
-                    Formula: Base ₹{selectedRide.baseFare} + ({distanceKm} km × ₹{selectedRide.pricePerKm})
+                  <span className="text-stone-300">&bull;</span>
+                  <span className="text-emerald-700 font-medium">
+                    ETA: {selectedRide.eta}
+                  </span>
+                  <span className="text-stone-300">&bull;</span>
+                  <span className="text-stone-500 text-[11px]">
+                    Base ₹{selectedRide.baseFare} + ({distanceKm} km × ₹{selectedRide.pricePerKm}/km)
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Price & Action Right */}
             <div className="flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-stone-100">
               <div className="text-left sm:text-right">
                 <span className="text-[11px] font-semibold uppercase text-stone-400 block">
-                  Total Calculated Fare
+                  Estimated Fare
                 </span>
                 <span className="font-mono text-2xl sm:text-3xl font-bold text-stone-900">
                   ₹{calculateFare(selectedRide, distanceKm)}
@@ -633,23 +547,20 @@ export const ChooseYourRideSection: React.FC = () => {
 
               <button
                 type="button"
-                onClick={handleConfirmRide}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 font-bold text-sm shadow-md shadow-amber-600/20 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                onClick={handleContinueBooking}
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 font-bold text-sm shadow-md shadow-amber-600/20 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer shrink-0"
               >
-                <span>Request {selectedRide.name}</span>
+                <span>Continue Booking</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
           </div>
 
-          {/* Success toast message */}
           {bookedFeedback && (
-            <div className="mt-4 p-4 rounded-xl bg-emerald-950 border border-emerald-700/60 text-emerald-100 text-xs sm:text-sm font-medium flex items-center justify-between gap-3 shadow-lg animate-in slide-in-from-top-3 duration-300">
+            <div className="mt-4 p-4 rounded-xl bg-emerald-950 border border-emerald-700/60 text-emerald-100 text-xs sm:text-sm font-medium flex items-center justify-between gap-3 shadow-md animate-in slide-in-from-top-3 duration-300">
               <div className="flex items-center gap-2.5">
-                <div className="p-1.5 bg-emerald-800 rounded-lg text-emerald-300">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>{bookedFeedback}</span>
               </div>
               <button
@@ -661,19 +572,15 @@ export const ChooseYourRideSection: React.FC = () => {
             </div>
           )}
 
-          {/* Bottom Security / Fair pricing footnote */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-stone-500">
             <span className="flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              Direct Driver Metering
+              Transparent Pricing &bull; No Hidden Charges
             </span>
             <span>&bull;</span>
-            <span className="flex items-center gap-1">
-              <Info className="w-3.5 h-3.5 text-amber-600" />
-              No Surge Guarantee
-            </span>
+            <span>Verified Commercial Chauffeurs</span>
             <span>&bull;</span>
-            <span>Cash, UPI (GPay, PhonePe, Paytm) &amp; Cards Accepted</span>
+            <span>Cash, UPI (GPay, PhonePe) &amp; Cards</span>
           </div>
         </div>
 

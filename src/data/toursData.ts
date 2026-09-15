@@ -1,15 +1,15 @@
-import { Tour } from '../types';
+import { Tour, CabRoute } from '../types';
 
 export const INITIAL_TOURS: Tour[] = [
   {
-    id: 'tour-rajasthan-royal-palaces',
-    title: 'The Grand Maharaja: Royal Palaces of Rajasthan & Thar Desert Odyssey',
-    slug: 'rajasthan-royal-palaces-thar-desert',
+    id: 'tour-rajasthan-heritage-palaces',
+    title: 'Rajasthan Heritage: Palaces, Forts & Thar Desert Odyssey',
+    slug: 'rajasthan-heritage-palaces-thar-desert',
     destination: 'Udaipur, Jaipur, Jodhpur & Jaisalmer',
     country: 'India',
     region: 'North & West India',
     category: 'Luxury',
-    tag: 'Royal Heritage Exclusive',
+    tag: 'Heritage Exclusive',
     heroImage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85',
     galleryImages: [
       'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80',
@@ -26,8 +26,8 @@ export const INITIAL_TOURS: Tour[] = [
     maxGroupSize: 8,
     difficulty: 'Easy',
     featured: true,
-    shortDescription: 'Stay at legendary lake palaces in Udaipur, enjoy private royal dinners in Amer Fort, and retreat to luxury tented camps in the Thar Desert.',
-    fullDescription: 'Immerse yourself in the immortal splendor of Rajput royalty. Experience private boat arrivals at the floating white marble palaces of Lake Pichola, after-hours champagne access to the Sheesh Mahal in Amer Fort, private polo matches, and candlelit dinners under the constellation-rich skies of Jaisalmer dunes.',
+    shortDescription: 'Stay at legendary lake palaces in Udaipur, enjoy private dinners in Amer Fort, and retreat to luxury tented camps in the Thar Desert.',
+    fullDescription: 'Immerse yourself in the timeless history and culture of Rajasthan. Experience private boat arrivals at the floating white marble palaces of Lake Pichola, after-hours access to the Sheesh Mahal in Amer Fort, private polo matches, and candlelit dinners under the constellation-rich skies of Jaisalmer dunes.',
     highlights: [
       'Exclusive suite stay at the historic Taj Lake Palace, Udaipur',
       'Private after-hours tour of the City Palace & Amer Fort mirror halls',
@@ -36,10 +36,10 @@ export const INITIAL_TOURS: Tour[] = [
     ],
     included: [
       '7 nights in iconic 5-star palace heritage hotels & luxury desert pavilions',
-      'Daily royal artisan breakfast & 5 curated regal multi-course banquets',
-      'Private Mewar boat cruise on Lake Pichola with champagne service',
+      'Daily artisan breakfast & 5 curated multi-course banquets',
+      'Private Mewar scenic lake excursion on Lake Pichola with refreshing drinks',
       'All VIP monument access, palace permits, taxes, and luggage porterage',
-      'Dedicated 24/7 Royal Concierge and senior cultural historian'
+      'Dedicated 24/7 Concierge and senior cultural historian'
     ],
     excluded: [
       'Domestic & international flights to/from Udaipur & Jaipur',
@@ -50,14 +50,14 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 1,
         title: 'Arrival in the City of Lakes: Udaipur & Private Lake Palace Check-in',
-        description: 'Chauffeured airport greeting and transfer to the jetty. Private motorboat transfer across Lake Pichola to the iconic Taj Lake Palace with floral garland welcome.',
-        meals: 'Welcome Royal Feast',
+        description: 'Chauffeured cab greeting and transfer to your hotel. Scenic private lake crossing to the iconic Taj Lake Palace with floral welcome.',
+        meals: 'Welcome Feast',
         stay: 'Taj Lake Palace, Udaipur'
       },
       {
         day: 2,
-        title: 'City Palace Museum & Sunset Cruise on Lake Pichola',
-        description: 'Private curator-led walk through the Mewar royal courtyards and crystal gallery. Evening chartered cruise viewing Jag Mandir Island.',
+        title: 'City Palace Museum & Sunset Lakeside Tour',
+        description: 'Private curator-led walk through the Mewar heritage courtyards and crystal gallery. Evening scenic lakeside tour viewing Jag Mandir Island.',
         meals: 'Breakfast, Lakeside Gourmet Dinner',
         stay: 'Taj Lake Palace, Udaipur'
       },
@@ -72,7 +72,7 @@ export const INITIAL_TOURS: Tour[] = [
         day: 4,
         title: 'Mehrangarh Fortress Ramparts & Jaisalmer Golden Citadel',
         description: 'Private morning elevator access to the cliffside ramparts of Mehrangarh. Journey into the golden sandstone desert citadel of Jaisalmer.',
-        meals: 'Breakfast, Royal Banquet Dinner',
+        meals: 'Breakfast, Banquet Dinner',
         stay: 'Suryagarh / The Serai'
       },
       {
@@ -91,15 +91,15 @@ export const INITIAL_TOURS: Tour[] = [
       },
       {
         day: 7,
-        title: 'Hawa Mahal, Royal Observatory & Block-Print Textile Masterclass',
-        description: 'Sunrise photography at Hawa Mahal, private walk in Jantar Mantar, and hands-on royal block-printing masterclass with master artisans.',
-        meals: 'Breakfast, Farewell Royal Gala',
+        title: 'Hawa Mahal, Jantar Mantar Observatory & Block-Print Textile Masterclass',
+        description: 'Sunrise photography at Hawa Mahal, private walk in Jantar Mantar, and hands-on traditional block-printing masterclass with master artisans.',
+        meals: 'Breakfast, Farewell Gala Dinner',
         stay: 'Rambagh Palace, Jaipur'
       },
       {
         day: 8,
         title: 'Farewell Rajasthan: Chauffeur Transfer to Jaipur / Delhi',
-        description: 'Leisurely champagne breakfast in the peacock courtyards before private executive chauffeur transfer to the airport.',
+        description: 'Leisurely breakfast in the courtyards before comfortable private chauffeur cab transfer to your destination.',
         meals: 'Breakfast',
         stay: 'Departure'
       }
@@ -113,7 +113,7 @@ export const INITIAL_TOURS: Tour[] = [
         userCountry: 'United Kingdom',
         rating: 5,
         date: 'February 2026',
-        comment: 'The arrival by private boat at Taj Lake Palace Udaipur took our breath away. Having our own royal historian and seamless VIP access across Rajasthan made this the greatest trip of our lives.'
+        comment: 'The arrival by private boat at Taj Lake Palace Udaipur took our breath away. Having our own historian and seamless VIP access across Rajasthan made this the greatest trip of our lives.'
       },
       {
         id: 'rev-raj-2',
@@ -128,7 +128,7 @@ export const INITIAL_TOURS: Tour[] = [
   },
   {
     id: 'tour-kerala-backwaters-ayurveda',
-    title: 'Kerala Spice Coast: Private Kettuvallam Cruise, Tea Hills & Ayurvedic Haven',
+    title: 'Kerala Spice Coast: Backwaters, Munnar Tea Hills & Ayurvedic Haven',
     slug: 'kerala-backwaters-tea-hills-ayurveda',
     destination: 'Alleppey, Kumarakom & Munnar',
     country: 'India',
@@ -167,7 +167,7 @@ export const INITIAL_TOURS: Tour[] = [
       'Private plantation naturalist and English/Hindi speaking tour host'
     ],
     excluded: [
-      'Airfare to/from Cochin International Airport (COK)',
+      'Intercity transport options to/from Kochi city center',
       'Personal boutique purchases & top-shelf imported spirits',
       'Travel and medical insurance'
     ],
@@ -175,7 +175,7 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 1,
         title: 'Arrival in Fort Kochi: Portuguese Mansions & Chinese Fishing Nets',
-        description: 'Chauffeur pickup from Cochin Airport. Private heritage walk through Mattancherry Jewish Synagogue and sunset watch by the iconic Chinese fishing nets.',
+        description: 'Chauffeur pickup in Kochi city center. Private heritage walk through Mattancherry Jewish Synagogue and sunset watch by the iconic Chinese fishing nets.',
         meals: 'Welcome Malabar Dinner',
         stay: 'Brunton Boatyard / Malabar House'
       },
@@ -216,8 +216,8 @@ export const INITIAL_TOURS: Tour[] = [
       },
       {
         day: 7,
-        title: 'Scenic Descent & Cochin Airport Executive Transfer',
-        description: 'Final morning yoga session overlooking the misty tea valleys before your executive transfer to Cochin International Airport.',
+        title: 'Scenic Descent & Kochi City Cab Transfer',
+        description: 'Final morning yoga session overlooking the misty tea valleys before your comfortable cab transfer to your onward destination.',
         meals: 'Breakfast',
         stay: 'Departure'
       }
@@ -271,12 +271,12 @@ export const INITIAL_TOURS: Tour[] = [
     included: [
       '7 nights in heated luxury glamping domes & 5-star boutique Himalayan retreats',
       'All organic Himalayan gourmet meals, warming mountain broths, and beverages',
-      'Dedicated expedition fleet of Toyota Land Cruisers with oxygen support',
+      'Dedicated fleet of comfortable all-terrain vehicles with travel support',
       'All inner-line frontier permits, environmental passes, and monastery fees',
       'Expedition doctor consultation, acclimatization protocol, and private guide'
     ],
     excluded: [
-      'Flights to/from Kushok Bakula Rimpochee Airport, Leh (IXL)',
+      'Travel arrangements to/from Leh central hub',
       'Personal high-altitude trekking gear and discretionary gratuities',
       'Travel and medical insurance'
     ],
@@ -284,7 +284,7 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 1,
         title: 'Arrival in Leh (11,500 ft): Gentle Acclimatization & Herbal Teas',
-        description: 'Executive arrival greeting at Leh Airport. Transfer to your luxury retreat with oxygen-enriched suites. Gentle relaxation and acclimatization briefing.',
+        description: 'Executive arrival greeting in Leh. Transfer to your retreat with comfortable suites. Gentle relaxation and acclimatization briefing.',
         meals: 'Light Himalayan Dinner',
         stay: 'The Grand Dragon / Chamba Camp Thiksey'
       },
@@ -332,8 +332,8 @@ export const INITIAL_TOURS: Tour[] = [
       },
       {
         day: 8,
-        title: 'Departure from Leh: Mountain Flight over the Himalayas',
-        description: 'Private transfer to Leh airport for your scenic flight over the snow-covered Himalayan peaks back to Delhi.',
+        title: 'Departure from Leh: Scenic High Mountain Journey',
+        description: 'Private cab transfer to Leh central terminal for your onward journey.',
         meals: 'Breakfast',
         stay: 'Departure'
       }
@@ -353,7 +353,7 @@ export const INITIAL_TOURS: Tour[] = [
   },
   {
     id: 'tour-ranthambore-tiger-safari',
-    title: 'Ranthambore & Bandhavgarh: Royal Bengal Tiger Safari & Jungle Machan',
+    title: 'Ranthambore & Bandhavgarh: Bengal Tiger Safari & Jungle Machan',
     slug: 'ranthambore-bandhavgarh-tiger-safari',
     destination: 'Ranthambore & Bandhavgarh National Parks',
     country: 'India',
@@ -376,8 +376,8 @@ export const INITIAL_TOURS: Tour[] = [
     maxGroupSize: 6,
     difficulty: 'Easy',
     featured: true,
-    shortDescription: 'Track majestic Royal Bengal Tigers through ancient banyan forests and ruins of 10th-century fortresses with India’s foremost wildlife naturalists.',
-    fullDescription: 'Enter the ancestral hunting grounds of Maharajas. Board custom open-top 4x4 safaris equipped with telephoto lens mounts and private senior naturalists. Search for wild tigers, leopards, sloth bears, and sambar deer roaming around centuries-old cenotaphs, then retire to ultra-luxury tented safari lodges with private plunge pools.',
+    shortDescription: 'Track majestic Bengal Tigers through ancient banyan forests and ruins of 10th-century fortresses with India’s foremost wildlife naturalists.',
+    fullDescription: 'Enter the pristine wilderness of Central India. Board custom open-top 4x4 safaris equipped with telephoto lens mounts and private senior naturalists. Search for wild tigers, leopards, sloth bears, and sambar deer roaming around centuries-old cenotaphs, then retire to ultra-luxury tented safari lodges with private plunge pools.',
     highlights: [
       '6 private 4x4 open safari drives in premium high-sighting tiger zones',
       'Led by renowned veteran Indian tiger naturalists and track experts',
@@ -400,13 +400,13 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 1,
         title: 'Arrival in Jaipur & Chauffeur Transfer to Ranthambore',
-        description: 'Meet your private wildlife concierge at Jaipur Airport. Drive through rural Rajasthan to your luxury tented lodge in Ranthambore. Evening naturalist briefing.',
+        description: 'Meet your private driver at Jaipur central terminal. Smooth highway drive through rural Rajasthan to your comfortable lodge in Ranthambore. Evening briefing.',
         meals: 'Jungle Welcome Banquet',
         stay: 'The Oberoi Vanyavilas / Suján Sher Bagh'
       },
       {
         day: 2,
-        title: 'Dawn & Dusk Safari Drives: Tracking the Royal Bengal Tiger',
+        title: 'Dawn & Dusk Safari Drives: Tracking the Bengal Tiger',
         description: 'Early morning entry into Core Zone 1-5. Track pugmarks near Rajbagh Lake. Afternoon safari searching for marsh crocodiles and hunting leopards.',
         meals: 'Breakfast, Safari Lunch, Campfire Dinner',
         stay: 'The Oberoi Vanyavilas'
@@ -435,7 +435,7 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 6,
         title: 'Farewell to the Wild: Executive Chauffeur to Jaipur / Delhi',
-        description: 'Relaxed breakfast in your private pavilion garden before your executive transfer to Jaipur or Delhi international airport.',
+        description: 'Relaxed breakfast in your private garden before your comfortable cab transfer to Jaipur or Delhi city destination.',
         meals: 'Breakfast',
         stay: 'Departure'
       }
@@ -502,7 +502,7 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 1,
         title: 'Arrival in the Eternal City of Varanasi & Riverboat Check-in',
-        description: 'Chauffeur greeting at Varanasi Airport. Transfer to the riverbank and board a private royal barge to reach BrijRama Palace, an 1812 riverside fortress.',
+        description: 'Chauffeur greeting at Varanasi central terminal. Cab transfer to the historic riverside precinct to check in at BrijRama Palace.',
         meals: 'Welcome Sattvic Feast',
         stay: 'BrijRama Palace, Varanasi'
       },
@@ -517,7 +517,7 @@ export const INITIAL_TOURS: Tour[] = [
         day: 3,
         title: 'Sarnath Deer Park & Classical Sitar Recital in Ancient Haveli',
         description: 'Visit Sarnath where Lord Buddha gave his first sermon 2,500 years ago. Evening private Sitar and Tabla recital with maestro musicians in a 200-year-old courtyard.',
-        meals: 'Breakfast, Royal Thali Dinner',
+        meals: 'Breakfast, Heritage Thali Dinner',
         stay: 'BrijRama Palace, Varanasi'
       },
       {
@@ -593,7 +593,7 @@ export const INITIAL_TOURS: Tour[] = [
       'Private luxury heritage cedarwood houseboat stay on tranquil Nigeen Lake',
       'Daily private Shikara rides with saffron Kehwa tea and Kashmiri cookies',
       'Phase 2 Gulmarg Gondola VIP pass ascending to Apharwat Peak (13,780 ft)',
-      'Traditional 36-course royal Wazwan feast prepared by master Wazas'
+      'Traditional 36-course Wazwan feast prepared by master Wazas'
     ],
     included: [
       '5 nights in luxury cedarwood suites & 5-star mountain chalets (The Khyber Gulmarg)',
@@ -603,7 +603,7 @@ export const INITIAL_TOURS: Tour[] = [
       'Private executive 4x4 SUV transfers throughout Kashmir valley'
     ],
     excluded: [
-      'Flights to/from Sheikh ul-Alam International Airport, Srinagar (SXR)',
+      'Travel arrangements to/from Srinagar central hub',
       'Pashmina shawl purchases and personal walnut wood souvenirs',
       'Travel and medical insurance'
     ],
@@ -611,13 +611,13 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 1,
         title: 'Arrival in Srinagar & Nigeen Lake Houseboat Check-in',
-        description: 'Chauffeur greeting at Srinagar Airport. Transfer to Nigeen Lake and board your hand-carved cedar houseboat with warm saffron Kehwa tea.',
+        description: 'Chauffeur greeting in Srinagar. Transfer to Nigeen Lake and board your hand-carved cedar houseboat with warm saffron Kehwa tea.',
         meals: 'Traditional Kashmiri Dinner',
         stay: 'Sukoon Houseboat / Butt’s Clermont'
       },
       {
         day: 2,
-        title: 'Dawn Floating Flower Market & The Royal Mughal Gardens',
+        title: 'Dawn Floating Flower Market & The Mughal Gardens',
         description: 'Silent sunrise Shikara row to the centuries-old floating vegetable and flower market. Afternoon walk through Nishat Bagh and Shalimar Bagh terraced fountains.',
         meals: 'Breakfast, Kashmiri Lunch, Dinner',
         stay: 'Sukoon Houseboat, Srinagar'
@@ -638,15 +638,15 @@ export const INITIAL_TOURS: Tour[] = [
       },
       {
         day: 5,
-        title: 'Pashmina Artisan Workshops & 36-Course Royal Wazwan Feast',
-        description: 'Return to Srinagar. Visit master weavers spinning authentic GI-tagged Cashmere Pashmina shawls. Celebrate your farewell night with a 36-course royal Wazwan banquet.',
-        meals: 'Breakfast, Lunch, Royal Wazwan Gala',
+        title: 'Pashmina Artisan Workshops & 36-Course Wazwan Feast',
+        description: 'Return to Srinagar. Visit master weavers spinning authentic GI-tagged Cashmere Pashmina shawls. Celebrate your farewell night with a 36-course Wazwan banquet.',
+        meals: 'Breakfast, Lunch, Farewell Wazwan Gala',
         stay: 'Sukoon Houseboat / Vivanta Dal View'
       },
       {
         day: 6,
-        title: 'Farewell Kashmir: Executive Airport Chauffeur Transfer',
-        description: 'Final morning view of misty Dal Lake before your executive chauffeur transfer to Srinagar Airport.',
+        title: 'Farewell Kashmir: Scenic City Cab Transfer',
+        description: 'Final morning view of misty Dal Lake before your comfortable cab transfer to Srinagar central terminal.',
         meals: 'Breakfast',
         stay: 'Departure'
       }
@@ -666,8 +666,8 @@ export const INITIAL_TOURS: Tour[] = [
   },
   {
     id: 'tour-goa-konkan-luxury-villas',
-    title: 'Goa & Konkan Coast: Private Beachfront Villas, Spice Estates & Yacht Charter',
-    slug: 'goa-konkan-private-villas-yacht-charter',
+    title: 'Goa & Konkan Coast: Beachfront Stays, Spice Estates & Coastal Drives',
+    slug: 'goa-konkan-scenic-coastal-drive-beaches',
     destination: 'South Goa & Konkan Coast',
     country: 'India',
     region: 'West Coast India',
@@ -693,7 +693,7 @@ export const INITIAL_TOURS: Tour[] = [
     fullDescription: 'Experience the refined, tranquil side of Goa far from the crowded tourist strips. Settle into an oceanfront private villa overlooking the pristine sands of South Goa. Charter a luxury catamaran across the Mandovi river and Arabian Sea, tour organic heritage spice plantations with a private masterchef, and dine in centuries-old Indo-Portuguese estates.',
     highlights: [
       'Exclusive private 4-bedroom oceanfront villa with infinity pool and butler',
-      'Half-day private luxury catamaran cruise with dolphin spotting and champagne',
+      'Scenic coastal drive along the pristine shoreline with dolphin viewpoint tour',
       'Private walking tour of Fontainhas Latin Quarter with resident historian',
       'Artisan Feni distillation workshop and multi-course Goan-Portuguese tasting'
     ],
@@ -701,11 +701,11 @@ export const INITIAL_TOURS: Tour[] = [
       '4 nights in a 5-star private beachfront villa (The Leela / Taj Exotica South Goa)',
       'Daily bespoke villa breakfast and 3 curated coastal gourmet dinners',
       'Private 42-foot catamaran charter with crew and open premium bar',
-      'All heritage entry permits, airport transfers, and private chauffeur',
+      'All heritage entry permits, city cab transfers, and private chauffeur',
       'Dedicated personal concierge and local insider host'
     ],
     excluded: [
-      'Flights to/from Goa MOPA (GOX) or Dabolim (GOI) airports',
+      'Onward intercity travel to/from Panaji or Margao',
       'Personal water sports and boutique purchases',
       'Travel and medical insurance'
     ],
@@ -713,7 +713,7 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 1,
         title: 'Arrival in Goa: Private Chauffeur to Oceanfront South Villa',
-        description: 'VIP airport greeting and chauffeur transfer to your private beach villa in South Goa. Welcome chilled coconut water and sunset stroll on pristine white sands.',
+        description: 'Friendly chauffeur greeting and cab transfer to your beachside stay in South Goa. Welcome fresh coconut water and sunset stroll on pristine sands.',
         meals: 'Welcome Goan Seafood Feast',
         stay: 'The Leela Goa / Private Beach Villa'
       },
@@ -740,8 +740,8 @@ export const INITIAL_TOURS: Tour[] = [
       },
       {
         day: 5,
-        title: 'Morning Yoga on the Sands & Airport Transfer',
-        description: 'Gentle morning yoga overlooking the Arabian Sea followed by a relaxed tropical breakfast before your executive transfer to Goa Airport.',
+        title: 'Morning Coastal Walk & Comfortable Cab Transfer',
+        description: 'Morning coastal walk overlooking the Arabian Sea followed by breakfast before your comfortable cab transfer to your onward destination.',
         meals: 'Breakfast',
         stay: 'Departure'
       }
@@ -800,7 +800,7 @@ export const INITIAL_TOURS: Tour[] = [
       '24/7 dedicated Island Host and marine naturalist'
     ],
     excluded: [
-      'Flights to/from Veer Savarkar International Airport, Port Blair (IXZ)',
+      'Travel arrangements to/from Port Blair central port',
       'Advanced deep wreck diving certification courses (optional)',
       'Travel and medical insurance'
     ],
@@ -850,7 +850,7 @@ export const INITIAL_TOURS: Tour[] = [
       {
         day: 7,
         title: 'Catamaran Return to Port Blair & Flight Connections',
-        description: 'Morning private catamaran return to Port Blair. Executive transfer to Veer Savarkar Airport for onward flights to Delhi, Chennai, or Kolkata.',
+        description: 'Morning comfortable ferry return to Port Blair and executive cab transfer to your onward destination.',
         meals: 'Breakfast',
         stay: 'Departure'
       }
@@ -892,44 +892,113 @@ export const TRAVEL_CATEGORIES = [
   'Wellness'
 ] as const;
 
-export const BOOKING_ADDONS = [
+export const POPULAR_CAB_ROUTES: CabRoute[] = [
   {
-    id: 'addon-airport-vip',
-    name: 'VIP Royal Airport Chauffeur & Garland Greeting',
-    price: 150,
-    description: 'Executive sedan greeting with traditional Indian floral garland, fresh coconut water, and luggage porterage.'
+    id: 'route-nagpur-pune',
+    from: 'Nagpur',
+    to: 'Pune',
+    distanceKm: 710,
+    estDuration: '11 - 12 hrs',
+    startingFare: 9940,
+    description: 'Smooth highway drive via Samruddhi Mahamarg expressway with dedicated rest stops.',
+    tag: 'Popular Outstation',
+    highlight: 'Samruddhi Mahamarg Expressway'
   },
   {
-    id: 'addon-ayurveda-spa',
-    name: 'Holistic Ayurvedic Spa & Wellness Package',
-    price: 280,
-    description: 'Two 90-minute traditional herbal oil Abhyanga & Shirodhara therapies curated by an Ayurvedic doctor.'
+    id: 'route-nagpur-hyderabad',
+    from: 'Nagpur',
+    to: 'Hyderabad',
+    distanceKm: 500,
+    estDuration: '8 - 9 hrs',
+    startingFare: 7000,
+    description: 'Direct North-South corridor route connecting Maharashtra and Telangana seamlessly.',
+    tag: 'Intercity Hub',
+    highlight: 'NH 44 Highway'
+  },
+  {
+    id: 'route-nagpur-mumbai',
+    from: 'Nagpur',
+    to: 'Mumbai',
+    distanceKm: 810,
+    estDuration: '12 - 13 hrs',
+    startingFare: 11340,
+    description: 'Express cab journey across Maharashtra via modern high-speed express route.',
+    tag: 'One-Way or Round-Trip',
+    highlight: 'Fast Expressway Run'
+  },
+  {
+    id: 'route-pune-mumbai',
+    from: 'Pune',
+    to: 'Mumbai',
+    distanceKm: 150,
+    estDuration: '2.5 - 3 hrs',
+    startingFare: 2100,
+    description: 'Daily city-to-city commuter cab via Mumbai-Pune Expressway with door-to-door drop.',
+    tag: 'High Frequency',
+    highlight: 'Mumbai-Pune Expressway'
+  },
+  {
+    id: 'route-indore-bhopal',
+    from: 'Indore',
+    to: 'Bhopal',
+    distanceKm: 195,
+    estDuration: '3.5 hrs',
+    startingFare: 2730,
+    description: 'Comfortable Madhya Pradesh commercial corridor trip with experienced highway chauffeurs.',
+    tag: 'Intercity Connect',
+    highlight: 'MP State Highway Corridor'
+  },
+  {
+    id: 'route-nagpur-amravati',
+    from: 'Nagpur',
+    to: 'Amravati',
+    distanceKm: 155,
+    estDuration: '2.5 hrs',
+    startingFare: 2170,
+    description: 'Quick intercity travel across Vidarbha with on-time doorstep pickup.',
+    tag: 'Same Day Return',
+    highlight: 'NH 53 Direct Run'
+  }
+];
+
+export const BOOKING_ADDONS = [
+  {
+    id: 'addon-doorstep-vip',
+    name: 'Doorstep Cab Pickup & Luggage Assistance',
+    price: 350,
+    description: 'Chauffeur arrives 10 minutes ahead of scheduled time with full luggage handling and sanitized car cabin.'
+  },
+  {
+    id: 'addon-child-seat',
+    name: 'Child Safety Booster Seat',
+    price: 250,
+    description: 'Pre-installed certified safety booster seat for comfortable and safe child road travel.'
+  },
+  {
+    id: 'addon-extra-luggage-carrier',
+    name: 'Rooftop Luggage Carrier (SUV & 6/7 Seater)',
+    price: 400,
+    description: 'Reinforced weatherproof luggage rack with secure tie-downs for extra bags and suitcases.'
   },
   {
     id: 'addon-carbon-offset',
-    name: '200% Green Bharat Certified Carbon Offset',
-    price: 45,
-    description: 'Dedicated plantation of 30 indigenous Indian shade and fruit trees in Himalayan / Aravalli reforestation corridors.'
-  },
-  {
-    id: 'addon-single-suite',
-    name: 'Maharaja Heritage Suite Upgrade Guaranteed',
-    price: 420,
-    description: 'Upgrade to a premier lake-view, palace courtyard, or ocean-facing royal suite with no single supplement.'
+    name: 'Green Bharat Road Travel Carbon Offset',
+    price: 100,
+    description: 'Plantation of native shade trees along Indian highway corridors offsetting trip emissions.'
   }
 ];
 
 export const AGENCY_DETAILS = {
   name: 'Aura Voyages India',
   legalName: 'Aura Voyages India Pvt. Ltd.',
-  tagline: 'Curators of Bespoke Indian Expeditions & Royal Heritage Journeys',
+  tagline: 'Comfortable rides. Simple pricing. Easy travel. Practical Indian Cab & Outstation Travel Service',
   ownerEmail: 'anmolrahangdale69@gmail.com',
-  phone: '+91 (11) 4920-8800',
+  phone: '+91 98110 54321',
   whatsapp: '+91 98110 54321',
-  address: 'Suite 402, Statesman House, Barakhamba Road, Connaught Place, New Delhi 110001, India',
-  branches: 'New Delhi • Udaipur • Kochi • Srinagar',
-  rating: 4.98,
-  totalTripsCompleted: 4650,
-  countriesCovered: 28,
+  address: 'Commercial Plaza, Wardha Road & Civil Lines, Nagpur, Maharashtra, India',
+  branches: 'Nagpur • Pune • Mumbai • Hyderabad • Indore',
+  rating: 4.95,
+  totalTripsCompleted: 12850,
+  countriesCovered: 1,
   satisfactionRate: '99.4%'
 };

@@ -37,11 +37,11 @@ export const NewsletterSection: React.FC = () => {
         </div>
 
         <h2 className="font-display font-bold text-2xl sm:text-4xl text-stone-100 tracking-tight mb-3">
-          Subscribe for Rare Departure Previews
+          Get Route Updates &amp; Outstation Fare Alerts
         </h2>
         
         <p className="text-xs sm:text-sm text-stone-400 max-w-xl mx-auto mb-8">
-          Receive confidential notifications of limited private yacht openings, exclusive safari lodge allotments, and invitation-only seasonal escapes.
+          Subscribe for transparent flat-rate alerts, seasonal festival highway discounts, and new intercity cab route announcements.
         </p>
 
         {status === 'success' ? (

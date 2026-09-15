@@ -73,6 +73,42 @@ export interface BookingAddon {
   selected?: boolean;
 }
 
+export type TripType = 'city' | 'outstation-oneway' | 'outstation-round';
+
+export interface RideOption {
+  id: string;
+  vehicleName: string;
+  vehicleType: 'mini-cab' | 'sedan' | 'suv' | 'six-seven-seater' | 'outstation-cab';
+  pricePerKm: number;
+  baseFare: number;
+  capacity: string;
+  description: string;
+  eta: string;
+  highlightBadge?: string;
+  illustration: string;
+}
+
+export interface CabRoute {
+  id: string;
+  from: string;
+  to: string;
+  distanceKm: number;
+  estDuration: string;
+  startingFare: number;
+  description: string;
+  tag?: string;
+  highlight: string;
+}
+
+export interface TripSearchQuery {
+  pickupLocation: string;
+  dropLocation: string;
+  travelDate: string;
+  pickupTime?: string;
+  passengers: number;
+  tripType: TripType;
+}
+
 export interface BookingSubmission {
   id?: string;
   bookingReference: string;
@@ -93,6 +129,13 @@ export interface BookingSubmission {
   currency: string;
   status: 'confirmed' | 'pending' | 'cancelled';
   createdAt: string;
+  // Cab specific details
+  pickupLocation?: string;
+  dropLocation?: string;
+  pickupTime?: string;
+  tripType?: TripType;
+  distanceKm?: number;
+  vehicleName?: string;
 }
 
 export interface OwnerEmailNotification {

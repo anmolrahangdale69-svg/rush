@@ -40,7 +40,7 @@ import { ChooseYourRideSection } from './components/ChooseYourRideSection';
 import { Send, CheckCircle2, X } from 'lucide-react';
 
 export default function App() {
-  // Intro opening animation (Royal Indian Lotus Mandala Logo Reveal)
+  // Intro opening animation (Mandala Logo Reveal)
   const [showLogoIntro, setShowLogoIntro] = useState<boolean>(true);
 
   // Core Data & Filter States
@@ -60,9 +60,9 @@ export default function App() {
   const [wishlist, setWishlist] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('aura_wishlist');
-      return saved ? JSON.parse(saved) : ['tour-rajasthan-royal-palaces'];
+      return saved ? JSON.parse(saved) : ['tour-rajasthan-heritage-palaces'];
     } catch {
-      return ['tour-rajasthan-royal-palaces'];
+      return ['tour-rajasthan-heritage-palaces'];
     }
   });
 
@@ -239,7 +239,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col selection:bg-amber-600 selection:text-white">
       
-      {/* Royal Indian Lotus Mandala Logo Reveal Animation */}
+      {/* Brand Logo Reveal Animation */}
       {showLogoIntro && (
         <LogoIntroAnimation
           onComplete={() => {

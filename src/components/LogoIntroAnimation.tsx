@@ -16,7 +16,7 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
       soundFx.playArrivalChime();
     }, 400);
 
-    // Timeline of royal logo unfold
+    // Timeline of logo unfold
     const bloomTimer = setTimeout(() => {
       setPhase('blooming');
     }, 800);
@@ -62,7 +62,7 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
         phase === 'exiting' ? 'opacity-0 pointer-events-none scale-105 transition-all duration-700' : 'opacity-100'
       }`}
       role="dialog"
-      aria-label="Aura Voyages India Royal Logo Reveal"
+      aria-label="Aura Voyages India Logo Reveal"
     >
       {/* Ambient background golden radiance & stars */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -141,7 +141,7 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
             }`}
           >
             <defs>
-              <linearGradient id="royalGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="auraGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#fef08a" />
                 <stop offset="40%" stopColor="#f59e0b" />
                 <stop offset="80%" stopColor="#d97706" />
@@ -160,13 +160,13 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
               </filter>
             </defs>
 
-            {/* Sacred 8-Petal Royal Lotus */}
+            {/* Sacred 8-Petal Golden Lotus */}
             {Array.from({ length: 8 }).map((_, i) => (
               <g key={i} transform={`rotate(${i * 45} 100 100)`}>
                 {/* Outer Petal Arch */}
                 <path
                   d="M100 32 C92 56 86 76 100 95 C114 76 108 56 100 32 Z"
-                  fill="url(#royalGoldGrad)"
+                  fill="url(#auraGoldGrad)"
                   fillOpacity="0.85"
                   stroke="#fef08a"
                   strokeWidth="0.8"
@@ -191,7 +191,7 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
               cy="100"
               r="34"
               fill="none"
-              stroke="url(#royalGoldGrad)"
+              stroke="url(#auraGoldGrad)"
               strokeWidth="2"
               strokeDasharray="4 2"
             />
@@ -204,7 +204,7 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
               strokeWidth="1.5"
             />
 
-            {/* Center Sacred Royal Diamond / Bindu */}
+            {/* Center Sacred Diamond / Bindu */}
             <polygon
               points="100,82 114,100 100,118 86,100"
               fill="url(#coreAura)"
@@ -218,7 +218,7 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
           <div className="absolute w-20 h-20 bg-amber-400/30 rounded-full blur-xl animate-pulse pointer-events-none" />
         </div>
 
-        {/* Royal Crest Title & Typography Reveal */}
+        {/* Brand Crest Title & Typography Reveal */}
         <div className="space-y-3 overflow-hidden">
           
           {/* Ornamental Indian Motif Bar */}
@@ -255,7 +255,7 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
                 : 'opacity-100 translate-y-0'
             }`}
           >
-            Curators of Bespoke Royal Expeditions
+            Curators of Bespoke Indian Expeditions
           </p>
 
           {/* Golden expanding divider line */}
@@ -274,7 +274,7 @@ export const LogoIntroAnimation: React.FC<LogoIntroAnimationProps> = ({ onComple
             onClick={handleSkip}
             className="group px-6 py-2 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 text-amber-300 text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-2 shadow-lg shadow-amber-500/5 hover:shadow-amber-500/20"
           >
-            <span>Enter Sanctuary</span>
+            <span>Explore Expeditions</span>
             <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
           </button>
 

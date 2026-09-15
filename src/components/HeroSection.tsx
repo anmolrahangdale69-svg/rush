@@ -1,267 +1,230 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Sparkles, 
-  Award, 
   ShieldCheck, 
   ArrowRight,
-  Send,
-  Star,
-  Compass,
+  Car,
   MapPin,
-  CloudSun,
   Clock,
-  Play
+  Compass,
+  CheckCircle2,
+  Navigation,
+  PhoneCall
 } from 'lucide-react';
+import { AGENCY_DETAILS } from '../data/toursData';
 
 interface HeroSectionProps {
-  onExploreClick: () => void;
-  onBookDirectClick: () => void;
+  onBookCabClick: () => void;
+  onExploreOutstationClick: () => void;
   onReplayLogoIntro?: () => void;
 }
 
-interface DestinationTheme {
+interface HeroSlide {
   id: string;
-  name: string;
-  region: string;
-  country: string;
+  title: string;
+  route: string;
   bgImage: string;
-  temp: string;
-  weather: string;
-  timezone: string;
-  accentQuote: string;
+  badge: string;
+  rateInfo: string;
 }
 
-const HERO_INDIAN_DESTINATIONS: DestinationTheme[] = [
+const HERO_CAB_SLIDES: HeroSlide[] = [
   {
-    id: 'udaipur',
-    name: 'Udaipur & Thar Desert',
-    region: 'Rajasthan',
-    country: 'India',
-    bgImage: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=2000&q=85',
-    temp: '26°C',
-    weather: 'Golden Desert Sun',
-    timezone: 'IST (UTC+5:30)',
-    accentQuote: 'Taj Lake Palace & Candlelit Thar Glamping'
+    id: 'slide-expressway',
+    title: 'Smooth Highway Travel',
+    route: 'Mumbai ⇄ Pune Expressway',
+    bgImage: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=2000&q=85',
+    badge: 'Expressway Route',
+    rateInfo: 'Sedans from ₹15/km'
   },
   {
-    id: 'kerala',
-    name: 'Alleppey & Munnar Hills',
-    region: 'Kerala',
-    country: 'India',
-    bgImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=2000&q=85',
-    temp: '28°C',
-    weather: 'Tranquil Tropical Breeze',
-    timezone: 'IST (UTC+5:30)',
-    accentQuote: 'Private Teak Houseboats & Ancient Ayurvedic Sanctuaries'
+    id: 'slide-heritage',
+    title: 'Intercity Highway Trips',
+    route: 'Delhi ⇄ Agra Yamuna Expressway',
+    bgImage: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=2000&q=85',
+    badge: 'Intercity Connect',
+    rateInfo: 'SUVs from ₹20/km'
   },
   {
-    id: 'ladakh',
-    name: 'Pangong Tso & Khardung La',
-    region: 'Ladakh',
-    country: 'India',
-    bgImage: 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?auto=format&fit=crop&w=2000&q=85',
-    temp: '14°C',
-    weather: 'High Altitude Sun & Azure Skies',
-    timezone: 'IST (UTC+5:30)',
-    accentQuote: 'Cobalt Lakes, Chanted Mantras & Stargazing Domes'
+    id: 'slide-ghats',
+    title: 'Scenic Road Journeys',
+    route: 'Nagpur ⇄ Pune & Western Ghats',
+    bgImage: 'https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&w=2000&q=85',
+    badge: 'Outstation Long Drive',
+    rateInfo: 'Flat & Per-Km Rates'
   },
   {
-    id: 'ranthambore',
-    name: 'Ranthambore Royal Reserves',
-    region: 'Rajasthan / Central India',
-    country: 'India',
-    bgImage: 'https://images.unsplash.com/photo-1561731216-c3a4d99437d5?auto=format&fit=crop&w=2000&q=85',
-    temp: '27°C',
-    weather: 'Golden Jungle Twilight',
-    timezone: 'IST (UTC+5:30)',
-    accentQuote: 'Royal Bengal Tiger Safaris & Ancient Fortress Ruins'
-  },
-  {
-    id: 'kashmir',
-    name: 'Dal Lake & Gulmarg',
-    region: 'Jammu & Kashmir',
-    country: 'India',
-    bgImage: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=2000&q=85',
-    temp: '16°C',
-    weather: 'Crisp Cedar & Alpine Air',
-    timezone: 'IST (UTC+5:30)',
-    accentQuote: 'Hand-Carved Cedar Houseboats & Gondola Peaks'
+    id: 'slide-city',
+    title: 'Reliable Local City Travel',
+    route: 'Bangalore • Hyderabad • Delhi • Mumbai',
+    bgImage: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=2000&q=85',
+    badge: 'City Rides',
+    rateInfo: 'Mini Cabs from ₹12/km'
   }
 ];
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
-  onExploreClick,
-  onBookDirectClick,
+  onBookCabClick,
+  onExploreOutstationClick,
   onReplayLogoIntro
 }) => {
-  const [activeDestIndex, setActiveDestIndex] = useState(0);
-  const activeDest = HERO_INDIAN_DESTINATIONS[activeDestIndex];
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const activeSlide = HERO_CAB_SLIDES[activeSlideIndex];
 
-  // Auto-cycle destinations every 7 seconds
+  // Auto-cycle slide every 6 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveDestIndex((prev) => (prev + 1) % HERO_INDIAN_DESTINATIONS.length);
-    }, 7000);
+      setActiveSlideIndex((prev) => (prev + 1) % HERO_CAB_SLIDES.length);
+    }, 6000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <section className="relative min-h-[90vh] lg:min-h-[85vh] flex items-center justify-center overflow-hidden bg-stone-950 text-white select-none">
+    <section className="relative min-h-[85vh] lg:min-h-[80vh] flex items-center justify-center overflow-hidden bg-stone-950 text-white select-none">
       
       {/* Background Image Layer with Cross-Fade */}
       <div className="absolute inset-0 z-0">
-        {HERO_INDIAN_DESTINATIONS.map((dest, idx) => (
+        {HERO_CAB_SLIDES.map((slide, idx) => (
           <div
-            key={dest.id}
+            key={slide.id}
             className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 transform scale-105 ease-out ${
-              idx === activeDestIndex ? 'opacity-55' : 'opacity-0'
+              idx === activeSlideIndex ? 'opacity-40' : 'opacity-0'
             }`}
-            style={{ backgroundImage: `url(${dest.bgImage})` }}
+            style={{ backgroundImage: `url(${slide.bgImage})` }}
           />
         ))}
 
-        {/* Sophisticated Gradients & Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-stone-950/80" />
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-950/80 via-transparent to-stone-950/80" />
+        {/* High-Contrast Gradients for Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/70 to-stone-950/80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-transparent to-stone-950/90" />
       </div>
 
       {/* Hero Content Container */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 text-center flex flex-col items-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center flex flex-col items-center">
         
-        {/* Top Royal Indian Agency Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wider uppercase mb-6 backdrop-blur-md shadow-lg shadow-amber-500/5">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>Incredible India • Curators of Bespoke Expeditions</span>
-          {onReplayLogoIntro && (
-            <button
-              onClick={onReplayLogoIntro}
-              title="Watch Royal Logo Reveal"
-              className="ml-2 pl-2 border-l border-amber-500/30 hover:text-white flex items-center gap-1 cursor-pointer transition-colors text-[11px]"
-            >
-              <Play className="w-3 h-3 fill-amber-400 text-amber-400" />
-              <span>Reveal Crest</span>
-            </button>
-          )}
+        {/* Service Positioning Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wider uppercase mb-5 backdrop-blur-md shadow-xs">
+          <Car className="w-3.5 h-3.5 text-amber-400" />
+          <span>India&apos;s Practical Cab &amp; Outstation Travel Service</span>
         </div>
 
-        {/* Dynamic Location Climate Badge */}
-        <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-stone-300 mb-6 font-medium">
-          <span className="flex items-center gap-1 bg-stone-900/80 backdrop-blur-md px-3 py-1 rounded-full border border-stone-800">
-            <MapPin className="w-3.5 h-3.5 text-amber-400" />
-            {activeDest.name}, {activeDest.region}
+        {/* Dynamic Route Info Badge */}
+        <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-stone-300 mb-6 font-medium">
+          <span className="flex items-center gap-1.5 bg-stone-900/90 backdrop-blur-md px-3 py-1 rounded-full border border-stone-800">
+            <Navigation className="w-3.5 h-3.5 text-amber-400" />
+            {activeSlide.route}
           </span>
-          <span className="flex items-center gap-1 bg-stone-900/80 backdrop-blur-md px-3 py-1 rounded-full border border-stone-800">
-            <CloudSun className="w-3.5 h-3.5 text-amber-400" />
-            {activeDest.temp} &bull; {activeDest.weather}
-          </span>
-          <span className="hidden sm:flex items-center gap-1 bg-stone-900/80 backdrop-blur-md px-3 py-1 rounded-full border border-stone-800">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
-            {activeDest.timezone}
+          <span className="flex items-center gap-1.5 bg-stone-900/90 backdrop-blur-md px-3 py-1 rounded-full border border-stone-800 text-amber-300">
+            {activeSlide.rateInfo}
           </span>
         </div>
 
-        {/* Majestic Indian Headline */}
-        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white max-w-4xl leading-[1.12]">
-          Experience India in{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 font-serif italic font-normal">
-            Royal Splendor
+        {/* User Required Headline */}
+        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white max-w-4xl leading-[1.12]">
+          Your ride. Your route.{' '}
+          <span className="text-amber-400">
+            Your way.
           </span>
         </h1>
 
-        {/* Subtitle with active destination quote */}
-        <p className="mt-5 text-base sm:text-lg text-stone-300 max-w-2xl font-light leading-relaxed">
-          From the floating marble palaces of Udaipur to the tranquil emerald backwaters of Kerala and the high passes of Ladakh—we architect unforgettable private journeys with immediate owner stewardship.
+        {/* User Required Supporting Text */}
+        <p className="mt-5 text-base sm:text-xl text-stone-300 max-w-2xl font-normal leading-relaxed">
+          Comfortable and reliable cabs for city and outstation travel.
         </p>
 
-        {/* Active Destination Quote Pill */}
-        <div className="mt-4 px-4 py-1.5 rounded-full bg-stone-900/60 border border-amber-500/20 text-amber-200 text-xs font-serif italic tracking-wide">
-          &ldquo;{activeDest.accentQuote}&rdquo;
+        {/* Practical Service Promise Pills */}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-400">
+          <span className="flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            Fixed &amp; Transparent Rates
+          </span>
+          <span>&bull;</span>
+          <span className="flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            Clean AC Hatchbacks, Sedans &amp; SUVs
+          </span>
+          <span>&bull;</span>
+          <span className="flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            Verified Drivers
+          </span>
         </div>
 
-        {/* Main Call to Action Buttons */}
-        <div className="mt-9 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+        {/* Primary & Secondary Action CTAs */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <button
-            onClick={onExploreClick}
-            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 font-bold text-sm tracking-wide shadow-xl shadow-amber-600/20 hover:shadow-amber-600/40 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+            type="button"
+            onClick={onBookCabClick}
+            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 font-bold text-base tracking-wide shadow-xl shadow-amber-600/20 hover:shadow-amber-600/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
           >
-            <Compass className="w-4 h-4" />
-            <span>Explore Curated Expeditions</span>
+            <Car className="w-5 h-5" />
+            <span>Book a Cab</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
           <button
-            onClick={onBookDirectClick}
-            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-stone-900/90 hover:bg-stone-800/90 text-stone-200 hover:text-white font-medium text-sm tracking-wide border border-stone-700/80 hover:border-amber-500/50 backdrop-blur-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+            type="button"
+            onClick={onExploreOutstationClick}
+            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-stone-900/90 hover:bg-stone-800 text-stone-200 hover:text-white font-semibold text-base tracking-wide border border-stone-700 hover:border-amber-500/50 backdrop-blur-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>Book Direct with Concierge</span>
+            <Compass className="w-5 h-5 text-amber-400" />
+            <span>Explore Outstation</span>
           </button>
         </div>
 
-        {/* Destination Switcher Carousel Dots / Tabs */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-2">
-          {HERO_INDIAN_DESTINATIONS.map((dest, idx) => {
-            const isActive = idx === activeDestIndex;
+        {/* Slide Selector Badges */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+          {HERO_CAB_SLIDES.map((slide, idx) => {
+            const isActive = idx === activeSlideIndex;
             return (
               <button
-                key={dest.id}
-                onClick={() => setActiveDestIndex(idx)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 cursor-pointer ${
+                key={slide.id}
+                type="button"
+                onClick={() => setActiveSlideIndex(idx)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-amber-500 text-stone-950 font-bold shadow-md shadow-amber-500/30 scale-105'
-                    : 'bg-stone-900/70 text-stone-400 hover:text-stone-200 hover:bg-stone-800/80 border border-stone-800'
+                    ? 'bg-amber-500 text-stone-950 font-bold shadow-md shadow-amber-500/20'
+                    : 'bg-stone-900/80 text-stone-400 hover:text-stone-200 border border-stone-800'
                 }`}
               >
-                {dest.name}
+                {slide.title}
               </button>
             );
           })}
         </div>
 
-        {/* Trust & Accreditations Footer Badges */}
-        <div className="mt-14 pt-8 border-t border-stone-800/80 w-full grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
-          
-          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-stone-900/40 border border-stone-800/60 backdrop-blur-sm">
-            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 shrink-0">
-              <Star className="w-4 h-4 fill-amber-400" />
+        {/* Practical Service Highlights Strip */}
+        <div className="mt-12 pt-6 border-t border-stone-800/80 w-full grid grid-cols-2 md:grid-cols-4 gap-3 text-left">
+          <div className="p-3 rounded-xl bg-stone-900/60 border border-stone-800/80">
+            <div className="text-amber-400 font-bold text-sm flex items-center gap-1.5">
+              <Car className="w-4 h-4" />
+              <span>Starting ₹12/km</span>
             </div>
-            <div>
-              <div className="text-sm font-bold text-white flex items-center gap-1">
-                4.98 / 5.0
-              </div>
-              <div className="text-[11px] text-stone-400">850+ Verified Reviews</div>
-            </div>
+            <div className="text-[11px] text-stone-400 mt-0.5">Mini, Sedan, SUV &amp; 7-Seater</div>
           </div>
 
-          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-stone-900/40 border border-stone-800/60 backdrop-blur-sm">
-            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 shrink-0">
+          <div className="p-3 rounded-xl bg-stone-900/60 border border-stone-800/80">
+            <div className="text-emerald-400 font-bold text-sm flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4" />
+              <span>No Hidden Charges</span>
             </div>
-            <div>
-              <div className="text-sm font-bold text-white">100% Protected</div>
-              <div className="text-[11px] text-stone-400">Escrow &amp; Flexible Terms</div>
-            </div>
+            <div className="text-[11px] text-stone-400 mt-0.5">Toll &amp; state tax transparency</div>
           </div>
 
-          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-stone-900/40 border border-stone-800/60 backdrop-blur-sm">
-            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 shrink-0">
-              <Award className="w-4 h-4" />
+          <div className="p-3 rounded-xl bg-stone-900/60 border border-stone-800/80">
+            <div className="text-sky-400 font-bold text-sm flex items-center gap-1.5">
+              <Clock className="w-4 h-4" />
+              <span>On-Time Guarantee</span>
             </div>
-            <div>
-              <div className="text-sm font-bold text-white">Condé Nast 2026</div>
-              <div className="text-[11px] text-stone-400">Top Indian Luxury Agency</div>
-            </div>
+            <div className="text-[11px] text-stone-400 mt-0.5">Doorstep cab dispatch</div>
           </div>
 
-          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-stone-900/40 border border-stone-800/60 backdrop-blur-sm">
-            <div className="p-2 bg-sky-500/10 rounded-lg text-sky-400 shrink-0">
-              <Send className="w-4 h-4" />
+          <div className="p-3 rounded-xl bg-stone-900/60 border border-stone-800/80">
+            <div className="text-amber-400 font-bold text-sm flex items-center gap-1.5">
+              <PhoneCall className="w-4 h-4" />
+              <span>24/7 Helpline</span>
             </div>
-            <div>
-              <div className="text-sm font-bold text-white">Immediate Dispatch</div>
-              <div className="text-[11px] text-stone-400">Owner Email Direct Alert</div>
-            </div>
+            <div className="text-[11px] text-stone-400 mt-0.5">{AGENCY_DETAILS.phone}</div>
           </div>
-
         </div>
 
       </div>

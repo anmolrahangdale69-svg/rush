@@ -52,8 +52,8 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           <p className="text-stone-400 leading-relaxed text-xs">
-            Bespoke Indian royal heritage expeditions, private lake palace sojourns, backwater kettuvallam cruises, and high Himalayan odysseys. 
-            All reservations feature real-time database management and immediate owner notification alerts.
+            Comfortable rides, simple pricing, and easy travel across Indian cities and highways. 
+            Reliable local city cabs, point-to-point transfers, and outstation one-way and round trips with real-time booking management.
           </p>
 
           <div className="pt-2 flex flex-col gap-1 text-[11px] text-stone-500 font-mono">

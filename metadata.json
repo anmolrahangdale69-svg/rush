@@ -1,6 +1,6 @@
 {
-  "name": "Aura Voyages India - Royal Heritage Expeditions & Luxury Tours",
-  "description": "Bespoke Indian luxury travel agency featuring royal palace stays in Rajasthan, backwater kettuvallam cruises in Kerala, high Himalayan odysseys in Ladakh, instant booking, and owner dispatch.",
+  "name": "Aura Voyages India - Cabs & Outstation Travel Service",
+  "description": "Comfortable rides. Simple pricing. Easy travel. Reliable local city cabs, point-to-point rides, and one-way or round-trip outstation cab services across India.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
