@@ -1,172 +1,136 @@
 import React from 'react';
-import { 
-  Compass, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Database, 
-  Github, 
-  ShieldCheck, 
-  Send 
-} from 'lucide-react';
-import { AGENCY_DETAILS } from '../data/toursData';
+import { Phone, Mail, MapPin, Car, MessageSquare, CreditCard } from 'lucide-react';
+import { BUSINESS_CONFIG, VEHICLES } from '../data/cabConfig';
 
-interface FooterProps {
-  onOpenOwnerInbox: () => void;
-  onOpenSupabaseModal: () => void;
-  onSelectDestination: (dest: string) => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({
-  onOpenOwnerInbox,
-  onOpenSupabaseModal,
-  onSelectDestination
-}) => {
-  const destinations = [
-    'Rajasthan Palaces',
-    'Kerala Backwaters',
-    'Ladakh Himalayas',
-    'Ranthambore Tigers',
-    'Varanasi & Ganges',
-    'Kashmir Paradise',
-    'Goa & Konkan',
-    'Andaman Islands'
-  ];
+export const Footer: React.FC = () => {
+  const whatsappUrl = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello Bokde Travels, I need assistance with cab booking.')}`;
 
   return (
-    <footer className="bg-stone-950 text-stone-400 text-xs border-t border-stone-800">
-      
-      {/* Top Footer Pillars */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-stone-900 text-stone-300 pt-16 pb-24 sm:pb-16 border-t border-stone-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Brand Column */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-amber-500 text-stone-950 flex items-center justify-center font-bold">
-              <Compass className="w-5 h-5" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-stone-800">
+          
+          {/* Col 1: Brand & About */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold">
+                <Car className="w-6 h-6 text-stone-950" />
+              </div>
+              <div>
+                <span className="font-display font-bold text-xl text-white tracking-tight block">
+                  Bokde Travels
+                </span>
+                <span className="text-[11px] font-semibold text-amber-400 tracking-wider uppercase block">
+                  Nagpur Cab Service
+                </span>
+              </div>
             </div>
-            <span className="font-display font-bold text-xl text-white tracking-tight">
-              Aura<span className="text-amber-400 font-serif italic">Voyages</span>
-              <span className="text-[10px] uppercase tracking-widest font-sans font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 px-1 py-0.5 rounded ml-1.5">India</span>
-            </span>
+
+            <p className="text-xs text-stone-400 leading-relaxed">
+              Professional, dependable, and transparent taxi and cab rental services operating across Nagpur, Vidarbha, and all-India outstation routes.
+            </p>
+
+            <div className="p-3 bg-stone-800/80 rounded-xl border border-stone-700/80 space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-amber-400 font-bold">
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Accepted UPI Payments</span>
+              </div>
+              <p className="text-[11px] font-mono text-stone-300">
+                {BUSINESS_CONFIG.upiId}
+              </p>
+            </div>
           </div>
 
-          <p className="text-stone-400 leading-relaxed text-xs">
-            Comfortable rides, simple pricing, and easy travel across Indian cities and highways. 
-            Reliable local city cabs, point-to-point transfers, and outstation one-way and round trips with real-time booking management.
-          </p>
-
-          <div className="pt-2 flex flex-col gap-1 text-[11px] text-stone-500 font-mono">
-            <span>Owner Dispatch: {AGENCY_DETAILS.ownerEmail}</span>
-            <span>Database: Supabase (PostgreSQL)</span>
-            <span>Deployment: Vercel &amp; GitHub Ready</span>
-          </div>
-        </div>
-
-        {/* Featured Destinations Column */}
-        <div>
-          <h4 className="font-display font-bold text-sm text-stone-200 uppercase tracking-wider mb-3">
-            Indian Expeditions
-          </h4>
-          <ul className="space-y-2">
-            {destinations.map((d) => (
-              <li key={d}>
-                <button
-                  onClick={() => onSelectDestination(d)}
-                  className="hover:text-amber-400 transition-colors text-left cursor-pointer"
-                >
-                  {d}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Technical & Agency Operations */}
-        <div>
-          <h4 className="font-display font-bold text-sm text-stone-200 uppercase tracking-wider mb-3">
-            Agency Operations
-          </h4>
-          <ul className="space-y-2.5">
-            <li>
-              <button
-                onClick={onOpenOwnerInbox}
-                className="hover:text-amber-400 transition-colors flex items-center gap-1.5 cursor-pointer text-amber-500/90 font-medium"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Owner Booking Dispatch &amp; Email Inbox</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={onOpenSupabaseModal}
-                className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer text-emerald-400/90"
-              >
-                <Database className="w-3.5 h-3.5" />
-                <span>Supabase Schema &amp; Vercel Config</span>
-              </button>
-            </li>
-            <li>
-              <span className="text-stone-500 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-stone-400" />
-                <span>Ministry of Tourism India Approved</span>
-              </span>
-            </li>
-            <li>
-              <span className="text-stone-500 flex items-center gap-1.5">
-                <Github className="w-3.5 h-3.5 text-stone-400" />
-                <span>Escrow Traveler Protection Guarantee</span>
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        {/* Contact & Concierge */}
-        <div>
-          <h4 className="font-display font-bold text-sm text-stone-200 uppercase tracking-wider mb-3">
-            Headquarters &amp; Branches
-          </h4>
-          <div className="space-y-2 text-stone-400">
-            <p className="flex items-start gap-2">
-              <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              <span>{AGENCY_DETAILS.address}</span>
-            </p>
-            <p className="text-[11px] text-stone-500 pl-6">
-              {AGENCY_DETAILS.branches}
-            </p>
-            <p className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-amber-500 shrink-0" />
-              <span>{AGENCY_DETAILS.phone}</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-amber-500 shrink-0" />
-              <span>{AGENCY_DETAILS.ownerEmail}</span>
-            </p>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Bottom Sub-bar */}
-      <div className="border-t border-stone-900 bg-stone-950 py-6 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
+          {/* Col 2: Our Fleet */}
           <div>
-            &copy; {new Date().getFullYear()} {AGENCY_DETAILS.legalName}. All rights reserved. Registered High-End Tour Operator in India.
+            <h4 className="font-bold text-sm text-white uppercase tracking-wider mb-4 text-amber-400">
+              Our Vehicle Fleet
+            </h4>
+            <ul className="space-y-2 text-xs text-stone-400">
+              {VEHICLES.map(v => (
+                <li key={v.id} className="flex justify-between items-center hover:text-white transition-colors">
+                  <span>{v.name} ({v.category})</span>
+                  <span className="font-mono text-stone-500">₹{v.oneWayRate}/km</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="flex items-center gap-4">
-            <button onClick={onOpenSupabaseModal} className="hover:text-stone-300 transition-colors cursor-pointer">
-              Supabase Backend
-            </button>
-            <span>&bull;</span>
-            <button onClick={onOpenOwnerInbox} className="hover:text-stone-300 transition-colors cursor-pointer">
-              Owner Inbox
-            </button>
-            <span>&bull;</span>
-            <span>Vercel Optimized</span>
-          </div>
-        </div>
-      </div>
 
+          {/* Col 3: Services & Key Routes */}
+          <div>
+            <h4 className="font-bold text-sm text-white uppercase tracking-wider mb-4 text-amber-400">
+              Popular Routes
+            </h4>
+            <ul className="space-y-2 text-xs text-stone-400">
+              <li>Nagpur &rarr; Wardha (78 km)</li>
+              <li>Nagpur &rarr; Amravati (155 km)</li>
+              <li>Nagpur &rarr; Chandrapur (150 km)</li>
+              <li>Nagpur &rarr; Bhandara (65 km)</li>
+              <li>Nagpur &rarr; Gondia (165 km)</li>
+              <li>Nagpur &rarr; Yavatmal (152 km)</li>
+              <li>Dr. Babasaheb Ambedkar Airport Transfers</li>
+            </ul>
+          </div>
+
+          {/* Col 4: Contact Details */}
+          <div className="space-y-3">
+            <h4 className="font-bold text-sm text-white uppercase tracking-wider mb-4 text-amber-400">
+              Direct Contact
+            </h4>
+
+            <div className="flex items-start gap-2.5 text-xs text-stone-300">
+              <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <span>{BUSINESS_CONFIG.city}, {BUSINESS_CONFIG.state}, India</span>
+            </div>
+
+            <div className="flex items-center gap-2.5 text-xs text-stone-300">
+              <Phone className="w-4 h-4 text-amber-500 shrink-0" />
+              <a href={`tel:${BUSINESS_CONFIG.phone}`} className="hover:text-white font-bold">
+                {BUSINESS_CONFIG.phone}
+              </a>
+            </div>
+
+            <div className="flex items-center gap-2.5 text-xs text-stone-300">
+              <Mail className="w-4 h-4 text-amber-500 shrink-0" />
+              <a href={`mailto:${BUSINESS_CONFIG.email}`} className="hover:text-white">
+                {BUSINESS_CONFIG.email}
+              </a>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-2 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>WhatsApp Booking</span>
+              </a>
+              <a
+                href={`tel:${BUSINESS_CONFIG.phone}`}
+                className="py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Call {BUSINESS_CONFIG.phone}</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom copyright */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-3">
+          <p>
+            &copy; {new Date().getFullYear()} {BUSINESS_CONFIG.name}, {BUSINESS_CONFIG.city}. All rights reserved.
+          </p>
+          <p className="text-[11px] text-stone-600">
+            Toll, parking, and inter-state permit charges payable by customer at actuals.
+          </p>
+        </div>
+
+      </div>
     </footer>
   );
 };

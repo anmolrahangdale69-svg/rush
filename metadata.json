@@ -1,6 +1,6 @@
 {
-  "name": "Aura Voyages India - Cabs & Outstation Travel Service",
-  "description": "Comfortable rides. Simple pricing. Easy travel. Reliable local city cabs, point-to-point rides, and one-way or round-trip outstation cab services across India.",
+  "name": "Bokde Travels - Reliable Cabs in Nagpur",
+  "description": "Bokde Travels provides reliable local, outstation, round trip and airport transfer cabs in Nagpur, Maharashtra. Transparent per-km rates and verified drivers. Call 8983275497.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

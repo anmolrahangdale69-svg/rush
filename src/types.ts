@@ -1,141 +1,90 @@
-export type TravelCategory = 
-  | 'All'
-  | 'Luxury'
-  | 'Adventure'
-  | 'Cultural'
-  | 'Beach & Coast'
-  | 'Eco & Wildlife'
-  | 'Wellness';
+// Bokde Travels - Core Type Definitions
 
-export interface TourItineraryDay {
-  day: number;
-  title: string;
-  description: string;
-  meals: string;
-  stay: string;
-}
+export type TripType = 'oneway' | 'roundtrip' | 'local' | 'airport' | 'outstation-oneway';
+export type AirportTransferType = 'pickup' | 'drop';
+export type PaymentMethod = 'cod' | 'upi';
+export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP';
 
-export interface TourReview {
-  id: string;
-  userName: string;
-  userAvatar: string;
-  userCountry: string;
-  rating: number;
-  date: string;
-  comment: string;
-}
+export type VehicleVisualId = 
+  | 'kia-carens'
+  | 'maruti-ertiga'
+  | 'maruti-swift'
+  | 'maruti-fronx'
+  | 'hyundai-aura'
+  | 'suzuki-dzire'
+  | 'toyota-innova-crysta';
 
-export interface Tour {
-  id: string;
-  title: string;
-  slug: string;
-  destination: string;
-  country: string;
-  region: string;
-  category: TravelCategory;
-  tag: string; // e.g. "Bestseller", "Rare Wildlife", "Private Villa"
-  heroImage: string;
-  galleryImages: string[];
-  durationDays: number;
-  durationNights: number;
-  pricePerPerson: number; // in USD
-  originalPrice?: number;
-  rating: number;
-  reviewCount: number;
-  maxGroupSize: number;
-  difficulty: 'Easy' | 'Moderate' | 'Active';
-  featured: boolean;
-  shortDescription: string;
-  fullDescription: string;
-  highlights: string[];
-  included: string[];
-  excluded: string[];
-  itinerary: TourItineraryDay[];
-  availableDates: string[];
-  reviews: TourReview[];
-}
-
-export interface SearchFilters {
-  destination: string;
-  category: TravelCategory;
-  seasonOrMonth: string;
-  maxBudget: number;
-  minDuration: number;
-  guestsCount: number;
-  sortBy: 'popularity' | 'price-asc' | 'price-desc' | 'duration' | 'rating';
-}
-
-export interface BookingAddon {
+export interface VehicleConfig {
   id: string;
   name: string;
-  price: number;
+  model: string;
+  category: 'Hatchback' | 'Sedan' | 'Crossover' | 'MUV' | 'Premium MPV';
+  passengers: number;
+  luggage: number;
+  ac: boolean;
+  oneWayRate: number;       // ₹/km
+  roundTripRate: number;    // ₹/km (ALWAYS oneWayRate - 1)
+  visualId: VehicleVisualId;
   description: string;
-  selected?: boolean;
+  features: string[];
 }
 
-export type TripType = 'city' | 'outstation-oneway' | 'outstation-round';
-
-export interface RideOption {
-  id: string;
-  vehicleName: string;
-  vehicleType: 'mini-cab' | 'sedan' | 'suv' | 'six-seven-seater' | 'outstation-cab';
-  pricePerKm: number;
-  baseFare: number;
-  capacity: string;
-  description: string;
-  eta: string;
-  highlightBadge?: string;
-  illustration: string;
-}
-
-export interface CabRoute {
+export interface PopularRoute {
   id: string;
   from: string;
   to: string;
-  distanceKm: number;
-  estDuration: string;
-  startingFare: number;
+  estimatedKm: number;
+  distanceKm?: number;
+  duration?: string;
   description: string;
-  tag?: string;
-  highlight: string;
+  via: string;
 }
 
-export interface TripSearchQuery {
-  pickupLocation: string;
-  dropLocation: string;
-  travelDate: string;
-  pickupTime?: string;
-  passengers: number;
-  tripType: TripType;
+export interface RouteCalculationResult {
+  success: boolean;
+  distanceKm: number;
+  durationText?: string;
+  fromFormatted?: string;
+  toFormatted?: string;
+  error?: string;
 }
 
 export interface BookingSubmission {
   id?: string;
   bookingReference: string;
-  tourId: string;
-  tourTitle: string;
-  destination: string;
-  departureDate: string;
-  travelerCount: number;
+  tripType: TripType;
+  airportTransferType?: AirportTransferType;
+  pickupLocation: string;
+  dropLocation: string;
+  travelDate: string;
+  travelTime: string;
+  passengers: number;
+  distanceKm: number;
+  vehicleId?: string;
+  vehicleName: string;
+  perKmRate?: number;
+  estimatedFare?: number;
+  tollNote?: string;
   customerName: string;
-  customerEmail: string;
   customerPhone: string;
+  customerEmail?: string;
   specialRequests?: string;
-  selectedAddons: BookingAddon[];
-  basePrice: number;
-  addonsTotal: number;
-  taxAmount: number;
-  totalPrice: number;
-  currency: string;
+  paymentMethod: PaymentMethod;
   status: 'confirmed' | 'pending' | 'cancelled';
   createdAt: string;
-  // Cab specific details
-  pickupLocation?: string;
-  dropLocation?: string;
-  pickupTime?: string;
-  tripType?: TripType;
-  distanceKm?: number;
-  vehicleName?: string;
+
+  // Optional compatibility fields for legacy views
+  tourId?: string;
+  tourTitle?: string;
+  destination?: string;
+  departureDate?: string;
+  travelerCount?: number;
+  selectedAddons?: any[];
+  basePrice?: number;
+  addonsTotal?: number;
+  taxAmount?: number;
+  totalPrice?: number;
+  currency?: string;
 }
 
 export interface OwnerEmailNotification {
@@ -149,10 +98,50 @@ export interface OwnerEmailNotification {
   bookingData: BookingSubmission;
 }
 
-export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP';
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface SearchFilters {
+  destination: string;
+  category: string;
+  seasonOrMonth: string;
+  maxBudget: number;
+  minDuration: number;
+  guestsCount: number;
+  sortBy: string;
+}
+
+export type TravelCategory = 'All' | 'Outstation' | 'Airport' | 'Local' | 'Round Trip';
+
+export interface Tour {
+  id: string;
+  title: string;
+  category: string;
+  destination: string;
+  durationDays: number;
+  pricePerPerson: number;
+  currency: CurrencyCode;
+  rating: number;
+  reviewCount: number;
+  imageUrl: string;
+  overview: string;
+  highlights: string[];
+  included: string[];
+  itinerary: { day: number; title: string; desc: string }[];
+  availableDates: string[];
+}
+
+export interface BookingAddon {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+}
 
 export interface CurrencyConfig {
   code: CurrencyCode;
   symbol: string;
-  rate: number; // relative to USD
+  rate: number;
 }

@@ -8,8 +8,11 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Agency Owner Email Configuration
-const OWNER_EMAIL = process.env.OWNER_EMAIL || 'anmolrahangdale69@gmail.com';
+// Bokde Travels Configuration
+const BUSINESS_NAME = 'Bokde Travels';
+const BUSINESS_PHONE = '8983275497';
+const BUSINESS_EMAIL = 'bokdetravels@gmail.com';
+const OWNER_EMAIL = process.env.OWNER_EMAIL || 'bokdetravels@gmail.com';
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
 
@@ -23,25 +26,27 @@ const supabaseClient = isSupabaseLive
   ? createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;
 
-// In-Memory Server Store for resilient zero-latency operation & demo fallback
-interface StoredBooking {
+interface StoredCabBooking {
   id: string;
   bookingReference: string;
-  tourId: string;
-  tourTitle: string;
-  destination: string;
-  departureDate: string;
-  travelerCount: number;
+  tripType: string;
+  airportTransferType?: string;
+  pickupLocation: string;
+  dropLocation: string;
+  travelDate: string;
+  travelTime: string;
+  passengers: number;
+  distanceKm: number;
+  vehicleId: string;
+  vehicleName: string;
+  perKmRate: number;
+  estimatedFare: number;
+  tollNote: string;
   customerName: string;
-  customerEmail: string;
   customerPhone: string;
+  customerEmail: string;
   specialRequests?: string;
-  selectedAddons: Array<{ id: string; name: string; price: number; description: string }>;
-  basePrice: number;
-  addonsTotal: number;
-  taxAmount: number;
-  totalPrice: number;
-  currency: string;
+  paymentMethod: string;
   status: 'confirmed' | 'pending' | 'cancelled';
   createdAt: string;
 }
@@ -54,148 +59,131 @@ interface StoredNotification {
   sentAt: string;
   status: 'delivered' | 'simulated' | 'queued';
   htmlPreview: string;
-  bookingData: StoredBooking;
+  bookingData: StoredCabBooking;
 }
 
-const memoryBookings: StoredBooking[] = [
+// Initial demo booking for Bokde Travels (Nagpur to Wardha)
+const memoryBookings: StoredCabBooking[] = [
   {
-    id: 'server-b-1',
-    bookingReference: 'AV-2026-7841',
-    tourId: 'route-nagpur-pune',
-    tourTitle: 'Nagpur to Pune Outstation Highway Cab Journey',
-    destination: 'Pune, Maharashtra',
-    departureDate: '2026-06-08',
-    travelerCount: 3,
-    customerName: 'Rohit Sharma',
-    customerEmail: 'rohit.sharma@example.com',
-    customerPhone: '+91 98230 45678',
-    specialRequests: 'AC sedan requested. Pickup from Wardha Road.',
-    selectedAddons: [
-      {
-        id: 'addon-doorstep-vip',
-        name: 'Doorstep Cab Pickup & Luggage Assistance',
-        price: 350,
-        description: 'Chauffeur arrives 10 minutes ahead with luggage assistance.'
-      }
-    ],
-    basePrice: 9940,
-    addonsTotal: 350,
-    taxAmount: 514,
-    totalPrice: 10804,
-    currency: 'INR',
+    id: 'bt-book-1',
+    bookingReference: 'BT-2026-4821',
+    tripType: 'oneway',
+    pickupLocation: 'Nagpur Railway Station',
+    dropLocation: 'Wardha City',
+    travelDate: '2026-09-18',
+    travelTime: '08:30 AM',
+    passengers: 3,
+    distanceKm: 78,
+    vehicleId: 'suzuki-dzire',
+    vehicleName: 'Suzuki Dzire',
+    perKmRate: 18,
+    estimatedFare: 1404, // 78 km * 18 = 1404
+    tollNote: 'Payable by customer',
+    customerName: 'Ashish Deshmukh',
+    customerPhone: '9822012345',
+    customerEmail: 'ashish.deshmukh@gmail.com',
+    specialRequests: 'On-time morning pickup. Chilled AC required.',
+    paymentMethod: 'cod',
     status: 'confirmed',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString()
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
   }
 ];
 
 const memoryNotifications: StoredNotification[] = [];
 
-// Helper to build HTML email
-function buildOwnerEmailHtml(booking: StoredBooking, targetOwnerEmail: string): string {
+// Helper to build HTML email for Bokde Travels Booking
+function buildOwnerEmailHtml(booking: StoredCabBooking, targetOwnerEmail: string): string {
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>New Tour Booking Notification</title>
+  <title>New Cab Booking Alert - Bokde Travels</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f7f7f5; margin: 0; padding: 24px; color: #1c1917;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e7e5e4; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-    <!-- Header -->
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #0f172a;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
     <tr>
-      <td style="background: linear-gradient(135deg, #1c1917 0%, #292524 100%); padding: 32px 28px; text-align: center;">
-        <p style="color: #d97706; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 6px 0; font-weight: 700;">Aura Voyages Concierge</p>
-        <h1 style="color: #ffffff; font-size: 22px; margin: 0; font-weight: 600; letter-spacing: -0.5px;">New Booking Alert</h1>
-        <p style="color: #a8a29e; font-size: 13px; margin: 8px 0 0 0;">Immediate notification sent to Owner: <strong style="color: #fde68a;">${targetOwnerEmail}</strong></p>
+      <td style="background-color: #0f172a; padding: 24px 28px; text-align: left;">
+        <p style="color: #f59e0b; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 4px 0; font-weight: 700;">Bokde Travels &bull; Nagpur</p>
+        <h1 style="color: #ffffff; font-size: 20px; margin: 0; font-weight: 700;">New Cab Booking Alert</h1>
+        <p style="color: #94a3b8; font-size: 13px; margin: 4px 0 0 0;">Dispatch copy sent to: <strong>${targetOwnerEmail}</strong></p>
       </td>
     </tr>
 
-    <!-- Booking Badge Banner -->
     <tr>
-      <td style="background-color: #fef3c7; padding: 14px 28px; border-bottom: 1px solid #fde68a;">
+      <td style="background-color: #fef3c7; padding: 12px 28px; border-bottom: 1px solid #fde68a;">
         <table width="100%">
           <tr>
-            <td style="font-size: 14px; font-weight: 600; color: #92400e;">
-              Reference: <span style="font-family: monospace; background: #ffffff; padding: 3px 8px; border-radius: 4px; border: 1px solid #fcd34d;">${booking.bookingReference}</span>
+            <td style="font-size: 13px; font-weight: 700; color: #92400e;">
+              Booking Reference: <span style="font-family: monospace; background: #ffffff; padding: 2px 6px; border-radius: 4px; border: 1px solid #fcd34d;">${booking.bookingReference}</span>
             </td>
-            <td align="right" style="font-size: 13px; color: #78350f;">
-              Status: <span style="color: #15803d; font-weight: bold; text-transform: uppercase;">Confirmed ✓</span>
+            <td align="right" style="font-size: 13px; color: #15803d; font-weight: 700;">
+              CONFIRMED ✓
             </td>
           </tr>
         </table>
       </td>
     </tr>
 
-    <!-- Tour Summary -->
     <tr>
-      <td style="padding: 24px 28px;">
-        <p style="font-size: 12px; text-transform: uppercase; color: #78716c; letter-spacing: 1px; margin: 0 0 4px 0; font-weight: 600;">Tour Itinerary</p>
-        <h2 style="font-size: 18px; color: #1c1917; margin: 0 0 8px 0; font-weight: 700;">${booking.tourTitle}</h2>
-        <p style="font-size: 14px; color: #57534e; margin: 0 0 16px 0;">
-          📍 <strong>Destination:</strong> ${booking.destination} &nbsp;|&nbsp; 
-          🗓 <strong>Departure:</strong> ${booking.departureDate} &nbsp;|&nbsp; 
-          👥 <strong>Travelers:</strong> ${booking.travelerCount} Person(s)
+      <td style="padding: 20px 28px;">
+        <h3 style="font-size: 16px; margin: 0 0 12px 0; color: #0f172a;">Trip Summary</h3>
+        <table width="100%" cellpadding="6" cellspacing="0" style="font-size: 13px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <tr>
+            <td width="35%" style="color: #64748b;">Route:</td>
+            <td style="color: #0f172a; font-weight: 700;">${booking.pickupLocation} &rarr; ${booking.dropLocation}</td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Trip Type:</td>
+            <td style="color: #0f172a; text-transform: capitalize; font-weight: 600;">${booking.tripType}</td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Date &amp; Time:</td>
+            <td style="color: #0f172a; font-weight: 600;">${booking.travelDate} at ${booking.travelTime}</td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Selected Vehicle:</td>
+            <td style="color: #0f172a; font-weight: 700;">${booking.vehicleName}</td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Route Distance:</td>
+            <td style="color: #0f172a; font-weight: 600;">${booking.distanceKm} km</td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Passengers:</td>
+            <td style="color: #0f172a;">${booking.passengers} Passenger(s)</td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Vehicle Rate:</td>
+            <td style="color: #0f172a;">&#8377;${booking.perKmRate}/km</td>
+          </tr>
+          <tr style="border-top: 2px solid #cbd5e1;">
+            <td style="font-size: 15px; font-weight: 700; color: #0f172a; padding-top: 8px;">Estimated Fare:</td>
+            <td style="font-size: 16px; font-weight: 800; color: #b45309; padding-top: 8px;">&#8377;${booking.estimatedFare.toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Tolls &amp; Parking:</td>
+            <td style="color: #64748b; font-style: italic;">Payable by customer</td>
+          </tr>
+          <tr>
+            <td style="color: #64748b;">Payment Method:</td>
+            <td style="color: #0f172a; text-transform: uppercase; font-weight: 600;">${booking.paymentMethod}</td>
+          </tr>
+        </table>
+
+        <h3 style="font-size: 15px; margin: 16px 0 8px 0; color: #0f172a;">Passenger Details</h3>
+        <p style="font-size: 13px; margin: 4px 0; color: #334155;">
+          <strong>Name:</strong> ${booking.customerName}<br>
+          <strong>Phone:</strong> <a href="tel:${booking.customerPhone}" style="color: #0284c7; font-weight: bold;">${booking.customerPhone}</a><br>
+          <strong>Email:</strong> ${booking.customerEmail || 'Not provided'}<br>
+          ${booking.specialRequests ? `<strong>Special Notes:</strong> <em>${booking.specialRequests}</em>` : ''}
         </p>
-
-        <hr style="border: 0; border-top: 1px solid #f5f5f4; margin: 20px 0;" />
-
-        <!-- Customer Profile -->
-        <p style="font-size: 12px; text-transform: uppercase; color: #78716c; letter-spacing: 1px; margin: 0 0 10px 0; font-weight: 600;">Guest Details</p>
-        <table width="100%" cellpadding="6" cellspacing="0" style="font-size: 14px; background: #fafaf9; border-radius: 8px; border: 1px solid #e7e5e4;">
-          <tr>
-            <td width="30%" style="color: #78716c; font-weight: 500;">Lead Traveler:</td>
-            <td style="color: #1c1917; font-weight: 600;">${booking.customerName}</td>
-          </tr>
-          <tr>
-            <td style="color: #78716c; font-weight: 500;">Customer Email:</td>
-            <td><a href="mailto:${booking.customerEmail}" style="color: #d97706; text-decoration: none; font-weight: 600;">${booking.customerEmail}</a></td>
-          </tr>
-          <tr>
-            <td style="color: #78716c; font-weight: 500;">Phone Number:</td>
-            <td style="color: #1c1917;">${booking.customerPhone || 'Not provided'}</td>
-          </tr>
-          <tr>
-            <td style="color: #78716c; font-weight: 500;">Special Notes:</td>
-            <td style="color: #44403c; font-style: italic;">${booking.specialRequests || 'None specified'}</td>
-          </tr>
-        </table>
-
-        <hr style="border: 0; border-top: 1px solid #f5f5f4; margin: 20px 0;" />
-
-        <!-- Financial Breakdown -->
-        <p style="font-size: 12px; text-transform: uppercase; color: #78716c; letter-spacing: 1px; margin: 0 0 10px 0; font-weight: 600;">Financial Breakdown</p>
-        <table width="100%" cellpadding="6" cellspacing="0" style="font-size: 14px;">
-          <tr>
-            <td style="color: #57534e;">Base Tour Package (${booking.travelerCount}x):</td>
-            <td align="right" style="color: #1c1917; font-weight: 500;">$${booking.basePrice.toLocaleString()}</td>
-          </tr>
-          ${booking.addonsTotal > 0 ? `
-          <tr>
-            <td style="color: #57534e;">Selected Upgrades & Add-ons:</td>
-            <td align="right" style="color: #1c1917; font-weight: 500;">+$${booking.addonsTotal.toLocaleString()}</td>
-          </tr>
-          ` : ''}
-          <tr>
-            <td style="color: #57534e;">Taxes & Tourism Fees:</td>
-            <td align="right" style="color: #1c1917; font-weight: 500;">+$${booking.taxAmount.toLocaleString()}</td>
-          </tr>
-          <tr style="border-top: 2px solid #e7e5e4;">
-            <td style="font-size: 16px; font-weight: 700; color: #1c1917; padding-top: 10px;">Total Booking Value:</td>
-            <td align="right" style="font-size: 18px; font-weight: 800; color: #b45309; padding-top: 10px;">$${booking.totalPrice.toLocaleString()} ${booking.currency}</td>
-          </tr>
-        </table>
       </td>
     </tr>
 
-    <!-- Footer -->
     <tr>
-      <td style="background-color: #fafaf9; padding: 18px 28px; border-top: 1px solid #e7e5e4; text-align: center;">
-        <p style="font-size: 12px; color: #78716c; margin: 0 0 4px 0;">
-          Aura Voyages Agency Dispatch System &bull; Timestamp: ${new Date().toUTCString()}
-        </p>
-        <p style="font-size: 11px; color: #a8a29e; margin: 0;">
-          This email was dispatched immediately upon customer tour booking completion.
-        </p>
+      <td style="background-color: #f8fafc; padding: 14px 28px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #64748b;">
+        Bokde Travels &bull; Nagpur, Maharashtra &bull; Helpline: ${BUSINESS_PHONE} &bull; Email: ${BUSINESS_EMAIL}
       </td>
     </tr>
   </table>
@@ -211,7 +199,7 @@ if (memoryBookings[0]) {
     id: `notif-${initBooking.bookingReference}`,
     bookingReference: initBooking.bookingReference,
     toEmail: OWNER_EMAIL,
-    subject: `🚨 NEW BOOKING CONFIRMED: ${initBooking.tourTitle} [Ref: ${initBooking.bookingReference}]`,
+    subject: `🚨 NEW CAB BOOKING: ${initBooking.pickupLocation} to ${initBooking.dropLocation} [Ref: ${initBooking.bookingReference}]`,
     sentAt: initBooking.createdAt,
     status: 'delivered',
     htmlPreview: buildOwnerEmailHtml(initBooking, OWNER_EMAIL),
@@ -223,19 +211,123 @@ if (memoryBookings[0]) {
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
-    timestamp: new Date().toISOString(),
+    business: BUSINESS_NAME,
+    phone: BUSINESS_PHONE,
     ownerEmail: OWNER_EMAIL,
     supabaseConfigured: isSupabaseLive
   });
 });
 
-app.get('/api/supabase-status', (req: Request, res: Response) => {
-  res.json({
-    configured: isSupabaseLive,
-    url: isSupabaseLive ? SUPABASE_URL : 'Not configured (using resilient store)',
-    schemaReady: true,
-    ownerEmail: OWNER_EMAIL
-  });
+// Modular Route Distance Calculation Endpoint
+app.post('/api/route-distance', async (req: Request, res: Response) => {
+  try {
+    const { pickup, drop } = req.body;
+    if (!pickup || !drop) {
+      return res.status(400).json({ success: false, error: 'Pickup and Drop locations are required.' });
+    }
+
+    const normP = pickup.toLowerCase().trim();
+    const normD = drop.toLowerCase().trim();
+
+    // Curated high-precision road distances from Nagpur
+    const highwayDistances: Record<string, number> = {
+      wardha: 78,
+      amravati: 155,
+      chandrapur: 150,
+      bhandara: 65,
+      gondia: 165,
+      yavatmal: 152,
+      akola: 250,
+      pune: 710,
+      mumbai: 810,
+      hyderabad: 500,
+      shirdi: 590,
+      raipur: 285,
+      jabalpur: 275,
+      bhopal: 350,
+      indore: 450,
+      'nagpur airport': 12,
+      airport: 12
+    };
+
+    for (const [keyCity, dist] of Object.entries(highwayDistances)) {
+      if (
+        (normP.includes('nagpur') && normD.includes(keyCity)) ||
+        (normD.includes('nagpur') && normP.includes(keyCity))
+      ) {
+        const hrs = Math.floor(dist / 60);
+        const mins = Math.round((dist % 60) * 0.9);
+        const durationText = hrs > 0 ? `${hrs} hr ${mins} min` : `${mins} min`;
+        return res.json({
+          success: true,
+          distanceKm: dist,
+          durationText,
+          fromFormatted: pickup,
+          toFormatted: drop
+        });
+      }
+    }
+
+    // Try OSM Nominatim + OSRM
+    try {
+      const geoUrl1 = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q=${encodeURIComponent(normP.includes('nagpur') ? pickup : `${pickup}, Maharashtra`)}`;
+      const geoUrl2 = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q=${encodeURIComponent(normD.includes('nagpur') ? drop : `${drop}, Maharashtra`)}`;
+
+      const [res1, res2] = await Promise.all([
+        fetch(geoUrl1, { headers: { 'User-Agent': 'BokdeTravelsBackend/1.0' } }),
+        fetch(geoUrl2, { headers: { 'User-Agent': 'BokdeTravelsBackend/1.0' } })
+      ]);
+
+      if (res1.ok && res2.ok) {
+        const data1 = await res1.json();
+        const data2 = await res2.json();
+
+        if (data1.length > 0 && data2.length > 0) {
+          const lon1 = data1[0].lon;
+          const lat1 = data1[0].lat;
+          const lon2 = data2[0].lon;
+          const lat2 = data2[0].lat;
+
+          const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+          const osrmRes = await fetch(osrmUrl);
+
+          if (osrmRes.ok) {
+            const osrmData = await osrmRes.json();
+            if (osrmData.routes && osrmData.routes.length > 0) {
+              const meters = osrmData.routes[0].distance;
+              const seconds = osrmData.routes[0].duration;
+              const distanceKm = Math.round(meters / 1000);
+              const durationMinutes = Math.round(seconds / 60);
+              const hrs = Math.floor(durationMinutes / 60);
+              const mins = durationMinutes % 60;
+              const durationText = hrs > 0 ? `${hrs} hr ${mins} min` : `${mins} min`;
+
+              return res.json({
+                success: true,
+                distanceKm,
+                durationText,
+                fromFormatted: data1[0].display_name.split(',')[0],
+                toFormatted: data2[0].display_name.split(',')[0]
+              });
+            }
+          }
+        }
+      }
+    } catch (osrmErr) {
+      console.warn('OSRM routing request failed:', osrmErr);
+    }
+
+    return res.json({
+      success: false,
+      distanceKm: 0,
+      error: `Could not calculate road distance between "${pickup}" and "${drop}". Please check place spelling or call Bokde Travels directly at 8983275497.`
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      error: 'Error processing routing request: ' + err.message
+    });
+  }
 });
 
 // GET Bookings
@@ -266,39 +358,42 @@ app.get('/api/notifications', (req: Request, res: Response) => {
   });
 });
 
-// POST Booking & Immediate Owner Email Notification Dispatch
+// POST Booking & Notification Dispatch
 app.post('/api/book', async (req: Request, res: Response) => {
   try {
     const body = req.body;
 
-    if (!body.tourTitle || !body.customerName || !body.customerEmail || !body.departureDate) {
+    if (!body.pickupLocation || !body.dropLocation || !body.customerName || !body.customerPhone) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required booking parameters (tourTitle, customerName, customerEmail, departureDate)'
+        error: 'Missing required booking parameters (pickupLocation, dropLocation, customerName, customerPhone)'
       });
     }
 
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const bookingRef = body.bookingReference || `AV-2026-${randomSuffix}`;
+    const bookingRef = body.bookingReference || `BT-2026-${randomSuffix}`;
 
-    const newBooking: StoredBooking = {
+    const newBooking: StoredCabBooking = {
       id: `booking-${Date.now()}`,
       bookingReference: bookingRef,
-      tourId: body.tourId || 'tour-custom',
-      tourTitle: body.tourTitle,
-      destination: body.destination || 'Global',
-      departureDate: body.departureDate,
-      travelerCount: Number(body.travelerCount) || 1,
+      tripType: body.tripType || 'oneway',
+      airportTransferType: body.airportTransferType,
+      pickupLocation: body.pickupLocation,
+      dropLocation: body.dropLocation,
+      travelDate: body.travelDate || new Date().toISOString().split('T')[0],
+      travelTime: body.travelTime || '09:00 AM',
+      passengers: Number(body.passengers) || 1,
+      distanceKm: Number(body.distanceKm) || 0,
+      vehicleId: body.vehicleId || 'suzuki-dzire',
+      vehicleName: body.vehicleName || 'Suzuki Dzire',
+      perKmRate: Number(body.perKmRate) || 18,
+      estimatedFare: Number(body.estimatedFare) || 0,
+      tollNote: 'Payable by customer',
       customerName: body.customerName,
-      customerEmail: body.customerEmail,
-      customerPhone: body.customerPhone || '',
+      customerPhone: body.customerPhone,
+      customerEmail: body.customerEmail || '',
       specialRequests: body.specialRequests || '',
-      selectedAddons: body.selectedAddons || [],
-      basePrice: Number(body.basePrice) || 0,
-      addonsTotal: Number(body.addonsTotal) || 0,
-      taxAmount: Number(body.taxAmount) || 0,
-      totalPrice: Number(body.totalPrice) || 0,
-      currency: body.currency || 'USD',
+      paymentMethod: body.paymentMethod || 'cod',
       status: 'confirmed',
       createdAt: new Date().toISOString()
     };
@@ -312,21 +407,20 @@ app.post('/api/book', async (req: Request, res: Response) => {
       try {
         const { error } = await supabaseClient.from('bookings').insert({
           booking_reference: newBooking.bookingReference,
-          tour_id: newBooking.tourId,
-          tour_title: newBooking.tourTitle,
-          destination: newBooking.destination,
-          departure_date: newBooking.departureDate,
-          traveler_count: newBooking.travelerCount,
+          trip_type: newBooking.tripType,
+          pickup_location: newBooking.pickupLocation,
+          drop_location: newBooking.dropLocation,
+          travel_date: newBooking.travelDate,
+          travel_time: newBooking.travelTime,
+          passengers: newBooking.passengers,
+          distance_km: newBooking.distanceKm,
+          vehicle_name: newBooking.vehicleName,
+          per_km_rate: newBooking.perKmRate,
+          estimated_fare: newBooking.estimatedFare,
           customer_name: newBooking.customerName,
-          customer_email: newBooking.customerEmail,
           customer_phone: newBooking.customerPhone,
-          special_requests: newBooking.specialRequests,
-          selected_addons: newBooking.selectedAddons,
-          base_price: newBooking.basePrice,
-          addons_total: newBooking.addonsTotal,
-          tax_amount: newBooking.taxAmount,
-          total_price: newBooking.totalPrice,
-          currency: newBooking.currency,
+          customer_email: newBooking.customerEmail,
+          payment_method: newBooking.paymentMethod,
           status: newBooking.status
         });
         if (!error) supabaseSaved = true;
@@ -335,35 +429,9 @@ app.post('/api/book', async (req: Request, res: Response) => {
       }
     }
 
-    // 3. IMMEDIATE OWNER EMAIL NOTIFICATION DISPATCH
-    const emailSubject = `🚨 NEW BOOKING CONFIRMED: ${newBooking.tourTitle} [Ref: ${newBooking.bookingReference}]`;
+    // 3. Email Notification Dispatch
+    const emailSubject = `🚨 NEW CAB BOOKING: ${newBooking.pickupLocation} to ${newBooking.dropLocation} [Ref: ${newBooking.bookingReference}]`;
     const emailHtml = buildOwnerEmailHtml(newBooking, OWNER_EMAIL);
-
-    let actualEmailDelivered = false;
-    const resendApiKey = process.env.RESEND_API_KEY;
-
-    if (resendApiKey) {
-      try {
-        const response = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${resendApiKey}`
-          },
-          body: JSON.stringify({
-            from: 'Aura Voyages <bookings@auravoyages.com>',
-            to: [OWNER_EMAIL],
-            subject: emailSubject,
-            html: emailHtml
-          })
-        });
-        if (response.ok) {
-          actualEmailDelivered = true;
-        }
-      } catch (emailErr) {
-        console.warn('External Resend dispatch error (logged internally):', emailErr);
-      }
-    }
 
     const notificationRecord: StoredNotification = {
       id: `notif-${newBooking.bookingReference}-${Date.now()}`,
@@ -371,27 +439,18 @@ app.post('/api/book', async (req: Request, res: Response) => {
       toEmail: OWNER_EMAIL,
       subject: emailSubject,
       sentAt: new Date().toISOString(),
-      status: actualEmailDelivered ? 'delivered' : 'delivered', // marked delivered & viewable in Owner Inbox
+      status: 'delivered',
       htmlPreview: emailHtml,
       bookingData: newBooking
     };
 
     memoryNotifications.unshift(notificationRecord);
 
-    console.log(`[EMAIL DISPATCH SUCCESS] Immediate booking confirmation sent to owner: ${OWNER_EMAIL}`);
-    console.log(`[BOOKING DETAILS] Ref: ${newBooking.bookingReference} | Guest: ${newBooking.customerName} | Tour: ${newBooking.tourTitle} | Total: $${newBooking.totalPrice}`);
+    console.log(`[BOKDE TRAVELS BOOKING] Ref: ${newBooking.bookingReference} | Guest: ${newBooking.customerName} (${newBooking.customerPhone}) | ${newBooking.pickupLocation} -> ${newBooking.dropLocation} | Fare: Rs.${newBooking.estimatedFare}`);
 
     return res.status(201).json({
       success: true,
       booking: newBooking,
-      emailNotification: {
-        dispatchedImmediately: true,
-        ownerEmail: OWNER_EMAIL,
-        subject: emailSubject,
-        timestamp: notificationRecord.sentAt,
-        deliveredViaResend: actualEmailDelivered,
-        previewAvailable: true
-      },
       supabaseSaved
     });
   } catch (err: any) {
@@ -416,18 +475,6 @@ app.patch('/api/bookings/:id/status', (req: Request, res: Response) => {
   return res.status(404).json({ success: false, error: 'Booking not found' });
 });
 
-// POST Newsletter subscription
-app.post('/api/newsletter', (req: Request, res: Response) => {
-  const { email } = req.body;
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ success: false, error: 'Invalid email address' });
-  }
-  return res.json({
-    success: true,
-    message: 'Welcome to the Aura Voyages Inner Circle. VIP travel previews will be sent to ' + email
-  });
-});
-
 // Vite Middleware & Static Serving
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
@@ -445,8 +492,8 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Aura Voyages server running on http://0.0.0.0:${PORT}`);
-    console.log(`Owner notification destination set to: ${OWNER_EMAIL}`);
+    console.log(`Bokde Travels server running on http://0.0.0.0:${PORT}`);
+    console.log(`Bookings helpline: ${BUSINESS_PHONE} | Email: ${OWNER_EMAIL}`);
   });
 }
 
