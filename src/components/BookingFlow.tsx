@@ -18,8 +18,11 @@ import {
   RefreshCw, 
   ShieldCheck,
   Check,
-  ChevronRight
+  ChevronRight,
+  QrCode,
+  Copy
 } from 'lucide-react';
+import QRCode from 'qrcode';
 import { TripType, AirportTransferType, PaymentMethod, VehicleConfig, BookingSubmission } from '../types';
 import { BUSINESS_CONFIG, VEHICLES, CLIENT_CONFIRMATION_POINTS } from '../data/cabConfig';
 import { calculateRouteDistance, calculateVehicleFare } from '../utils/routingService';
@@ -68,8 +71,13 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   const [specialRequests, setSpecialRequests] = useState<string>('');
   const [passengerFormErrors, setPassengerFormErrors] = useState<{ name?: string; phone?: string }>({});
 
-  // Step 4: Payment Method
+  // Step 4: Payment Method & UPI State
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
+  const [hasCompletedUpiPayment, setHasCompletedUpiPayment] = useState<boolean>(false);
+  const [upiTransactionRef, setUpiTransactionRef] = useState<string>('');
+  const [upiQrDataUrl, setUpiQrDataUrl] = useState<string>('/images/upi-qr-code.png');
+  const [copiedUpi, setCopiedUpi] = useState<boolean>(false);
+  const [upiError, setUpiError] = useState<string | null>(null);
 
   // Step 5 & 6: Submission & Confirmation
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -162,10 +170,46 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   const selectedVehicle = VEHICLES.find(v => v.id === selectedVehicleId) || VEHICLES[0];
   const fareDetails = calculateVehicleFare(selectedVehicle, distanceKm, tripType);
 
+  // Dynamic QR Code generation for UPI with exact booking amount
+  useEffect(() => {
+    if (selectedVehicle && fareDetails.fare > 0) {
+      const upiUri = `upi://pay?pa=${BUSINESS_CONFIG.upiId}&pn=${encodeURIComponent('Bokde Travels')}&am=${fareDetails.fare}&cu=INR&tn=${encodeURIComponent(`Booking ${selectedVehicle.name}`)}`;
+      QRCode.toDataURL(upiUri, {
+        width: 256,
+        margin: 2,
+        color: {
+          dark: '#1c1917',
+          light: '#ffffff',
+        },
+      })
+        .then((url) => setUpiQrDataUrl(url))
+        .catch(() => setUpiQrDataUrl('/images/upi-qr-code.png'));
+    }
+  }, [fareDetails.fare, selectedVehicle]);
+
+  const handleCopyUpi = () => {
+    navigator.clipboard.writeText(BUSINESS_CONFIG.upiId);
+    setCopiedUpi(true);
+    setTimeout(() => setCopiedUpi(false), 2200);
+  };
+
+  const handleProceedToReview = () => {
+    if (paymentMethod === 'upi' && !hasCompletedUpiPayment) {
+      setUpiError('Please complete the UPI payment and check the confirmation box below to proceed.');
+      return;
+    }
+    setUpiError(null);
+    setCurrentStep(5);
+  };
+
   // Step 5: Final Submission
   const handleConfirmBooking = async () => {
     setIsSubmitting(true);
     const bookingRef = `BT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const paymentNote = paymentMethod === 'upi' 
+      ? `UPI Payment Confirmed (Paid to ${BUSINESS_CONFIG.upiId}${upiTransactionRef ? `, UTR: ${upiTransactionRef}` : ''})`
+      : 'Pay Driver / Cash on Delivery';
 
     const submission: BookingSubmission = {
       bookingReference: bookingRef,
@@ -185,27 +229,64 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       customerName,
       customerPhone,
       customerEmail,
-      specialRequests,
+      specialRequests: specialRequests 
+        ? `${specialRequests} | [Payment: ${paymentNote}]`
+        : `[Payment: ${paymentNote}]`,
       paymentMethod,
       status: 'confirmed',
       createdAt: new Date().toISOString()
     };
 
     try {
-      // POST to backend API
+      // 1. Post to backend booking endpoint
       const response = await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submission)
+        body: JSON.stringify({
+          ...submission,
+          cleanSpecialRequests: specialRequests || '',
+          hasCompletedUpiPayment,
+          upiTransactionRef
+        })
       });
       if (response.ok) {
         const data = await response.json();
-        if (data.booking) {
+        if (data.booking?.bookingReference) {
           submission.bookingReference = data.booking.bookingReference;
         }
       }
     } catch (err) {
       console.warn('Backend booking sync error (local confirmation preserved):', err);
+    }
+
+    try {
+      // 2. Dispatch booking confirmation email to bokdetravels@gmail.com via server Resend endpoint
+      await fetch('/api/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingReference: submission.bookingReference,
+          customerName,
+          customerPhone,
+          customerEmail,
+          specialRequests: specialRequests || '',
+          tripType,
+          airportTransferType: tripType === 'airport' ? airportType : undefined,
+          pickupLocation: pickup,
+          dropLocation: drop,
+          travelDate,
+          travelTime,
+          passengers,
+          vehicleName: selectedVehicle.name,
+          estimatedFare: fareDetails.fare,
+          paymentMethod,
+          hasCompletedUpiPayment,
+          upiTransactionRef
+        })
+      });
+    } catch (emailErr) {
+      // Do not break the booking if email sending temporarily fails
+      console.warn('Resend booking email dispatch error (booking confirmed):', emailErr);
     }
 
     // Save in localStorage
@@ -228,6 +309,10 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
   // WhatsApp prefilled message
   const getWhatsAppBookingText = (b: BookingSubmission) => {
+    const paymentLine = b.paymentMethod === 'upi'
+      ? `UPI PAID (ID: ${BUSINESS_CONFIG.upiId}${upiTransactionRef ? `, UTR: ${upiTransactionRef}` : ''})`
+      : 'PAY DRIVER / COD';
+
     const text = `*New Cab Booking Request - Bokde Travels*\n` +
       `*Booking Ref:* ${b.bookingReference}\n` +
       `*Name:* ${b.customerName}\n` +
@@ -240,7 +325,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       `*Distance:* ${b.distanceKm} km\n` +
       `*Estimated Fare:* ₹${b.estimatedFare.toLocaleString()}\n` +
       `*Tolls & Parking:* Payable by customer\n` +
-      `*Payment:* ${b.paymentMethod.toUpperCase()}\n` +
+      `*Payment:* ${paymentLine}\n` +
       (b.specialRequests ? `*Notes:* ${b.specialRequests}\n` : '') +
       `Please confirm my booking.`;
     return encodeURIComponent(text);
@@ -757,13 +842,16 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               <div className="text-center mb-6">
                 <h3 className="font-bold text-lg text-stone-900">Choose Payment Method</h3>
                 <p className="text-xs text-stone-500 mt-1">
-                  Pay securely after trip completion or directly via UPI.
+                  Pay securely after trip completion or directly via UPI QR code.
                 </p>
               </div>
 
               {/* Payment Option 1: Cash on Delivery / Pay Driver */}
               <div
-                onClick={() => setPaymentMethod('cod')}
+                onClick={() => {
+                  setPaymentMethod('cod');
+                  setUpiError(null);
+                }}
                 className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
                   paymentMethod === 'cod'
                     ? 'border-amber-500 bg-amber-50/50 ring-2 ring-amber-400/40'
@@ -776,35 +864,143 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-sm text-stone-900">Pay Driver / Cash on Delivery</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">Popular</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">No Advance Required</span>
                   </div>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Pay directly in Cash or via Driver UPI QR after you reach your destination safely.
+                    Pay directly in Cash or via driver's UPI QR code upon arrival at your drop destination.
                   </p>
                 </div>
               </div>
 
-              {/* Payment Option 2: UPI */}
+              {/* Payment Option 2: UPI QR Code Payment */}
               <div
                 onClick={() => setPaymentMethod('upi')}
-                className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
+                className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-3.5 ${
                   paymentMethod === 'upi'
-                    ? 'border-amber-500 bg-amber-50/50 ring-2 ring-amber-400/40'
+                    ? 'border-amber-500 bg-amber-50/20 ring-2 ring-amber-400/40 shadow-xs'
                     : 'border-stone-200 bg-white hover:bg-stone-50'
                 }`}
               >
-                <div className="p-2.5 rounded-lg bg-stone-100 text-stone-900 shrink-0">
-                  <CreditCard className="w-6 h-6 text-amber-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-sm text-stone-900">Direct UPI Transfer</span>
-                    <span className="text-[10px] font-bold font-mono text-amber-700">{BUSINESS_CONFIG.upiId}</span>
+                <div className="flex items-start gap-3.5">
+                  <div className="p-2.5 rounded-lg bg-stone-100 text-stone-900 shrink-0">
+                    <QrCode className="w-6 h-6 text-amber-600" />
                   </div>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Transfer advance or full fare using Google Pay, PhonePe, Paytm or BHIM to our business UPI ID: <strong className="font-mono text-stone-800">{BUSINESS_CONFIG.upiId}</strong>.
-                  </p>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-stone-900">Scan &amp; Pay via UPI QR Code</span>
+                      <span className="text-[10px] font-bold font-mono text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">Instant Transfer</span>
+                    </div>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Pay using Google Pay, PhonePe, Paytm, BHIM, or any banking UPI app.
+                    </p>
+                  </div>
                 </div>
+
+                {/* Expanded UPI QR Payment Box */}
+                {paymentMethod === 'upi' && (
+                  <div className="mt-2 pt-4 border-t border-amber-200/70 space-y-4 cursor-default" onClick={(e) => e.stopPropagation()}>
+                    
+                    {/* Final Calculated Booking Amount */}
+                    <div className="bg-amber-100/70 border border-amber-300/80 rounded-xl p-3.5 text-center">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900 block">
+                        Final Calculated Booking Amount
+                      </span>
+                      <div className="text-3xl font-black text-stone-950 font-mono mt-0.5">
+                        ₹{fareDetails.fare.toLocaleString()}
+                      </div>
+                      <span className="text-[11px] text-stone-600 font-medium block mt-0.5">
+                        {selectedVehicle.name} &bull; {fareDetails.billableKm} km @ ₹{fareDetails.ratePerKm}/km
+                      </span>
+                    </div>
+
+                    {/* QR Code Container with Clear Instructions */}
+                    <div className="bg-white rounded-2xl border border-stone-200 p-5 text-center shadow-xs space-y-3">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800">
+                        <QrCode className="w-3.5 h-3.5 text-amber-700" />
+                        <span>Scan the QR code to pay</span>
+                      </div>
+
+                      <div className="flex justify-center p-2">
+                        <img
+                          src={upiQrDataUrl}
+                          alt="Bokde Travels UPI QR Code"
+                          className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-xl border-2 border-stone-200 bg-white p-2 shadow-xs"
+                        />
+                      </div>
+
+                      <p className="text-xs text-stone-600">
+                        Open <strong className="text-stone-900">Google Pay, PhonePe, Paytm</strong>, or any UPI app and scan this QR code to complete the payment.
+                      </p>
+
+                      {/* UPI ID & Copy Bar */}
+                      <div className="flex items-center justify-between gap-2 p-2.5 bg-stone-50 border border-stone-200 rounded-xl max-w-sm mx-auto text-xs">
+                        <div className="text-left">
+                          <span className="text-[10px] uppercase font-bold text-stone-400 block leading-none">UPI ID</span>
+                          <span className="font-mono font-bold text-stone-900 text-xs sm:text-sm">{BUSINESS_CONFIG.upiId}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleCopyUpi}
+                          className="px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-amber-500 hover:text-stone-950 text-white font-bold text-xs flex items-center gap-1 transition-all cursor-pointer"
+                        >
+                          {copiedUpi ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy ID</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Optional UPI Reference Number / UTR */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
+                        UPI Transaction / UTR Ref Number (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={upiTransactionRef}
+                        onChange={(e) => setUpiTransactionRef(e.target.value)}
+                        placeholder="e.g. 12-digit UTR from payment receipt"
+                        className="w-full bg-white text-stone-900 text-xs font-medium rounded-xl px-4 py-2.5 border border-stone-200 focus:border-amber-500 outline-none transition-all font-mono"
+                      />
+                    </div>
+
+                    {/* Confirmation Checkbox */}
+                    <div className="pt-1">
+                      <label className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50/80 border border-amber-300/80 hover:bg-amber-100/60 transition-colors cursor-pointer">
+                        <input
+                          type="checkbox"
+                          id="upi-confirmation-check"
+                          checked={hasCompletedUpiPayment}
+                          onChange={(e) => {
+                            setHasCompletedUpiPayment(e.target.checked);
+                            if (e.target.checked) setUpiError(null);
+                          }}
+                          className="w-4 h-4 mt-0.5 text-amber-600 rounded border-stone-300 focus:ring-amber-500 cursor-pointer"
+                        />
+                        <span className="text-xs font-bold text-stone-900 leading-snug">
+                          I have completed the UPI payment of ₹{fareDetails.fare.toLocaleString()} to {BUSINESS_CONFIG.upiId}
+                        </span>
+                      </label>
+                    </div>
+
+                    {/* Error Banner */}
+                    {upiError && (
+                      <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span>{upiError}</span>
+                      </div>
+                    )}
+
+                  </div>
+                )}
               </div>
 
               {/* Navigation buttons */}
@@ -820,7 +1016,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setCurrentStep(5)}
+                  onClick={handleProceedToReview}
                   className="px-8 py-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-sm rounded-xl flex items-center gap-2 shadow-md cursor-pointer"
                 >
                   <span>Review Booking Details</span>
@@ -888,7 +1084,15 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
                 <div className="flex justify-between items-center pb-2.5 border-b border-stone-200">
                   <span className="text-stone-500 font-medium">Payment Mode:</span>
-                  <span className="font-bold text-stone-900 uppercase">{paymentMethod === 'cod' ? 'Pay Driver / Cash' : `UPI (${BUSINESS_CONFIG.upiId})`}</span>
+                  <span className="font-bold text-stone-900">
+                    {paymentMethod === 'cod' ? (
+                      <span className="text-stone-800">Pay Driver / Cash on Delivery</span>
+                    ) : (
+                      <span className="text-emerald-700">
+                        UPI Confirmed ({BUSINESS_CONFIG.upiId}){upiTransactionRef ? ` - UTR: ${upiTransactionRef}` : ''}
+                      </span>
+                    )}
+                  </span>
                 </div>
 
                 {/* Toll & Parking Note as requested */}
@@ -1004,7 +1208,13 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
               <div className="flex justify-between items-center">
                 <span className="text-stone-500 font-medium">Payment Mode:</span>
-                <span className="font-bold text-stone-900 uppercase">{confirmedBooking.paymentMethod}</span>
+                <span className="font-bold text-stone-900">
+                  {confirmedBooking.paymentMethod === 'upi' ? (
+                    <span className="text-emerald-700 font-bold">UPI Confirmed ({BUSINESS_CONFIG.upiId})</span>
+                  ) : (
+                    <span className="text-stone-900">Pay Driver / Cash on Delivery</span>
+                  )}
+                </span>
               </div>
             </div>
 

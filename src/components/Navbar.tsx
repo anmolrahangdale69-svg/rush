@@ -172,7 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
             onClick={() => scrollToSection('fleet')}
             className="w-full text-left py-2 px-3 rounded-lg font-semibold text-stone-800 hover:bg-stone-50"
           >
-            Our Fleet (7 Vehicles)
+            Our Fleet (4 Vehicles)
           </button>
           <button
             type="button"

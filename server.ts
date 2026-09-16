@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from '@supabase/supabase-js';
+import { sendResendBookingEmail, BookingEmailPayload } from './src/utils/bookingEmail';
 
 const app = express();
 const PORT = 3000;
@@ -448,10 +449,38 @@ app.post('/api/book', async (req: Request, res: Response) => {
 
     console.log(`[BOKDE TRAVELS BOOKING] Ref: ${newBooking.bookingReference} | Guest: ${newBooking.customerName} (${newBooking.customerPhone}) | ${newBooking.pickupLocation} -> ${newBooking.dropLocation} | Fare: Rs.${newBooking.estimatedFare}`);
 
+    // 4. Resend External Email Notification
+    let resendResult = { success: true, emailSent: false };
+    try {
+      const emailPayload: BookingEmailPayload = {
+        bookingReference: newBooking.bookingReference,
+        customerName: newBooking.customerName,
+        customerPhone: newBooking.customerPhone,
+        customerEmail: newBooking.customerEmail,
+        specialRequests: body.cleanSpecialRequests || newBooking.specialRequests,
+        tripType: newBooking.tripType,
+        airportTransferType: newBooking.airportTransferType,
+        pickupLocation: newBooking.pickupLocation,
+        dropLocation: newBooking.dropLocation,
+        travelDate: newBooking.travelDate,
+        travelTime: newBooking.travelTime,
+        passengers: newBooking.passengers,
+        vehicleName: newBooking.vehicleName,
+        estimatedFare: newBooking.estimatedFare,
+        paymentMethod: newBooking.paymentMethod,
+        hasCompletedUpiPayment: body.hasCompletedUpiPayment,
+        upiTransactionRef: body.upiTransactionRef
+      };
+      resendResult = await sendResendBookingEmail(emailPayload);
+    } catch (resendErr) {
+      console.warn('Resend auto-email trigger warning:', resendErr);
+    }
+
     return res.status(201).json({
       success: true,
       booking: newBooking,
-      supabaseSaved
+      supabaseSaved,
+      emailResult: resendResult
     });
   } catch (err: any) {
     console.error('Booking processing error:', err);
@@ -459,6 +488,40 @@ app.post('/api/book', async (req: Request, res: Response) => {
       success: false,
       error: 'Failed to process booking',
       details: err.message
+    });
+  }
+});
+
+// Dedicated Resend Email Dispatch Endpoint (/api/send-booking-email)
+app.get('/api/send-booking-email', (req: Request, res: Response) => {
+  res.json({
+    status: 'Bokde Travels Resend Email Service is active',
+    recipient: 'bokdetravels@gmail.com'
+  });
+});
+
+app.post('/api/send-booking-email', async (req: Request, res: Response) => {
+  try {
+    const payload: BookingEmailPayload = req.body;
+    if (!payload || !payload.bookingReference || !payload.customerName || !payload.customerPhone) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required booking fields (bookingReference, customerName, customerPhone)'
+      });
+    }
+
+    const result = await sendResendBookingEmail(payload);
+    return res.status(200).json({
+      ...result,
+      bookingReference: payload.bookingReference,
+      recipient: 'bokdetravels@gmail.com'
+    });
+  } catch (err: any) {
+    console.error('Error in /api/send-booking-email route:', err);
+    return res.status(200).json({
+      success: true,
+      emailSent: false,
+      error: err.message || 'Email dispatch failed'
     });
   }
 });

@@ -37,8 +37,8 @@ export const ChooseYourRideSection: React.FC<ChooseYourRideSectionProps> = ({ on
           {/* Quick Filter Tabs */}
           <div className="mt-6 inline-flex p-1 bg-stone-200/80 rounded-xl">
             {[
-              { id: 'all', label: 'All Cabs (7)' },
-              { id: 'sedan', label: 'Sedans & Compacts' },
+              { id: 'all', label: 'All Cabs (4)' },
+              { id: 'sedan', label: 'Sedan (4 Seater)' },
               { id: 'muv', label: '6 & 7 Seater MUVs' }
             ].map(tab => (
               <button
@@ -57,8 +57,8 @@ export const ChooseYourRideSection: React.FC<ChooseYourRideSectionProps> = ({ on
           </div>
         </div>
 
-        {/* 7 Vehicle Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 4 Vehicle Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredVehicles.map((vehicle) => (
             <div
               key={vehicle.id}
@@ -66,9 +66,9 @@ export const ChooseYourRideSection: React.FC<ChooseYourRideSectionProps> = ({ on
             >
               <div>
                 {/* Vehicle Visual Header */}
-                <div className="p-4 bg-stone-50 border-b border-stone-100 relative">
-                  <div className="w-full h-40 flex items-center justify-center">
-                    <VehicleVisual visualId={vehicle.visualId} className="w-full h-full object-contain" />
+                <div className="p-3 bg-stone-50 border-b border-stone-100 relative">
+                  <div className="w-full h-44 overflow-hidden rounded-xl">
+                    <VehicleVisual visualId={vehicle.visualId} className="w-full h-full" altText={vehicle.name} />
                   </div>
                   
                   {/* Category Pill */}

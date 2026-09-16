@@ -116,7 +116,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* 4. Vehicle Fleet (7 specific models with accurate rates & visuals) */}
+        {/* 4. Vehicle Fleet (4 specific models with accurate rates & visuals) */}
         <ChooseYourRideSection onSelectVehicle={handleSelectVehicleFromFleet} />
 
         {/* 5. Cab Services (One Way, Round Trip, Local, Airport Transfer) */}

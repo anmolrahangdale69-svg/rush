@@ -15,82 +15,12 @@ export const BUSINESS_CONFIG = {
   airportName: 'Dr. Babasaheb Ambedkar International Airport (NAG), Nagpur',
 };
 
-// 7 Exact Vehicles with Rates (One-Way & Round-Trip = One-Way - ₹1/km)
+// 4 Dedicated Vehicles with Rates (One-Way & Round-Trip = One-Way - ₹1/km)
 export const VEHICLES: VehicleConfig[] = [
   {
-    id: 'maruti-swift',
-    name: 'Maruti Swift',
-    model: 'Swift ZXi / VXi',
-    category: 'Hatchback',
-    passengers: 4,
-    luggage: 2,
-    ac: true,
-    oneWayRate: 18,
-    roundTripRate: 17,
-    visualId: 'maruti-swift',
-    description: 'Agile & fuel-efficient hatchback, ideal for solo travelers, couples & quick city or intercity trips.',
-    features: ['Chilled AC', 'Clean Fabric Seats', 'Compact & Smooth Ride', 'Luggage Boot']
-  },
-  {
-    id: 'maruti-fronx',
-    name: 'Maruti Fronx',
-    model: 'Fronx Turbo / Delta',
-    category: 'Crossover',
-    passengers: 4,
-    luggage: 2,
-    ac: true,
-    oneWayRate: 17,
-    roundTripRate: 16,
-    visualId: 'maruti-fronx',
-    description: 'Modern crossover with higher ground clearance, quiet cabin and superior highway ride quality.',
-    features: ['High Ground Clearance', 'Dual Airbags & AC', 'Quiet Highway Stance', 'Spacious Cabin']
-  },
-  {
-    id: 'hyundai-aura',
-    name: 'Hyundai Aura',
-    model: 'Aura SX / S',
-    category: 'Sedan',
-    passengers: 4,
-    luggage: 3,
-    ac: true,
-    oneWayRate: 18,
-    roundTripRate: 17,
-    visualId: 'hyundai-aura',
-    description: 'Comfortable family sedan with smooth suspension, plush rear seating and deep dedicated boot space.',
-    features: ['Rear AC Vents', 'Ample Legroom', 'Generous 402L Boot', 'Ergonomic Seats']
-  },
-  {
-    id: 'suzuki-dzire',
-    name: 'Suzuki Dzire',
-    model: 'Dzire ZXi / VXi',
-    category: 'Sedan',
-    passengers: 4,
-    luggage: 3,
-    ac: true,
-    oneWayRate: 18,
-    roundTripRate: 17,
-    visualId: 'suzuki-dzire',
-    description: 'India’s most trusted commercial touring sedan with smooth highway ride, comfort and reliable mileage.',
-    features: ['Silent AC Cabin', 'Dedicated Trunk Space', 'Plush Cushioned Seats', 'Highway Punctuality']
-  },
-  {
-    id: 'maruti-ertiga',
-    name: 'Maruti Ertiga',
-    model: 'Ertiga ZXi (7 Seater)',
-    category: 'MUV',
-    passengers: 6,
-    luggage: 3,
-    ac: true,
-    oneWayRate: 21,
-    roundTripRate: 20,
-    visualId: 'maruti-ertiga',
-    description: 'Spacious 6-7 passenger multi-utility vehicle designed for family outings, pilgrimages and group road travel.',
-    features: ['3-Row Flexible Seating', 'Roof-Mounted AC', 'Large Family Capacity', 'Smooth Suspension']
-  },
-  {
     id: 'kia-carens',
-    name: 'Kia Carens',
-    model: 'Carens Prestige Plus',
+    name: 'Kia Carens / Equivalent',
+    model: 'Carens Prestige Plus / Equivalent',
     category: 'MUV',
     passengers: 6,
     luggage: 4,
@@ -98,13 +28,44 @@ export const VEHICLES: VehicleConfig[] = [
     oneWayRate: 22.99,
     roundTripRate: 21.99,
     visualId: 'kia-carens',
-    description: 'Refined modern 6-7 seater MPV with generous legroom, premium upholstery and advanced comfort on long highways.',
+    imageUrl: '/images/fleet/kia-carens.jpg',
+    description: 'Refined modern 6-seater MPV with generous legroom, premium upholstery, and advanced comfort on long highways.',
     features: ['Dedicated AC All Rows', 'One-Touch Tumble Seats', 'Comfortable Headrests', 'Ample Cabin Space']
   },
   {
+    id: 'maruti-ertiga',
+    name: 'Maruti Ertiga / Equivalent',
+    model: 'Ertiga ZXi / Equivalent',
+    category: 'MUV',
+    passengers: 6,
+    luggage: 3,
+    ac: true,
+    oneWayRate: 21,
+    roundTripRate: 20,
+    visualId: 'maruti-ertiga',
+    imageUrl: '/images/fleet/maruti-ertiga.jpg',
+    description: 'Spacious 6-passenger multi-utility vehicle designed for family outings, pilgrimages, and group road travel.',
+    features: ['3-Row Flexible Seating', 'Roof-Mounted AC', 'Large Family Capacity', 'Smooth Suspension']
+  },
+  {
+    id: 'suzuki-dzire',
+    name: 'Suzuki Dzire / Equivalent',
+    model: 'Dzire ZXi / VXi / Equivalent',
+    category: 'Sedan',
+    passengers: 4,
+    luggage: 3,
+    ac: true,
+    oneWayRate: 18,
+    roundTripRate: 17,
+    visualId: 'suzuki-dzire',
+    imageUrl: '/images/fleet/suzuki-dzire.jpg',
+    description: 'India’s most trusted touring sedan with smooth highway ride, chilled AC comfort, and reliable boot space.',
+    features: ['Silent AC Cabin', 'Dedicated Trunk Space', 'Plush Cushioned Seats', 'Highway Punctuality']
+  },
+  {
     id: 'toyota-innova-crysta',
-    name: 'Toyota Innova Crysta',
-    model: 'Innova Crysta 2.4 VX/GX',
+    name: 'Toyota Innova Crysta / Equivalent',
+    model: 'Innova Crysta 2.4 / Equivalent',
     category: 'Premium MPV',
     passengers: 7,
     luggage: 4,
@@ -112,7 +73,8 @@ export const VEHICLES: VehicleConfig[] = [
     oneWayRate: 32,
     roundTripRate: 31,
     visualId: 'toyota-innova-crysta',
-    description: 'The gold standard of highway comfort. Unmatched ride stability, supreme passenger cushioning and heavy luggage capacity.',
+    imageUrl: '/images/fleet/toyota-innova-crysta.jpg',
+    description: 'The gold standard of highway comfort. Unmatched ride stability, supreme passenger cushioning, and heavy luggage capacity.',
     features: ['Captain / Bench Seats', 'Dual Climate AC', 'Unrivalled Highway Stability', 'Massive Luggage Space']
   }
 ];
@@ -234,7 +196,7 @@ export const FAQS: FaqItem[] = [
   },
   {
     question: 'What vehicles are available in your fleet?',
-    answer: 'We maintain 7 dedicated vehicle models: Maruti Swift, Maruti Fronx, Hyundai Aura, Suzuki Dzire, Maruti Ertiga, Kia Carens, and Toyota Innova Crysta. All vehicles are air-conditioned, commercially registered, and regularly serviced.'
+    answer: 'We maintain 4 dedicated vehicle options: Kia Carens / Equivalent, Maruti Ertiga / Equivalent, Suzuki Dzire / Equivalent, and Toyota Innova Crysta / Equivalent. All vehicles are air-conditioned, commercially registered, and regularly serviced.'
   },
   {
     question: 'Can I book Nagpur Airport pickup and drop?',
@@ -242,7 +204,7 @@ export const FAQS: FaqItem[] = [
   },
   {
     question: 'What payment options are available?',
-    answer: 'You can pay directly in Cash / Pay to Driver at the end of the trip, or via UPI to our official business ID: sonalbokde786-7@okaxis (Google Pay, PhonePe, Paytm, BHIM).'
+    answer: 'You can pay comfortably via Cash on Delivery / Pay to Driver at the trip destination, or via direct UPI QR code / UPI ID transfer to sonalbokde786-7@okaxis using Google Pay, PhonePe, Paytm, or BHIM.'
   }
 ];
 
@@ -268,7 +230,7 @@ export const WHY_BOKDE_TRAVELS = [
   {
     id: 'fleet-options',
     title: 'Multiple Vehicle Options',
-    description: 'Choice of 7 specific car models ranging from compact hatchbacks (Swift) and sedans (Dzire, Aura) to 6-7 seaters (Ertiga, Carens, Innova Crysta).'
+    description: 'Choice of 4 reliable vehicle options: Suzuki Dzire / Equivalent sedan, Maruti Ertiga / Equivalent 6-seater MUV, Kia Carens / Equivalent 6-seater, and Toyota Innova Crysta / Equivalent 7-seater MPV.'
   },
   {
     id: 'easy-booking',

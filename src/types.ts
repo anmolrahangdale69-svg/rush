@@ -8,9 +8,6 @@ export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP';
 export type VehicleVisualId = 
   | 'kia-carens'
   | 'maruti-ertiga'
-  | 'maruti-swift'
-  | 'maruti-fronx'
-  | 'hyundai-aura'
   | 'suzuki-dzire'
   | 'toyota-innova-crysta';
 
@@ -18,13 +15,14 @@ export interface VehicleConfig {
   id: string;
   name: string;
   model: string;
-  category: 'Hatchback' | 'Sedan' | 'Crossover' | 'MUV' | 'Premium MPV';
+  category: 'Sedan' | 'MUV' | 'Premium MPV';
   passengers: number;
   luggage: number;
   ac: boolean;
   oneWayRate: number;       // ₹/km
   roundTripRate: number;    // ₹/km (ALWAYS oneWayRate - 1)
   visualId: VehicleVisualId;
+  imageUrl: string;
   description: string;
   features: string[];
 }
