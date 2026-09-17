@@ -71,10 +71,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
           </button>
           <button 
             type="button" 
-            onClick={() => scrollToSection('fleet')} 
+            onClick={() => scrollToSection('booking-section')} 
             className="hover:text-amber-600 transition-colors cursor-pointer"
           >
-            Our Fleet
+            Our Fleet &amp; Rates
           </button>
           <button 
             type="button" 
@@ -169,10 +169,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
           </button>
           <button
             type="button"
-            onClick={() => scrollToSection('fleet')}
+            onClick={() => scrollToSection('booking-section')}
             className="w-full text-left py-2 px-3 rounded-lg font-semibold text-stone-800 hover:bg-stone-50"
           >
-            Our Fleet (4 Vehicles)
+            Our Fleet &amp; Rates (4 Vehicles)
           </button>
           <button
             type="button"

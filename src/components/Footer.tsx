@@ -51,7 +51,7 @@ export const Footer: React.FC = () => {
               {VEHICLES.map(v => (
                 <li key={v.id} className="flex justify-between items-center hover:text-white transition-colors">
                   <span>{v.name} ({v.category})</span>
-                  <span className="font-mono text-stone-500">₹{v.oneWayRate}/km</span>
+                  <span className="font-mono text-stone-300">Round: ₹{v.roundTripRate}/km</span>
                 </li>
               ))}
             </ul>

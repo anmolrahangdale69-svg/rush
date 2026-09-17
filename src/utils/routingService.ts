@@ -292,7 +292,7 @@ export function calculateVehicleFare(
   const fare = Math.round(billableKm * ratePerKm);
 
   const formulaDescription = isRoundTrip
-    ? `${distanceKm} km × 2 = ${billableKm} km @ ₹${ratePerKm}/km (Round-trip discount ₹1/km applied)`
+    ? `${distanceKm} km × 2 = ${billableKm} km (Total Round-Trip Distance) @ ₹${ratePerKm}/km`
     : `${distanceKm} km @ ₹${ratePerKm}/km`;
 
   return {

@@ -387,7 +387,7 @@ app.post('/api/book', async (req: Request, res: Response) => {
       distanceKm: Number(body.distanceKm) || 0,
       vehicleId: body.vehicleId || 'suzuki-dzire',
       vehicleName: body.vehicleName || 'Suzuki Dzire',
-      perKmRate: Number(body.perKmRate) || 18,
+      perKmRate: Number(body.perKmRate) || 12,
       estimatedFare: Number(body.estimatedFare) || 0,
       tollNote: 'Payable by customer',
       customerName: body.customerName,

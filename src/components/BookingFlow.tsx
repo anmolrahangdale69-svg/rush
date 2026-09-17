@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   MapPin, 
   Navigation, 
@@ -143,6 +143,39 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     if (ok) {
       setCurrentStep(2);
     }
+  };
+
+  // Helper to scroll the booking card directly into the user's view (below sticky navbar)
+  const scrollToBookingTop = () => {
+    const el = document.getElementById('booking-section');
+    if (el) {
+      const yOffset = -85;
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
+  };
+
+  const isFirstRender = useRef(true);
+
+  // Automatically bring the new step directly into the user's view whenever step changes
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      scrollToBookingTop();
+    }, 40);
+    return () => clearTimeout(timer);
+  }, [currentStep]);
+
+  // Step 2 -> Step 3: Select vehicle and immediately present passenger contact details
+  const handleProceedToStep3 = (vehicleId?: string) => {
+    if (vehicleId) {
+      setSelectedVehicleId(vehicleId);
+    }
+    setCurrentStep(3);
+    setTimeout(scrollToBookingTop, 20);
   };
 
   // Step 3 validation
@@ -332,7 +365,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   };
 
   return (
-    <div id="booking-section" className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-8">
+    <div id="booking-section" className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 scroll-mt-24">
       <div className="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden transition-all">
         
         {/* Header with Step Indicator */}
@@ -388,7 +421,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[
                   { id: 'oneway', label: 'One Way', desc: 'Direct point-to-point drop' },
-                  { id: 'roundtrip', label: 'Round Trip', desc: 'Return trip (₹1/km discount)' },
+                  { id: 'roundtrip', label: 'Round Trip', desc: 'Return trip (total distance × rate)' },
                   { id: 'local', label: 'Local City', desc: 'City sightseeing & hourly' },
                   { id: 'airport', label: 'Airport Transfer', desc: 'Nagpur Airport (NAG)' }
                 ].map((t) => (
@@ -618,11 +651,21 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               </button>
             </div>
 
+            {/* Choose Your Cab Header */}
+            <div>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 tracking-tight">
+                Choose Your Cab
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-600 mt-1">
+                Select your preferred vehicle. Transparent rates, air-conditioned comfort, and verified commercial drivers.
+              </p>
+            </div>
+
             {/* Notice on Round-Trip rule and Tolls */}
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-stone-500 bg-stone-50 p-3 rounded-xl border border-stone-200">
               <span>
                 {tripType === 'roundtrip' 
-                  ? '🏷️ Round-trip rule active: Rate is ₹1/km lower than one-way rate across all vehicles.' 
+                  ? '🏷️ Round-trip calculation: Total Fare = Total Round-Trip Distance × Vehicle Rate.' 
                   : '🏷️ One-way trip: Exact distance multiplied by vehicle rate.'}
               </span>
               <span className="font-semibold text-amber-800">
@@ -691,15 +734,16 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedVehicleId(vehicle.id);
+                          handleProceedToStep3(vehicle.id);
                         }}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                           isSelected
-                            ? 'bg-amber-500 text-stone-950 font-extrabold shadow-2xs'
-                            : 'bg-stone-100 text-stone-800 hover:bg-stone-200'
+                            ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold shadow-sm'
+                            : 'bg-stone-900 hover:bg-stone-800 text-white font-bold shadow-2xs'
                         }`}
                       >
-                        {isSelected ? '✓ Selected' : 'Select Cab'}
+                        <span>{isSelected ? 'Proceed with Cab' : 'Select & Proceed'}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -711,7 +755,10 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
             <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
               <button
                 type="button"
-                onClick={() => setCurrentStep(1)}
+                onClick={() => {
+                  setCurrentStep(1);
+                  setTimeout(scrollToBookingTop, 20);
+                }}
                 className="px-5 py-2.5 rounded-xl border border-stone-300 text-stone-700 font-bold text-xs hover:bg-stone-100 flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
@@ -720,10 +767,10 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
               <button
                 type="button"
-                onClick={() => setCurrentStep(3)}
+                onClick={() => handleProceedToStep3()}
                 className="px-8 py-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-sm rounded-xl flex items-center gap-2 shadow-md cursor-pointer"
               >
-                <span>Continue with {selectedVehicle.name}</span>
+                <span>Continue to Passenger Details</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

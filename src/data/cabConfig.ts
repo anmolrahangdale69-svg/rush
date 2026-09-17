@@ -15,18 +15,18 @@ export const BUSINESS_CONFIG = {
   airportName: 'Dr. Babasaheb Ambedkar International Airport (NAG), Nagpur',
 };
 
-// 4 Dedicated Vehicles with Rates (One-Way & Round-Trip = One-Way - ₹1/km)
+// 4 Dedicated Vehicles with Rates
 export const VEHICLES: VehicleConfig[] = [
   {
     id: 'kia-carens',
-    name: 'Kia Carens / Equivalent',
-    model: 'Carens Prestige Plus / Equivalent',
+    name: 'Kia Carens',
+    model: 'Carens (6 Seater)',
     category: 'MUV',
     passengers: 6,
     luggage: 4,
     ac: true,
-    oneWayRate: 22.99,
-    roundTripRate: 21.99,
+    oneWayRate: 17.99,
+    roundTripRate: 16.99,
     visualId: 'kia-carens',
     imageUrl: '/images/fleet/kia-carens.jpg',
     description: 'Refined modern 6-seater MPV with generous legroom, premium upholstery, and advanced comfort on long highways.',
@@ -34,14 +34,14 @@ export const VEHICLES: VehicleConfig[] = [
   },
   {
     id: 'maruti-ertiga',
-    name: 'Maruti Ertiga / Equivalent',
-    model: 'Ertiga ZXi / Equivalent',
+    name: 'Maruti Ertiga',
+    model: 'Ertiga (6 Seater)',
     category: 'MUV',
     passengers: 6,
     luggage: 3,
     ac: true,
-    oneWayRate: 21,
-    roundTripRate: 20,
+    oneWayRate: 16,
+    roundTripRate: 15,
     visualId: 'maruti-ertiga',
     imageUrl: '/images/fleet/maruti-ertiga.jpg',
     description: 'Spacious 6-passenger multi-utility vehicle designed for family outings, pilgrimages, and group road travel.',
@@ -49,14 +49,14 @@ export const VEHICLES: VehicleConfig[] = [
   },
   {
     id: 'suzuki-dzire',
-    name: 'Suzuki Dzire / Equivalent',
-    model: 'Dzire ZXi / VXi / Equivalent',
+    name: 'Suzuki Dzire',
+    model: 'Dzire (4 Seater)',
     category: 'Sedan',
     passengers: 4,
     luggage: 3,
     ac: true,
-    oneWayRate: 18,
-    roundTripRate: 17,
+    oneWayRate: 13,
+    roundTripRate: 12,
     visualId: 'suzuki-dzire',
     imageUrl: '/images/fleet/suzuki-dzire.jpg',
     description: 'India’s most trusted touring sedan with smooth highway ride, chilled AC comfort, and reliable boot space.',
@@ -64,18 +64,18 @@ export const VEHICLES: VehicleConfig[] = [
   },
   {
     id: 'toyota-innova-crysta',
-    name: 'Toyota Innova Crysta / Equivalent',
-    model: 'Innova Crysta 2.4 / Equivalent',
+    name: 'Toyota Innova Crysta',
+    model: 'Innova Crysta (6 Seater)',
     category: 'Premium MPV',
-    passengers: 7,
+    passengers: 6,
     luggage: 4,
     ac: true,
-    oneWayRate: 32,
-    roundTripRate: 31,
+    oneWayRate: 20,
+    roundTripRate: 19,
     visualId: 'toyota-innova-crysta',
     imageUrl: '/images/fleet/toyota-innova-crysta.jpg',
     description: 'The gold standard of highway comfort. Unmatched ride stability, supreme passenger cushioning, and heavy luggage capacity.',
-    features: ['Captain / Bench Seats', 'Dual Climate AC', 'Unrivalled Highway Stability', 'Massive Luggage Space']
+    features: ['Captain Seats', 'Dual Climate AC', 'Unrivalled Highway Stability', 'Massive Luggage Space']
   }
 ];
 
@@ -89,7 +89,7 @@ export const CAB_SERVICES = [
   {
     id: 'roundtrip',
     title: 'Round-Trip Cab',
-    description: 'Return journey with same cab and driver. Enjoy our special round-trip discount of ₹1/km lower than one-way rates across all vehicle models.'
+    description: 'Return journey with same cab and driver. Clear round-trip per-km rates with Total Fare = Total Round-Trip Distance × Vehicle Rate.'
   },
   {
     id: 'local',
@@ -180,11 +180,11 @@ export const CLIENT_CONFIRMATION_POINTS: string[] = [
 export const FAQS: FaqItem[] = [
   {
     question: 'How is the cab fare calculated?',
-    answer: 'The fare is calculated simply as: Distance (in km) × Vehicle Per-Km Rate. For One-Way trips, the fare is based on the single route distance. For Round-Trip bookings, the total running distance (pickup to destination and return) is multiplied by the discounted round-trip rate (which is ₹1/km lower than the one-way rate).'
+    answer: 'The fare is calculated simply as: Distance (in km) × Vehicle Per-Km Rate. For One-Way trips, the fare is based on the single route distance. For Round-Trip bookings, the total round-trip distance is multiplied by the vehicle round-trip rate (Suzuki Dzire: ₹12/km, Maruti Ertiga: ₹15/km, Kia Carens: ₹16.99/km, Toyota Innova Crysta: ₹19/km).'
   },
   {
     question: 'How does round-trip pricing work?',
-    answer: 'Our round-trip rate is always ₹1/km cheaper than the one-way rate across all vehicles. For instance, if Suzuki Dzire is ₹18/km one-way, it is ₹17/km on round-trip bookings. The fare accounts for the complete round-trip distance.'
+    answer: 'For Round Trip, Total Fare = Total Round-Trip Distance × Selected Vehicle Rate. Our round-trip rates are: Suzuki Dzire at ₹12/km, Maruti Ertiga at ₹15/km, Kia Carens at ₹16.99/km, and Toyota Innova Crysta at ₹19/km.'
   },
   {
     question: 'Do I have to pay toll and parking charges?',
@@ -196,7 +196,7 @@ export const FAQS: FaqItem[] = [
   },
   {
     question: 'What vehicles are available in your fleet?',
-    answer: 'We maintain 4 dedicated vehicle options: Kia Carens / Equivalent, Maruti Ertiga / Equivalent, Suzuki Dzire / Equivalent, and Toyota Innova Crysta / Equivalent. All vehicles are air-conditioned, commercially registered, and regularly serviced.'
+    answer: 'We maintain 4 dedicated vehicle options: Suzuki Dzire (4 Seater), Maruti Ertiga (6 Seater), Kia Carens (6 Seater), and Toyota Innova Crysta (6 Seater). All vehicles are air-conditioned, commercially registered, and regularly serviced.'
   },
   {
     question: 'Can I book Nagpur Airport pickup and drop?',
@@ -230,7 +230,7 @@ export const WHY_BOKDE_TRAVELS = [
   {
     id: 'fleet-options',
     title: 'Multiple Vehicle Options',
-    description: 'Choice of 4 reliable vehicle options: Suzuki Dzire / Equivalent sedan, Maruti Ertiga / Equivalent 6-seater MUV, Kia Carens / Equivalent 6-seater, and Toyota Innova Crysta / Equivalent 7-seater MPV.'
+    description: 'Choice of 4 reliable vehicles: Suzuki Dzire (4-seater sedan), Maruti Ertiga (6-seater MUV), Kia Carens (6-seater MUV), and Toyota Innova Crysta (6-seater MPV).'
   },
   {
     id: 'easy-booking',

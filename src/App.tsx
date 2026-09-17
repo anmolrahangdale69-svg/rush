@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { BookingFlow } from './components/BookingFlow';
-import { ChooseYourRideSection } from './components/ChooseYourRideSection';
 import { ServicesSection } from './components/ServicesSection';
 import { PopularRoutesSection } from './components/PopularRoutesSection';
 import { WhyChooseUs } from './components/WhyChooseUs';
@@ -27,20 +26,6 @@ export default function App() {
     drop: 'Wardha',
     vehicleId: 'suzuki-dzire'
   });
-
-  // Handle selecting a vehicle from the fleet section
-  const handleSelectVehicleFromFleet = (vehicle: VehicleConfig) => {
-    setBookingPrefill(prev => ({
-      ...prev,
-      vehicleId: vehicle.id
-    }));
-
-    // Scroll smoothly to booking section
-    const bookingSection = document.getElementById('booking-section');
-    if (bookingSection) {
-      bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
 
   // Handle selecting a popular route
   const handleSelectPopularRoute = (from: string, to: string) => {
@@ -116,10 +101,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* 4. Vehicle Fleet (4 specific models with accurate rates & visuals) */}
-        <ChooseYourRideSection onSelectVehicle={handleSelectVehicleFromFleet} />
-
-        {/* 5. Cab Services (One Way, Round Trip, Local, Airport Transfer) */}
+        {/* 4. Cab Services (One Way, Round Trip, Local, Airport Transfer) */}
         <ServicesSection onSelectService={handleSelectService} />
 
         {/* 6. Popular Nagpur Highway Routes */}
