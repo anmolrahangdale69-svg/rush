@@ -12,6 +12,8 @@ export interface BookingEmailPayload {
   dropLocation: string;
   travelDate: string;
   travelTime: string;
+  returnDate?: string;
+  returnTime?: string;
   passengers: number | string;
   vehicleName: string;
   estimatedFare: number | string;
@@ -85,7 +87,7 @@ Trip Type: ${tripTypeFormatted}
 Pickup: ${data.pickupLocation}
 Drop: ${data.dropLocation}
 Date: ${data.travelDate}
-Time: ${data.travelTime}
+Time: ${data.travelTime}${data.returnDate ? `\nReturn Date: ${data.returnDate}\nReturn Time: ${data.returnTime || 'N/A'}` : ''}
 Passengers: ${data.passengers}
 
 VEHICLE
@@ -156,6 +158,7 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
               <p style="margin: 4px 0; font-size: 14px;"><strong>Drop:</strong> ${data.dropLocation}</p>
               <p style="margin: 4px 0; font-size: 14px;"><strong>Date:</strong> ${data.travelDate}</p>
               <p style="margin: 4px 0; font-size: 14px;"><strong>Time:</strong> ${data.travelTime}</p>
+              ${data.returnDate ? `<p style="margin: 4px 0; font-size: 14px; background-color: #fef3c7; padding: 4px 8px; border-radius: 4px; display: inline-block;"><strong>Return Date:</strong> ${data.returnDate}${data.returnTime ? ` at ${data.returnTime}` : ''}</p>` : ''}
               <p style="margin: 4px 0; font-size: 14px;"><strong>Passengers:</strong> ${data.passengers}</p>
             </td>
           </tr>

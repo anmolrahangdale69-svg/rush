@@ -20,7 +20,8 @@ import {
   Check,
   ChevronRight,
   QrCode,
-  Copy
+  Copy,
+  RotateCcw
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { TripType, AirportTransferType, PaymentMethod, VehicleConfig, BookingSubmission } from '../types';
@@ -53,8 +54,20 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     new Date(Date.now() + 86400000).toISOString().split('T')[0]
   );
   const [travelTime, setTravelTime] = useState<string>('09:00 AM');
+  const [returnDate, setReturnDate] = useState<string>(
+    new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0]
+  );
+  const [returnTime, setReturnTime] = useState<string>('06:00 PM');
   const [passengers, setPassengers] = useState<number>(3);
   const [localHours, setLocalHours] = useState<number>(8);
+
+  // Sync return date if departure date shifts past current return date
+  const handleTravelDateChange = (newDate: string) => {
+    setTravelDate(newDate);
+    if (returnDate < newDate) {
+      setReturnDate(newDate);
+    }
+  };
 
   // Distance & Routing State
   const [isCalculatingDistance, setIsCalculatingDistance] = useState<boolean>(false);
@@ -137,6 +150,11 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     }
     if (!drop.trim()) {
       setDistanceError('Please enter a valid drop location.');
+      return;
+    }
+
+    if (tripType === 'roundtrip' && returnDate && returnDate < travelDate) {
+      setDistanceError('Return trip date cannot be earlier than your departure date.');
       return;
     }
 
@@ -274,6 +292,8 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       dropLocation: drop,
       travelDate,
       travelTime,
+      returnDate: tripType === 'roundtrip' ? returnDate : undefined,
+      returnTime: tripType === 'roundtrip' ? returnTime : undefined,
       passengers,
       distanceKm: tripType === 'local' ? localHours * 10 : distanceKm,
       vehicleId: selectedVehicle.id,
@@ -331,6 +351,8 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
           dropLocation: drop,
           travelDate,
           travelTime,
+          returnDate: tripType === 'roundtrip' ? returnDate : undefined,
+          returnTime: tripType === 'roundtrip' ? returnTime : undefined,
           passengers,
           vehicleName: selectedVehicle.name,
           estimatedFare: fareDetails.fare,
@@ -372,13 +394,19 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       ? `₹${selectedVehicle.localHourlyRate}/hr (${localHours} Hours)`
       : `₹${b.perKmRate}/km`;
 
+    const isRoundTrip = b.tripType === 'roundtrip';
+    const routeText = isRoundTrip
+      ? `${b.pickupLocation} -> ${b.dropLocation} -> ${b.pickupLocation}`
+      : `${b.pickupLocation} -> ${b.dropLocation}`;
+
     const text = `*New Cab Booking Request - Bokde Travels*\n` +
       `*Booking Ref:* ${b.bookingReference}\n` +
       `*Name:* ${b.customerName}\n` +
       `*Phone:* ${b.customerPhone}\n` +
-      `*Route:* ${b.pickupLocation} -> ${b.dropLocation}\n` +
+      `*Route:* ${routeText}\n` +
       `*Trip Type:* ${b.tripType.toUpperCase()}${b.tripType === 'local' ? ` (${localHours} Hours Package)` : ''}\n` +
-      `*Date & Time:* ${b.travelDate} at ${b.travelTime}\n` +
+      `*Departure Date & Time:* ${b.travelDate} at ${b.travelTime}\n` +
+      (isRoundTrip && b.returnDate ? `*Return Date & Time:* ${b.returnDate} at ${b.returnTime || '06:00 PM'}\n` : '') +
       `*Passengers:* ${b.passengers}\n` +
       `*Vehicle:* ${b.vehicleName} (@ ${rateText})\n` +
       (b.tripType === 'local' ? `*Rental Duration:* ${localHours} Hours\n` : `*Distance:* ${b.distanceKm} km\n`) +
@@ -498,6 +526,29 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               </div>
             )}
 
+            {/* Round Trip Return Journey Info Banner */}
+            {tripType === 'roundtrip' && (
+              <div className="bg-amber-50/80 border border-amber-200/90 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in duration-200">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <RotateCcw className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-stone-900 block">
+                      Round-Trip / Two-Way Outstation Journey
+                    </span>
+                    <span className="text-[11px] text-stone-600">
+                      Discounted round-trip pricing applies. Choose your departure and return trip dates below.
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-semibold text-amber-900 bg-white border border-amber-200/80 px-3 py-1.5 rounded-lg shadow-2xs shrink-0">
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>Same cab &amp; driver stays with you</span>
+                </div>
+              </div>
+            )}
+
             {/* Local City Hourly Rental Selector */}
             {tripType === 'local' && (
               <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 animate-in fade-in duration-200">
@@ -594,8 +645,11 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Date */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
-                  Travel Date
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5 flex items-center justify-between">
+                  <span>{tripType === 'roundtrip' ? 'Departure Date' : 'Travel Date'}</span>
+                  {tripType === 'roundtrip' && (
+                    <span className="text-[10px] text-amber-800 font-bold bg-amber-100/80 px-1.5 py-0.5 rounded">Leg 1 Outbound</span>
+                  )}
                 </label>
                 <div className="relative flex items-center">
                   <Calendar className="w-4 h-4 text-amber-600 absolute left-3.5 pointer-events-none" />
@@ -603,7 +657,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                     type="date"
                     required
                     value={travelDate}
-                    onChange={(e) => setTravelDate(e.target.value)}
+                    onChange={(e) => handleTravelDateChange(e.target.value)}
                     className="w-full bg-stone-50 hover:bg-stone-100/60 focus:bg-white text-stone-900 text-sm font-semibold rounded-xl pl-10 pr-3 py-3 border border-stone-200 focus:border-amber-500 outline-none transition-all cursor-pointer"
                   />
                 </div>
@@ -612,7 +666,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               {/* Time */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
-                  Pickup Time
+                  {tripType === 'roundtrip' ? 'Departure Pickup Time' : 'Pickup Time'}
                 </label>
                 <div className="relative flex items-center">
                   <Clock className="w-4 h-4 text-amber-600 absolute left-3.5 pointer-events-none" />
@@ -659,6 +713,136 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Return Journey Date & Time Selector for Round-Trip */}
+            {tripType === 'roundtrip' && (
+              <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/40 to-amber-50/90 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 animate-in fade-in slide-in-from-top-2 duration-200 space-y-3 shadow-2xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-amber-200/80 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-amber-950 block">
+                        Return Trip Details (Leg 2 Inbound)
+                      </span>
+                      <span className="text-[11px] text-stone-600">
+                        Specify return pickup date &amp; time from {drop || 'destination'} back to {pickup || 'pickup city'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Quick Return Date Shortcuts */}
+                  <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                    <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider mr-1">Quick:</span>
+                    <button
+                      type="button"
+                      onClick={() => setReturnDate(travelDate)}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition-all ${
+                        returnDate === travelDate
+                          ? 'bg-amber-600 text-white shadow-2xs'
+                          : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                      }`}
+                    >
+                      Same Day
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const base = new Date(travelDate);
+                        base.setDate(base.getDate() + 1);
+                        setReturnDate(base.toISOString().split('T')[0]);
+                      }}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition-all ${
+                        (() => {
+                          const base = new Date(travelDate);
+                          base.setDate(base.getDate() + 1);
+                          return returnDate === base.toISOString().split('T')[0];
+                        })()
+                          ? 'bg-amber-600 text-white shadow-2xs'
+                          : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                      }`}
+                    >
+                      +1 Day
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const base = new Date(travelDate);
+                        base.setDate(base.getDate() + 2);
+                        setReturnDate(base.toISOString().split('T')[0]);
+                      }}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition-all ${
+                        (() => {
+                          const base = new Date(travelDate);
+                          base.setDate(base.getDate() + 2);
+                          return returnDate === base.toISOString().split('T')[0];
+                        })()
+                          ? 'bg-amber-600 text-white shadow-2xs'
+                          : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                      }`}
+                    >
+                      +2 Days
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  {/* Return Date */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5 flex items-center justify-between">
+                      <span>Return Trip Date</span>
+                      <span className="text-[10px] text-amber-800 font-bold">Min: Departure Date ({travelDate})</span>
+                    </label>
+                    <div className="relative flex items-center">
+                      <Calendar className="w-4 h-4 text-amber-600 absolute left-3.5 pointer-events-none" />
+                      <input
+                        type="date"
+                        required
+                        min={travelDate}
+                        value={returnDate}
+                        onChange={(e) => setReturnDate(e.target.value)}
+                        className="w-full bg-white text-stone-900 text-sm font-semibold rounded-xl pl-10 pr-3 py-3 border border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all cursor-pointer shadow-2xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Return Pickup Time */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                      Return Pickup Time
+                    </label>
+                    <div className="relative flex items-center">
+                      <Clock className="w-4 h-4 text-amber-600 absolute left-3.5 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={returnTime}
+                        onChange={(e) => setReturnTime(e.target.value)}
+                        placeholder="e.g. 06:00 PM"
+                        className="w-full bg-white text-stone-900 text-sm font-semibold rounded-xl pl-10 pr-3 py-3 border border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all shadow-2xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Switch to Round Trip if One-Way */}
+            {tripType === 'oneway' && (
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs bg-amber-50/50 border border-amber-200/60 rounded-xl px-4 py-2.5">
+                <span className="text-stone-600">
+                  Planning to come back? Save on round-trip rates by booking your return ride together.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setTripType('roundtrip')}
+                  className="font-bold text-amber-700 hover:text-amber-900 flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 bg-white border border-amber-200 px-2.5 py-1 rounded-lg shadow-2xs"
+                >
+                  <RotateCcw className="w-3 h-3 text-amber-600" />
+                  <span>Select Round-Trip with Return Date</span>
+                </button>
+              </div>
+            )}
 
             {/* Distance Error Notice */}
             {distanceError && (
@@ -711,12 +895,27 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                   {tripType === 'local' ? 'Local City Rental Package' : 'Calculated Route Distance'}
                 </span>
                 <div className="text-base sm:text-lg font-bold text-stone-900">
-                  {pickup} &rarr; {drop}
+                  {tripType === 'roundtrip' ? (
+                    <span className="flex items-center gap-1.5 flex-wrap">
+                      <span>{pickup}</span>
+                      <span className="text-amber-700">&harr;</span>
+                      <span>{drop}</span>
+                      <span className="text-xs bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded-md font-semibold">Round Trip</span>
+                    </span>
+                  ) : (
+                    <>{pickup} &rarr; {drop}</>
+                  )}
                 </div>
                 <div className="text-xs text-stone-600 mt-0.5">
                   {tripType === 'local' ? (
                     <>
                       Rental Duration: <strong className="font-mono text-stone-900">{localHours} Hours</strong> &bull; Billing: <strong className="text-amber-800">Hourly Rate × {localHours} hrs</strong>
+                    </>
+                  ) : tripType === 'roundtrip' ? (
+                    <>
+                      Route Distance: <strong className="font-mono text-stone-900">{distanceKm} km each way</strong> ({durationText}) &bull; 
+                      Departure: <strong className="text-stone-900">{travelDate} ({travelTime})</strong> &bull; 
+                      Return: <strong className="text-amber-900 font-bold">{returnDate} ({returnTime})</strong>
                     </>
                   ) : (
                     <>
@@ -1198,18 +1397,34 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               <div className="bg-stone-50 rounded-2xl border border-stone-200 p-5 space-y-3.5 text-xs sm:text-sm">
                 <div className="flex justify-between items-center pb-2.5 border-b border-stone-200">
                   <span className="text-stone-500 font-medium">Route:</span>
-                  <span className="font-bold text-stone-900 text-right">{pickup} &rarr; {drop}</span>
+                  <span className="font-bold text-stone-900 text-right">
+                    {tripType === 'roundtrip' ? `${pickup} \u2194 ${drop} (Round Trip)` : `${pickup} \u2192 ${drop}`}
+                  </span>
                 </div>
 
                 <div className="flex justify-between items-center pb-2.5 border-b border-stone-200">
                   <span className="text-stone-500 font-medium">Trip Type:</span>
-                  <span className="font-bold text-stone-900 capitalize">{tripType}</span>
+                  <span className="font-bold text-stone-900 capitalize">
+                    {tripType === 'roundtrip' ? 'Round-Trip (Two-Way Return)' : tripType}
+                  </span>
                 </div>
 
                 <div className="flex justify-between items-center pb-2.5 border-b border-stone-200">
-                  <span className="text-stone-500 font-medium">Date &amp; Time:</span>
+                  <span className="text-stone-500 font-medium">
+                    {tripType === 'roundtrip' ? 'Departure Date & Time:' : 'Date & Time:'}
+                  </span>
                   <span className="font-bold text-stone-900">{travelDate} at {travelTime}</span>
                 </div>
+
+                {tripType === 'roundtrip' && (
+                  <div className="flex justify-between items-center pb-2.5 border-b border-stone-200 bg-amber-50/70 -mx-3 px-3 py-1.5 rounded-lg">
+                    <span className="text-amber-900 font-bold flex items-center gap-1.5">
+                      <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+                      Return Trip Date &amp; Time:
+                    </span>
+                    <span className="font-bold text-amber-950">{returnDate} at {returnTime}</span>
+                  </div>
+                )}
 
                 <div className="flex justify-between items-center pb-2.5 border-b border-stone-200">
                   <span className="text-stone-500 font-medium">Selected Vehicle:</span>
@@ -1352,7 +1567,11 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">
                 <span className="text-stone-500 font-medium">Route:</span>
-                <span className="font-bold text-stone-900">{confirmedBooking.pickupLocation} &rarr; {confirmedBooking.dropLocation}</span>
+                <span className="font-bold text-stone-900">
+                  {confirmedBooking.tripType === 'roundtrip'
+                    ? `${confirmedBooking.pickupLocation} \u2194 ${confirmedBooking.dropLocation} (Round Trip)`
+                    : `${confirmedBooking.pickupLocation} \u2192 ${confirmedBooking.dropLocation}`}
+                </span>
               </div>
 
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">
@@ -1361,9 +1580,21 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               </div>
 
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">
-                <span className="text-stone-500 font-medium">Date &amp; Time:</span>
+                <span className="text-stone-500 font-medium">
+                  {confirmedBooking.tripType === 'roundtrip' ? 'Departure:' : 'Date & Time:'}
+                </span>
                 <span className="font-bold text-stone-900">{confirmedBooking.travelDate} at {confirmedBooking.travelTime}</span>
               </div>
+
+              {confirmedBooking.tripType === 'roundtrip' && confirmedBooking.returnDate && (
+                <div className="flex justify-between items-center pb-2 border-b border-stone-200 bg-amber-50/80 -mx-2 px-2 py-1.5 rounded-lg">
+                  <span className="text-amber-900 font-bold flex items-center gap-1.5">
+                    <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+                    Return Trip:
+                  </span>
+                  <span className="font-bold text-amber-950">{confirmedBooking.returnDate} at {confirmedBooking.returnTime || '06:00 PM'}</span>
+                </div>
+              )}
 
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">
                 <span className="text-stone-500 font-medium">Estimated Fare:</span>

@@ -36,6 +36,8 @@ interface StoredCabBooking {
   dropLocation: string;
   travelDate: string;
   travelTime: string;
+  returnDate?: string;
+  returnTime?: string;
   passengers: number;
   distanceKm: number;
   vehicleId: string;
@@ -142,6 +144,12 @@ function buildOwnerEmailHtml(booking: StoredCabBooking, targetOwnerEmail: string
             <td style="color: #64748b;">Date &amp; Time:</td>
             <td style="color: #0f172a; font-weight: 600;">${booking.travelDate} at ${booking.travelTime}</td>
           </tr>
+          ${booking.returnDate ? `
+          <tr>
+            <td style="color: #64748b;">Return Date:</td>
+            <td style="color: #b45309; font-weight: 700;">${booking.returnDate} at ${booking.returnTime || '06:00 PM'}</td>
+          </tr>
+          ` : ''}
           <tr>
             <td style="color: #64748b;">Selected Vehicle:</td>
             <td style="color: #0f172a; font-weight: 700;">${booking.vehicleName}</td>
@@ -383,6 +391,8 @@ app.post('/api/book', async (req: Request, res: Response) => {
       dropLocation: body.dropLocation,
       travelDate: body.travelDate || new Date().toISOString().split('T')[0],
       travelTime: body.travelTime || '09:00 AM',
+      returnDate: body.returnDate || undefined,
+      returnTime: body.returnTime || undefined,
       passengers: Number(body.passengers) || 1,
       distanceKm: Number(body.distanceKm) || 0,
       vehicleId: body.vehicleId || 'suzuki-dzire',

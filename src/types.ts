@@ -57,6 +57,8 @@ export interface BookingSubmission {
   dropLocation: string;
   travelDate: string;
   travelTime: string;
+  returnDate?: string;
+  returnTime?: string;
   passengers: number;
   distanceKm: number;
   vehicleId?: string;
