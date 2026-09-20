@@ -77,8 +77,8 @@ const memoryBookings: StoredCabBooking[] = [
     distanceKm: 78,
     vehicleId: 'suzuki-dzire',
     vehicleName: 'Suzuki Dzire',
-    perKmRate: 18,
-    estimatedFare: 1404, // 78 km * 18 = 1404
+    perKmRate: 17,
+    estimatedFare: 1326, // 78 km * 17 = 1326
     tollNote: 'Payable by customer',
     customerName: 'Ashish Deshmukh',
     customerPhone: '9822012345',

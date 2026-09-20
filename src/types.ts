@@ -19,8 +19,9 @@ export interface VehicleConfig {
   passengers: number;
   luggage: number;
   ac: boolean;
-  oneWayRate: number;       // ₹/km
-  roundTripRate: number;    // ₹/km (ALWAYS oneWayRate - 1)
+  oneWayRate: number;       // ₹/km (Single)
+  roundTripRate: number;    // ₹/km (Round)
+  localHourlyRate: number;  // ₹/hr (Local city)
   visualId: VehicleVisualId;
   imageUrl: string;
   description: string;

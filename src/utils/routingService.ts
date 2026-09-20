@@ -271,22 +271,44 @@ export async function calculateRouteDistance(
 
 /**
  * Centralized Fare Calculation
- * Distance × vehicle rate
+ * Distance × vehicle rate, or hourly for local city trips
  * 
  * ONE-WAY: distanceKm × vehicle.oneWayRate
- * ROUND-TRIP: (distanceKm × 2) × vehicle.roundTripRate (ALWAYS vehicle.oneWayRate - 1)
+ * ROUND-TRIP: (distanceKm × 2) × vehicle.roundTripRate
+ * LOCAL: localHours × vehicle.localHourlyRate
  */
 export function calculateVehicleFare(
   vehicle: VehicleConfig,
   distanceKm: number,
-  tripType: TripType
+  tripType: TripType,
+  localHours: number = 8
 ): {
   fare: number;
   ratePerKm: number;
   billableKm: number;
   formulaDescription: string;
+  isLocalHourly: boolean;
+  hourlyRate: number;
+  localHours: number;
 } {
+  const isLocal = tripType === 'local';
   const isRoundTrip = tripType === 'roundtrip';
+
+  if (isLocal) {
+    const hourlyRate = vehicle.localHourlyRate || 250;
+    const hours = Math.max(1, localHours);
+    const fare = Math.round(hours * hourlyRate);
+    return {
+      fare,
+      ratePerKm: vehicle.oneWayRate,
+      billableKm: distanceKm || hours * 10,
+      formulaDescription: `${hours} hrs @ ₹${hourlyRate}/hr (Local City Cab)`,
+      isLocalHourly: true,
+      hourlyRate,
+      localHours: hours
+    };
+  }
+
   const ratePerKm = isRoundTrip ? vehicle.roundTripRate : vehicle.oneWayRate;
   const billableKm = isRoundTrip ? distanceKm * 2 : distanceKm;
   const fare = Math.round(billableKm * ratePerKm);
@@ -299,6 +321,9 @@ export function calculateVehicleFare(
     fare,
     ratePerKm,
     billableKm,
-    formulaDescription
+    formulaDescription,
+    isLocalHourly: false,
+    hourlyRate: vehicle.localHourlyRate,
+    localHours
   };
 }

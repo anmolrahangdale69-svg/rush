@@ -131,15 +131,21 @@ export const ChooseYourRideSection: React.FC<ChooseYourRideSectionProps> = ({ on
               <div className="p-5 pt-0">
                 <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200/60 mb-3 space-y-1">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-stone-600 font-medium">One-Way Rate:</span>
+                    <span className="text-stone-600 font-medium">One-Way (Single):</span>
                     <span className="font-extrabold text-stone-900 font-mono text-sm">
                       ₹{vehicle.oneWayRate}/km
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-stone-600 font-medium">Round-Trip Rate:</span>
+                    <span className="text-stone-600 font-medium">Round-Trip:</span>
                     <span className="font-extrabold text-emerald-700 font-mono text-sm">
                       ₹{vehicle.roundTripRate}/km
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-stone-600 font-medium">Local City:</span>
+                    <span className="font-extrabold text-amber-900 font-mono text-sm">
+                      ₹{vehicle.localHourlyRate}/hr
                     </span>
                   </div>
                   <div className="text-[10px] text-stone-400 pt-1 text-right">

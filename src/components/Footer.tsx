@@ -49,9 +49,11 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs text-stone-400">
               {VEHICLES.map(v => (
-                <li key={v.id} className="flex justify-between items-center hover:text-white transition-colors">
-                  <span>{v.name} ({v.category})</span>
-                  <span className="font-mono text-stone-300">Round: ₹{v.roundTripRate}/km</span>
+                <li key={v.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-1 border-b border-stone-800/60 hover:text-white transition-colors">
+                  <span className="font-semibold text-stone-300">{v.name}</span>
+                  <span className="font-mono text-[11px] text-amber-400/90">
+                    Single: ₹{v.oneWayRate}/km &bull; Round: ₹{v.roundTripRate}/km &bull; Local: ₹{v.localHourlyRate}/hr
+                  </span>
                 </li>
               ))}
             </ul>

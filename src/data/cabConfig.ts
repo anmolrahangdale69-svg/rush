@@ -25,8 +25,9 @@ export const VEHICLES: VehicleConfig[] = [
     passengers: 6,
     luggage: 4,
     ac: true,
-    oneWayRate: 17.99,
-    roundTripRate: 16.99,
+    oneWayRate: 22,
+    roundTripRate: 16,
+    localHourlyRate: 800,
     visualId: 'kia-carens',
     imageUrl: '/images/fleet/kia-carens.jpg',
     description: 'Refined modern 6-seater MPV with generous legroom, premium upholstery, and advanced comfort on long highways.',
@@ -40,8 +41,9 @@ export const VEHICLES: VehicleConfig[] = [
     passengers: 6,
     luggage: 3,
     ac: true,
-    oneWayRate: 16,
-    roundTripRate: 15,
+    oneWayRate: 20,
+    roundTripRate: 14,
+    localHourlyRate: 300,
     visualId: 'maruti-ertiga',
     imageUrl: '/images/fleet/maruti-ertiga.jpg',
     description: 'Spacious 6-passenger multi-utility vehicle designed for family outings, pilgrimages, and group road travel.',
@@ -55,8 +57,9 @@ export const VEHICLES: VehicleConfig[] = [
     passengers: 4,
     luggage: 3,
     ac: true,
-    oneWayRate: 13,
+    oneWayRate: 17,
     roundTripRate: 12,
+    localHourlyRate: 250,
     visualId: 'suzuki-dzire',
     imageUrl: '/images/fleet/suzuki-dzire.jpg',
     description: 'India’s most trusted touring sedan with smooth highway ride, chilled AC comfort, and reliable boot space.',
@@ -70,8 +73,9 @@ export const VEHICLES: VehicleConfig[] = [
     passengers: 6,
     luggage: 4,
     ac: true,
-    oneWayRate: 20,
-    roundTripRate: 19,
+    oneWayRate: 31,
+    roundTripRate: 18,
+    localHourlyRate: 450,
     visualId: 'toyota-innova-crysta',
     imageUrl: '/images/fleet/toyota-innova-crysta.jpg',
     description: 'The gold standard of highway comfort. Unmatched ride stability, supreme passenger cushioning, and heavy luggage capacity.',
@@ -94,7 +98,7 @@ export const CAB_SERVICES = [
   {
     id: 'local',
     title: 'Local City Cab',
-    description: 'Nagpur city travel, medical visits, business meetings, and shopping tours with prompt door-to-door driver pickup.'
+    description: 'Nagpur city travel, medical visits, business meetings, and shopping tours with hourly packages (Dzire: ₹250/hr, Ertiga: ₹300/hr, Innova: ₹450/hr, Carens: ₹800/hr).'
   },
   {
     id: 'airport',
@@ -180,11 +184,11 @@ export const CLIENT_CONFIRMATION_POINTS: string[] = [
 export const FAQS: FaqItem[] = [
   {
     question: 'How is the cab fare calculated?',
-    answer: 'The fare is calculated simply as: Distance (in km) × Vehicle Per-Km Rate. For One-Way trips, the fare is based on the single route distance. For Round-Trip bookings, the total round-trip distance is multiplied by the vehicle round-trip rate (Suzuki Dzire: ₹12/km, Maruti Ertiga: ₹15/km, Kia Carens: ₹16.99/km, Toyota Innova Crysta: ₹19/km).'
+    answer: 'The fare is calculated transparently based on your trip type: For One-Way (Single), distance × vehicle rate (Dzire: ₹17/km, Ertiga: ₹20/km, Carens: ₹22/km, Innova: ₹31/km). For Round-Trip, total round-trip distance × round-trip rate (Dzire: ₹12/km, Ertiga: ₹14/km, Carens: ₹16/km, Innova: ₹18/km). For Local City rentals, fare is calculated hourly (Dzire: ₹250/hr, Ertiga: ₹300/hr, Innova: ₹450/hr, Carens: ₹800/hr).'
   },
   {
     question: 'How does round-trip pricing work?',
-    answer: 'For Round Trip, Total Fare = Total Round-Trip Distance × Selected Vehicle Rate. Our round-trip rates are: Suzuki Dzire at ₹12/km, Maruti Ertiga at ₹15/km, Kia Carens at ₹16.99/km, and Toyota Innova Crysta at ₹19/km.'
+    answer: 'For Round Trip, Total Fare = Total Round-Trip Distance × Selected Vehicle Rate. Our round-trip rates are: Suzuki Dzire at ₹12/km, Maruti Ertiga at ₹14/km, Kia Carens at ₹16/km, and Toyota Innova Crysta at ₹18/km.'
   },
   {
     question: 'Do I have to pay toll and parking charges?',
