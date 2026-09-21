@@ -277,6 +277,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
   // Step 5: Final Submission
   const handleConfirmBooking = async () => {
+    if (isSubmitting) return; // Prevent accidental duplicate submissions
     setIsSubmitting(true);
     const bookingRef = `BT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -335,7 +336,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     }
 
     try {
-      // 2. Dispatch booking confirmation email to bokdetravels@gmail.com via server Resend endpoint
+      // 2. Dispatch booking notification email to travelsbokde@gmail.com via server Resend endpoint
       await fetch('/api/send-booking-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -354,6 +355,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
           returnDate: tripType === 'roundtrip' ? returnDate : undefined,
           returnTime: tripType === 'roundtrip' ? returnTime : undefined,
           passengers,
+          distanceKm: tripType === 'local' ? `${localHours} hrs (${localHours * 10} km)` : `${distanceKm} km`,
           vehicleName: selectedVehicle.name,
           estimatedFare: fareDetails.fare,
           paymentMethod,

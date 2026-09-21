@@ -12,8 +12,8 @@ app.use(express.json());
 // Bokde Travels Configuration
 const BUSINESS_NAME = 'Bokde Travels';
 const BUSINESS_PHONE = '8983275497';
-const BUSINESS_EMAIL = 'bokdetravels@gmail.com';
-const OWNER_EMAIL = process.env.OWNER_EMAIL || 'bokdetravels@gmail.com';
+const BUSINESS_EMAIL = 'travelsbokde@gmail.com';
+const OWNER_EMAIL = process.env.OWNER_EMAIL || 'travelsbokde@gmail.com';
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
 
@@ -459,38 +459,10 @@ app.post('/api/book', async (req: Request, res: Response) => {
 
     console.log(`[BOKDE TRAVELS BOOKING] Ref: ${newBooking.bookingReference} | Guest: ${newBooking.customerName} (${newBooking.customerPhone}) | ${newBooking.pickupLocation} -> ${newBooking.dropLocation} | Fare: Rs.${newBooking.estimatedFare}`);
 
-    // 4. Resend External Email Notification
-    let resendResult = { success: true, emailSent: false };
-    try {
-      const emailPayload: BookingEmailPayload = {
-        bookingReference: newBooking.bookingReference,
-        customerName: newBooking.customerName,
-        customerPhone: newBooking.customerPhone,
-        customerEmail: newBooking.customerEmail,
-        specialRequests: body.cleanSpecialRequests || newBooking.specialRequests,
-        tripType: newBooking.tripType,
-        airportTransferType: newBooking.airportTransferType,
-        pickupLocation: newBooking.pickupLocation,
-        dropLocation: newBooking.dropLocation,
-        travelDate: newBooking.travelDate,
-        travelTime: newBooking.travelTime,
-        passengers: newBooking.passengers,
-        vehicleName: newBooking.vehicleName,
-        estimatedFare: newBooking.estimatedFare,
-        paymentMethod: newBooking.paymentMethod,
-        hasCompletedUpiPayment: body.hasCompletedUpiPayment,
-        upiTransactionRef: body.upiTransactionRef
-      };
-      resendResult = await sendResendBookingEmail(emailPayload);
-    } catch (resendErr) {
-      console.warn('Resend auto-email trigger warning:', resendErr);
-    }
-
     return res.status(201).json({
       success: true,
       booking: newBooking,
-      supabaseSaved,
-      emailResult: resendResult
+      supabaseSaved
     });
   } catch (err: any) {
     console.error('Booking processing error:', err);
@@ -506,7 +478,8 @@ app.post('/api/book', async (req: Request, res: Response) => {
 app.get('/api/send-booking-email', (req: Request, res: Response) => {
   res.json({
     status: 'Bokde Travels Resend Email Service is active',
-    recipient: 'bokdetravels@gmail.com'
+    sender: process.env.RESEND_FROM_EMAIL || 'Bokde Travels <booking@bokdetravels.in>',
+    recipient: process.env.BOOKING_RECIPIENT_EMAIL || 'travelsbokde@gmail.com'
   });
 });
 
@@ -516,22 +489,36 @@ app.post('/api/send-booking-email', async (req: Request, res: Response) => {
     if (!payload || !payload.bookingReference || !payload.customerName || !payload.customerPhone) {
       return res.status(400).json({
         success: false,
+        emailSent: false,
         error: 'Missing required booking fields (bookingReference, customerName, customerPhone)'
       });
     }
 
     const result = await sendResendBookingEmail(payload);
+
+    if (!result.emailSent) {
+      return res.status(500).json({
+        success: false,
+        emailSent: false,
+        error: result.error || 'Resend failed to dispatch booking notification email',
+        bookingReference: payload.bookingReference,
+        recipient: process.env.BOOKING_RECIPIENT_EMAIL || 'travelsbokde@gmail.com'
+      });
+    }
+
     return res.status(200).json({
-      ...result,
+      success: true,
+      emailSent: true,
+      id: result.id,
       bookingReference: payload.bookingReference,
-      recipient: 'bokdetravels@gmail.com'
+      recipient: process.env.BOOKING_RECIPIENT_EMAIL || 'travelsbokde@gmail.com'
     });
   } catch (err: any) {
     console.error('Error in /api/send-booking-email route:', err);
-    return res.status(200).json({
-      success: true,
+    return res.status(500).json({
+      success: false,
       emailSent: false,
-      error: err.message || 'Email dispatch failed'
+      error: err.message || 'Internal error in booking email endpoint'
     });
   }
 });

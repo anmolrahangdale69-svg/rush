@@ -1,6 +1,5 @@
 // Vercel Serverless Function: /api/book
 // Direct booking endpoint for Bokde Travels Vercel deployments
-import { BookingEmailPayload, sendResendBookingEmail } from '../src/utils/bookingEmail';
 
 export default async function handler(req: any, res: any) {
   if (req.method === 'GET') {
@@ -43,40 +42,9 @@ export default async function handler(req: any, res: any) {
       createdAt: new Date().toISOString()
     };
 
-    // Send email via Resend
-    let emailResult = { success: true, emailSent: false };
-    try {
-      const emailPayload: BookingEmailPayload = {
-        bookingReference: newBooking.bookingReference,
-        customerName: newBooking.customerName,
-        customerPhone: newBooking.customerPhone,
-        customerEmail: newBooking.customerEmail,
-        specialRequests: body.cleanSpecialRequests || newBooking.specialRequests,
-        tripType: newBooking.tripType,
-        airportTransferType: newBooking.airportTransferType,
-        pickupLocation: newBooking.pickupLocation,
-        dropLocation: newBooking.dropLocation,
-        travelDate: newBooking.travelDate,
-        travelTime: newBooking.travelTime,
-        returnDate: newBooking.returnDate,
-        returnTime: newBooking.returnTime,
-        passengers: newBooking.passengers,
-        vehicleName: newBooking.vehicleName,
-        estimatedFare: newBooking.estimatedFare,
-        paymentMethod: newBooking.paymentMethod,
-        hasCompletedUpiPayment: body.hasCompletedUpiPayment,
-        upiTransactionRef: body.upiTransactionRef
-      };
-
-      emailResult = await sendResendBookingEmail(emailPayload);
-    } catch (e: any) {
-      console.error('[Resend Exception /api/book]:', e);
-    }
-
     return res.status(201).json({
       success: true,
-      booking: newBooking,
-      emailResult
+      booking: newBooking
     });
   } catch (err: any) {
     return res.status(500).json({ success: false, error: err.message });

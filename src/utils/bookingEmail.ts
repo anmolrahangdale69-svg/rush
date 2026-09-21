@@ -15,6 +15,7 @@ export interface BookingEmailPayload {
   returnDate?: string;
   returnTime?: string;
   passengers: number | string;
+  distanceKm?: number | string;
   vehicleName: string;
   estimatedFare: number | string;
   paymentMethod: string;
@@ -66,39 +67,41 @@ export function buildEmailContent(data: BookingEmailPayload) {
     : 'Not provided';
 
   const fareAmountDisplay = Number(data.estimatedFare || 0).toLocaleString('en-IN');
+  const distanceDisplay = data.distanceKm
+    ? (typeof data.distanceKm === 'number' ? `${data.distanceKm} km` : `${data.distanceKm}`)
+    : 'Calculated by route';
 
-  // Exact Subject
-  const subject = `New Cab Booking - ${data.bookingReference}`;
+  // Subject as requested: "New Cab Booking - Bokde Travels"
+  const subject = 'New Cab Booking - Bokde Travels';
 
   // Plain-text body meeting exact required format
   const text = `BOKDE TRAVELS
-New Booking Received
+New Cab Booking Received
 
 Booking ID: ${data.bookingReference}
 
 CUSTOMER DETAILS
-Full Name: ${data.customerName}
-Phone: ${data.customerPhone}
-Email: ${customerEmailDisplay}
-Special Requests: ${specialRequestsDisplay}
+- Customer Name: ${data.customerName}
+- Customer Phone: ${data.customerPhone}
+- Customer Email: ${customerEmailDisplay}
+- Special Requests: ${specialRequestsDisplay}
 
 TRIP DETAILS
-Trip Type: ${tripTypeFormatted}
-Pickup: ${data.pickupLocation}
-Drop: ${data.dropLocation}
-Date: ${data.travelDate}
-Time: ${data.travelTime}${data.returnDate ? `\nReturn Date: ${data.returnDate}\nReturn Time: ${data.returnTime || 'N/A'}` : ''}
-Passengers: ${data.passengers}
+- Trip Type: ${tripTypeFormatted}
+- Pickup Location: ${data.pickupLocation}
+- Drop Location: ${data.dropLocation}
+- Travel Date: ${data.travelDate}
+- Travel Time: ${data.travelTime}${data.returnDate ? `\n- Return Trip Date: ${data.returnDate}\n- Return Trip Time: ${data.returnTime || 'N/A'}` : ''}
+- Distance: ${distanceDisplay}
+- Passenger Count: ${data.passengers}
 
-VEHICLE
-Vehicle: ${data.vehicleName}
+SELECTED VEHICLE
+- Vehicle: ${data.vehicleName}
 
-FARE
-Calculated Booking Amount: ₹${fareAmountDisplay}
-
-PAYMENT
-Payment Method: ${paymentMethodDisplay}
-UPI Payment Confirmation: ${upiConfirmationDisplay}
+FARE & PAYMENT
+- Total Fare: ₹${fareAmountDisplay}
+- Payment Mode: ${paymentMethodDisplay}
+- UPI Confirmation: ${upiConfirmationDisplay}
 `;
 
   // Professional HTML body
@@ -107,7 +110,7 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Cab Booking - ${data.bookingReference}</title>
+  <title>New Cab Booking - Bokde Travels</title>
 </head>
 <body style="margin: 0; padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f4; color: #1c1917; line-height: 1.5;">
   <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e7e5e4; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
@@ -116,7 +119,7 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
     <tr>
       <td style="background-color: #1c1917; padding: 28px 32px; text-align: left;">
         <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #f59e0b;">BOKDE TRAVELS</p>
-        <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">New Booking Received</h1>
+        <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">New Cab Booking</h1>
         <div style="margin-top: 14px; display: inline-block; background-color: #292524; padding: 6px 14px; border-radius: 6px; border: 1px solid #44403c;">
           <span style="font-size: 13px; font-weight: 700; color: #fbbf24; font-family: monospace;">Booking ID: ${data.bookingReference}</span>
         </div>
@@ -136,9 +139,9 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
           </tr>
           <tr>
             <td style="padding-top: 10px;">
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Full Name:</strong> ${data.customerName}</p>
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Phone:</strong> <a href="tel:${data.customerPhone}" style="color: #b45309; text-decoration: none; font-weight: bold;">${data.customerPhone}</a></p>
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Email:</strong> ${customerEmailDisplay}</p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Customer Name:</strong> ${data.customerName}</p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Customer Phone:</strong> <a href="tel:${data.customerPhone}" style="color: #b45309; text-decoration: none; font-weight: bold;">${data.customerPhone}</a></p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Customer Email:</strong> ${customerEmailDisplay}</p>
               <p style="margin: 4px 0; font-size: 14px;"><strong>Special Requests:</strong> ${specialRequestsDisplay}</p>
             </td>
           </tr>
@@ -154,12 +157,13 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
           <tr>
             <td style="padding-top: 10px;">
               <p style="margin: 4px 0; font-size: 14px;"><strong>Trip Type:</strong> ${tripTypeFormatted}</p>
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Pickup:</strong> ${data.pickupLocation}</p>
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Drop:</strong> ${data.dropLocation}</p>
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Date:</strong> ${data.travelDate}</p>
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Time:</strong> ${data.travelTime}</p>
-              ${data.returnDate ? `<p style="margin: 4px 0; font-size: 14px; background-color: #fef3c7; padding: 4px 8px; border-radius: 4px; display: inline-block;"><strong>Return Date:</strong> ${data.returnDate}${data.returnTime ? ` at ${data.returnTime}` : ''}</p>` : ''}
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Passengers:</strong> ${data.passengers}</p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Pickup Location:</strong> ${data.pickupLocation}</p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Drop Location:</strong> ${data.dropLocation}</p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Travel Date:</strong> ${data.travelDate}</p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Travel Time:</strong> ${data.travelTime}</p>
+              ${data.returnDate ? `<p style="margin: 4px 0; font-size: 14px; background-color: #fef3c7; padding: 4px 8px; border-radius: 4px; display: inline-block;"><strong>Return Trip:</strong> ${data.returnDate}${data.returnTime ? ` at ${data.returnTime}` : ''}</p>` : ''}
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Distance:</strong> ${distanceDisplay}</p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Passenger Count:</strong> ${data.passengers}</p>
             </td>
           </tr>
         </table>
@@ -168,12 +172,12 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
           <tr>
             <td style="padding-bottom: 8px; border-bottom: 2px solid #f59e0b;">
-              <h2 style="margin: 0; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #78350f;">VEHICLE</h2>
+              <h2 style="margin: 0; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #78350f;">SELECTED VEHICLE</h2>
             </td>
           </tr>
           <tr>
             <td style="padding-top: 10px;">
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Vehicle:</strong> ${data.vehicleName}</p>
+              <p style="margin: 4px 0; font-size: 14px;"><strong>Selected Vehicle:</strong> ${data.vehicleName}</p>
             </td>
           </tr>
         </table>
@@ -182,9 +186,9 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px; background-color: #fef3c7; border-radius: 8px; padding: 16px; border: 1px solid #fde68a;">
           <tr>
             <td>
-              <span style="display: block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #92400e;">FARE</span>
+              <span style="display: block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #92400e;">TOTAL FARE</span>
               <p style="margin: 4px 0 0 0; font-size: 20px; font-weight: 900; color: #78350f;">
-                Calculated Booking Amount: ₹${fareAmountDisplay}
+                Total Estimated Fare: ₹${fareAmountDisplay}
               </p>
               <span style="display: block; font-size: 12px; color: #92400e; margin-top: 4px;">Tolls &amp; parking payable by customer.</span>
             </td>
@@ -195,16 +199,16 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
         <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 12px;">
           <tr>
             <td style="padding-bottom: 8px; border-bottom: 2px solid #f59e0b;">
-              <h2 style="margin: 0; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #78350f;">PAYMENT</h2>
+              <h2 style="margin: 0; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #78350f;">PAYMENT INFORMATION</h2>
             </td>
           </tr>
           <tr>
             <td style="padding-top: 10px;">
               <p style="margin: 4px 0; font-size: 14px;">
-                <strong>Payment Method:</strong> ${paymentMethodDisplay}
+                <strong>Payment Mode:</strong> ${paymentMethodDisplay}
               </p>
               <div style="margin-top: 8px; padding: 12px; border-radius: 6px; background-color: ${isUpi ? '#f0fdf4' : '#f5f5f4'}; border: 1px solid ${isUpi ? '#bbf7d0' : '#e7e5e4'};">
-                <strong style="font-size: 13px; color: #1c1917;">UPI Payment Confirmation:</strong>
+                <strong style="font-size: 13px; color: #1c1917;">UPI Payment Status:</strong>
                 <p style="margin: 4px 0 0 0; font-size: 13px; color: #44403c;">
                   ${upiConfirmationDisplay}
                 </p>
@@ -223,7 +227,7 @@ UPI Payment Confirmation: ${upiConfirmationDisplay}
           Bokde Travels &bull; Nagpur, Maharashtra
         </p>
         <p style="margin: 4px 0 0 0; font-size: 12px; color: #a8a29e;">
-          Phone: <a href="tel:8983275497" style="color: #78716c; text-decoration: none;">8983275497</a> &bull; Email: <a href="mailto:bokdetravels@gmail.com" style="color: #78716c; text-decoration: none;">bokdetravels@gmail.com</a>
+          Phone: <a href="tel:8983275497" style="color: #78716c; text-decoration: none;">8983275497</a> &bull; Email: <a href="mailto:travelsbokde@gmail.com" style="color: #78716c; text-decoration: none;">travelsbokde@gmail.com</a>
         </p>
       </td>
     </tr>
@@ -240,18 +244,17 @@ export async function sendResendBookingEmail(payload: BookingEmailPayload): Prom
   emailSent: boolean;
   id?: string;
   error?: string;
-  warning?: string;
 }> {
   const apiKey = process.env.RESEND_API_KEY;
-  const recipient = process.env.BOOKING_RECIPIENT_EMAIL || 'bokdetravels@gmail.com';
-  const sender = process.env.RESEND_FROM_EMAIL || 'Bokde Travels <onboarding@resend.dev>';
+  const recipient = process.env.BOOKING_RECIPIENT_EMAIL || 'travelsbokde@gmail.com';
+  const sender = process.env.RESEND_FROM_EMAIL || 'Bokde Travels <booking@bokdetravels.in>';
 
   if (!apiKey) {
     console.warn('[Resend] RESEND_API_KEY environment variable is not configured. Email skipped.');
     return {
-      success: true,
+      success: false,
       emailSent: false,
-      warning: 'RESEND_API_KEY not configured on server'
+      error: 'RESEND_API_KEY environment variable is not configured on server'
     };
   }
 
@@ -269,7 +272,7 @@ export async function sendResendBookingEmail(payload: BookingEmailPayload): Prom
     if (result.error) {
       console.error('[Resend Email Error]:', result.error);
       return {
-        success: true,
+        success: false,
         emailSent: false,
         error: result.error.message
       };
@@ -284,9 +287,9 @@ export async function sendResendBookingEmail(payload: BookingEmailPayload): Prom
   } catch (err: any) {
     console.error('[Resend Dispatch Exception]:', err);
     return {
-      success: true,
+      success: false,
       emailSent: false,
-      error: err.message || 'Error occurred while contacting Resend'
+      error: err?.message || 'Error occurred while contacting Resend'
     };
   }
 }
