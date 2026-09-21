@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
+import { ReviewsTicker } from './components/ReviewsTicker';
 import { BookingFlow } from './components/BookingFlow';
 import { ServicesSection } from './components/ServicesSection';
+import { CustomerReviews } from './components/CustomerReviews';
 import { PopularRoutesSection } from './components/PopularRoutesSection';
 import { WhyChooseUs } from './components/WhyChooseUs';
 import { FaqSection } from './components/FaqSection';
@@ -74,6 +76,12 @@ export default function App() {
       {/* 1. Brand Navbar */}
       <Navbar onOpenBooking={handleOpenBooking} />
 
+      {/* Live Verified Reviews & Rating Ticker Ribbon (Visible immediately upon opening website) */}
+      <ReviewsTicker onViewAllClick={() => {
+        const el = document.getElementById('customer-reviews');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }} />
+
       <main className="flex-1">
         {/* 2. Nagpur-Focused Hero Section */}
         <HeroSection onBookClick={() => handleOpenBooking()} />
@@ -103,6 +111,9 @@ export default function App() {
 
         {/* 4. Cab Services (One Way, Round Trip, Local, Airport Transfer) */}
         <ServicesSection onSelectService={handleSelectService} />
+
+        {/* 5. Customer Reviews & Travel Stories (20 Authentic Indian Reviews) */}
+        <CustomerReviews onBookClick={() => handleOpenBooking()} />
 
         {/* 6. Popular Nagpur Highway Routes */}
         <PopularRoutesSection onSelectRoute={handleSelectPopularRoute} />

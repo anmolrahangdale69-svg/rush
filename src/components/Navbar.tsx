@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Phone, MessageSquare, Car, Menu, X } from 'lucide-react';
+import { Phone, MessageSquare, Menu, X, Star } from 'lucide-react';
 import { BUSINESS_CONFIG } from '../data/cabConfig';
+import { BokdeLogo } from './BokdeLogo';
 
 interface NavbarProps {
   onOpenBooking: (prefill?: { pickup?: string; drop?: string; vehicleId?: string }) => void;
@@ -47,17 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         >
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center shadow-sm font-bold group-hover:bg-amber-400 transition-colors">
-            <Car className="w-6 h-6 text-stone-950" />
-          </div>
-          <div>
-            <span className="font-display font-bold text-xl sm:text-2xl text-stone-900 tracking-tight block leading-tight">
-              Bokde Travels
-            </span>
-            <span className="text-[11px] font-semibold text-amber-700 tracking-wider uppercase block">
-              Nagpur &bull; Cab Service
-            </span>
-          </div>
+          <BokdeLogo size="md" variant="dark" />
         </a>
 
         {/* Desktop Navigation Links */}
@@ -75,6 +66,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
             className="hover:text-amber-600 transition-colors cursor-pointer"
           >
             Our Fleet &amp; Rates
+          </button>
+          <button 
+            type="button" 
+            onClick={() => scrollToSection('customer-reviews')} 
+            className="hover:text-amber-600 transition-colors cursor-pointer flex items-center gap-1 font-bold text-stone-900"
+          >
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+            <span>Reviews</span>
+            <span className="bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded-full text-[10px] font-mono">20</span>
           </button>
           <button 
             type="button" 
@@ -173,6 +173,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
             className="w-full text-left py-2 px-3 rounded-lg font-semibold text-stone-800 hover:bg-stone-50"
           >
             Our Fleet &amp; Rates (4 Vehicles)
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollToSection('customer-reviews')}
+            className="w-full text-left py-2 px-3 rounded-lg font-bold text-stone-900 bg-amber-50/80 border border-amber-200/60 flex items-center justify-between"
+          >
+            <span className="flex items-center gap-1.5">
+              <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+              <span>Customer Reviews</span>
+            </span>
+            <span className="text-xs bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-mono font-bold">20 Verified</span>
           </button>
           <button
             type="button"

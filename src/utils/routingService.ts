@@ -314,8 +314,8 @@ export function calculateVehicleFare(
   const fare = Math.round(billableKm * ratePerKm);
 
   const formulaDescription = isRoundTrip
-    ? `${distanceKm} km × 2 = ${billableKm} km (Total Round-Trip Distance) @ ₹${ratePerKm}/km`
-    : `${distanceKm} km @ ₹${ratePerKm}/km`;
+    ? `Total km - ${billableKm} km (${distanceKm} km coming + ${distanceKm} km going) @ ₹${ratePerKm}/km`
+    : `Total km - ${distanceKm} km @ ₹${ratePerKm}/km`;
 
   return {
     fare,

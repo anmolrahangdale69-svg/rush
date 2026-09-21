@@ -361,7 +361,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       returnDate: tripType === 'roundtrip' ? returnDate : undefined,
       returnTime: tripType === 'roundtrip' ? returnTime : undefined,
       passengers,
-      distanceKm: tripType === 'local' ? localHours * 10 : distanceKm,
+      distanceKm: tripType === 'local' ? localHours * 10 : (tripType === 'roundtrip' ? distanceKm * 2 : distanceKm),
       vehicleId: selectedVehicle.id,
       vehicleName: selectedVehicle.name,
       perKmRate: tripType === 'local' ? selectedVehicle.localHourlyRate : fareDetails.ratePerKm,
@@ -420,7 +420,11 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
           returnDate: tripType === 'roundtrip' ? returnDate : undefined,
           returnTime: tripType === 'roundtrip' ? returnTime : undefined,
           passengers,
-          distanceKm: tripType === 'local' ? `${localHours} hrs (${localHours * 10} km)` : `${distanceKm} km`,
+          distanceKm: tripType === 'local' 
+            ? `${localHours} hrs (${localHours * 10} km)` 
+            : tripType === 'roundtrip'
+              ? `Total km - ${distanceKm * 2} km (Round Trip: ${distanceKm} km coming + ${distanceKm} km going)`
+              : `Total km - ${distanceKm} km (One Way)`,
           vehicleName: selectedVehicle.name,
           estimatedFare: fareDetails.fare,
           paymentMethod,
@@ -496,7 +500,9 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       (isRoundTrip && b.returnDate ? `*Return Date & Time:* ${b.returnDate} at ${b.returnTime || '06:00 PM'}\n` : '') +
       `*Passengers:* ${b.passengers}\n` +
       `*Vehicle:* ${b.vehicleName} (@ ${rateText})\n` +
-      (b.tripType === 'local' ? `*Rental Duration:* ${localHours} Hours\n` : `*Distance:* ${b.distanceKm} km\n`) +
+      (b.tripType === 'local' 
+        ? `*Rental Duration:* ${localHours} Hours\n` 
+        : (isRoundTrip ? `*Total Distance:* Total km - ${b.distanceKm} km (Round Trip)\n` : `*Total Distance:* Total km - ${b.distanceKm} km\n`)) +
       `*Estimated Fare:* ₹${b.estimatedFare.toLocaleString()}\n` +
       `*Tolls & Parking:* Payable by customer\n` +
       `*Payment:* ${paymentLine}\n` +
@@ -1000,13 +1006,13 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                     </>
                   ) : tripType === 'roundtrip' ? (
                     <>
-                      Route Distance: <strong className="font-mono text-stone-900">{distanceKm} km each way</strong> ({durationText}) &bull; 
+                      Route Distance: <strong className="font-mono text-stone-900">Total km - {distanceKm * 2} km</strong> ({distanceKm} km coming + {distanceKm} km going) &bull; 
                       Departure: <strong className="text-stone-900">{travelDate} ({travelTime})</strong> &bull; 
                       Return: <strong className="text-amber-900 font-bold">{returnDate} ({returnTime})</strong>
                     </>
                   ) : (
                     <>
-                      Route Distance: <strong className="font-mono text-stone-900">{distanceKm} km</strong> ({durationText}) &bull; Trip Type: <strong className="capitalize text-amber-800">{tripType}</strong>
+                      Route Distance: <strong className="font-mono text-stone-900">Total km - {distanceKm} km</strong> ({durationText}) &bull; Trip Type: <strong className="capitalize text-amber-800">{tripType}</strong>
                     </>
                   )}
                 </div>
@@ -1181,6 +1187,37 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                 <p className="text-xs text-stone-500 mt-1">
                   We need your details to assign a driver and send pickup updates via SMS/WhatsApp.
                 </p>
+              </div>
+
+              {/* Selected Cab & Journey Distance Summary Banner */}
+              <div className="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs mb-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded">
+                      {tripType === 'roundtrip' ? 'Round Trip Selected' : tripType === 'local' ? 'Local Rental' : 'One Way Trip'}
+                    </span>
+                    <h4 className="font-bold text-stone-900 text-sm sm:text-base">{selectedVehicle.name}</h4>
+                  </div>
+                  <div className="text-xs text-stone-600 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    <span className="font-semibold text-stone-800">{pickup} &harr; {drop}</span>
+                    <span className="text-stone-300">&bull;</span>
+                    {tripType === 'roundtrip' ? (
+                      <span className="font-bold text-stone-900">
+                        Total km - <strong className="text-amber-900 font-mono">{distanceKm * 2} km</strong> (coming &amp; going)
+                      </span>
+                    ) : tripType === 'local' ? (
+                      <span className="font-bold text-stone-900">{localHours} Hours City Rental</span>
+                    ) : (
+                      <span className="font-bold text-stone-900">
+                        Total km - <strong className="font-mono">{distanceKm} km</strong>
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-amber-200">
+                  <div className="text-[10px] uppercase font-bold text-stone-500">Estimated Fare</div>
+                  <div className="text-xl sm:text-2xl font-black text-stone-950 font-mono">₹{fareDetails.fare.toLocaleString()}</div>
+                </div>
               </div>
 
               {/* Full Name */}
@@ -1525,10 +1562,14 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
                 <div className="flex justify-between items-center pb-2.5 border-b border-stone-200">
                   <span className="text-stone-500 font-medium">
-                    {tripType === 'local' ? 'Rental Duration:' : 'Route Distance:'}
+                    {tripType === 'local' ? 'Rental Duration:' : 'Total Distance:'}
                   </span>
                   <span className="font-bold font-mono text-stone-900">
-                    {tripType === 'local' ? `${localHours} Hours (Local Rental)` : `${distanceKm} km`}
+                    {tripType === 'local' 
+                      ? `${localHours} Hours (Local Rental)` 
+                      : tripType === 'roundtrip'
+                        ? `Total km - ${distanceKm * 2} km (Round Trip: ${distanceKm} km coming + ${distanceKm} km going)`
+                        : `Total km - ${distanceKm} km (One Way)`}
                   </span>
                 </div>
 
@@ -1664,6 +1705,17 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">
                 <span className="text-stone-500 font-medium">Vehicle:</span>
                 <span className="font-bold text-stone-900">{confirmedBooking.vehicleName}</span>
+              </div>
+
+              <div className="flex justify-between items-center pb-2 border-b border-stone-200">
+                <span className="text-stone-500 font-medium">Total Distance:</span>
+                <span className="font-bold font-mono text-stone-900">
+                  {confirmedBooking.tripType === 'local'
+                    ? `${localHours} Hours City Rental`
+                    : confirmedBooking.tripType === 'roundtrip'
+                      ? `Total km - ${distanceKm * 2} km (Round Trip)`
+                      : `Total km - ${distanceKm} km`}
+                </span>
               </div>
 
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">

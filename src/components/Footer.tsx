@@ -1,6 +1,7 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Car, MessageSquare, CreditCard } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageSquare, CreditCard } from 'lucide-react';
 import { BUSINESS_CONFIG, VEHICLES } from '../data/cabConfig';
+import { BokdeLogo } from './BokdeLogo';
 
 export const Footer: React.FC = () => {
   const whatsappUrl = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello Bokde Travels, I need assistance with cab booking.')}`;
@@ -13,19 +14,7 @@ export const Footer: React.FC = () => {
           
           {/* Col 1: Brand & About */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold">
-                <Car className="w-6 h-6 text-stone-950" />
-              </div>
-              <div>
-                <span className="font-display font-bold text-xl text-white tracking-tight block">
-                  Bokde Travels
-                </span>
-                <span className="text-[11px] font-semibold text-amber-400 tracking-wider uppercase block">
-                  Nagpur Cab Service
-                </span>
-              </div>
-            </div>
+            <BokdeLogo size="md" variant="white" />
 
             <p className="text-xs text-stone-400 leading-relaxed">
               Professional, dependable, and transparent taxi and cab rental services operating across Nagpur, Vidarbha, and all-India outstation routes.
