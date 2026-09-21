@@ -1,64 +1,64 @@
-import React from 'react';
-import { BokdeMonogramSvg } from './BokdeMonogramSvg';
+import React, { useState } from 'react';
 
 interface BokdeLogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'dark' | 'light' | 'white';
-  showSubtitle?: boolean;
 }
 
 export const BokdeLogo: React.FC<BokdeLogoProps> = ({
   className = '',
   size = 'md',
   variant = 'dark',
-  showSubtitle = true,
 }) => {
-  // Sizing definitions matching the classic navbar icon
-  const dimensions = {
-    sm: { box: 'w-8 h-8 rounded-lg p-0.5', text: 'text-base', sub: 'text-[9px]' },
-    md: { box: 'w-10 h-10 sm:w-11 sm:h-11 rounded-xl p-1', text: 'text-xl sm:text-2xl', sub: 'text-[11px]' },
-    lg: { box: 'w-14 h-14 sm:w-16 sm:h-16 rounded-2xl p-1.5', text: 'text-2xl sm:text-3xl', sub: 'text-xs' },
-    xl: { box: 'w-20 h-20 rounded-2xl p-2', text: 'text-3xl', sub: 'text-sm' },
+  const [imgSrc, setImgSrc] = useState('/api/logo');
+  const [loadError, setLoadError] = useState(false);
+
+  // Height and responsive boundary definitions ensuring crisp visibility
+  const sizeClasses = {
+    sm: 'h-9 max-h-9 max-w-[140px]',
+    md: 'h-11 sm:h-14 max-h-14 max-w-[200px]',
+    lg: 'h-14 sm:h-16 max-h-16 max-w-[250px]',
+    xl: 'h-20 max-h-20 max-w-[320px]',
   }[size];
 
-  const textColor = variant === 'white' 
-    ? 'text-white' 
-    : variant === 'light' 
-      ? 'text-stone-100' 
-      : 'text-stone-900';
+  const handleImageError = () => {
+    if (imgSrc === '/api/logo') {
+      setImgSrc('/logo.png');
+    } else if (imgSrc === '/logo.png') {
+      setImgSrc('/logo.jpeg');
+    } else if (imgSrc === '/logo.jpeg') {
+      setImgSrc('/logo.jpg');
+    } else {
+      setLoadError(true);
+    }
+  };
 
-  const subColor = variant === 'white' || variant === 'light'
-    ? 'text-amber-400'
-    : 'text-amber-700';
-
-  const boxBg = variant === 'white' || variant === 'light'
-    ? 'bg-white border-stone-700/60 shadow-xs'
-    : 'bg-white border-stone-200/90 shadow-xs';
+  // If in dark footer, display on a crisp white backing so the black logo artwork is fully legible
+  const wrapperClass = variant === 'white'
+    ? 'bg-white p-1.5 rounded-xl inline-flex items-center shadow-xs'
+    : 'inline-flex items-center';
 
   return (
-    <div className={`flex items-center gap-3 select-none ${className}`}>
-      {/* Icon badge on top left - exactly like before */}
-      <div 
-        className={`relative ${dimensions.box} shrink-0 border ${boxBg} flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105 duration-200`}
-      >
-        <BokdeMonogramSvg 
-          className="w-full h-full object-contain" 
-          variant="dark"
+    <div className={`${wrapperClass} select-none ${className}`}>
+      {!loadError ? (
+        <img
+          src={imgSrc}
+          alt="Bokde Travels Logo"
+          referrerPolicy="no-referrer"
+          onError={handleImageError}
+          className={`${sizeClasses} w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]`}
         />
-      </div>
-
-      {/* Brand Typography next to the icon - exactly like before */}
-      <div className="flex flex-col justify-center">
-        <span className={`font-display font-black ${dimensions.text} ${textColor} tracking-tight block leading-tight font-serif`}>
-          Bokde Travels
-        </span>
-        {showSubtitle && (
-          <span className={`${dimensions.sub} font-bold ${subColor} tracking-wider uppercase block mt-0.5`}>
-            Nagpur Cab Service
+      ) : (
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 flex items-center justify-center font-bold text-lg">
+            BT
+          </div>
+          <span className="font-serif font-black text-xl tracking-tight text-stone-900">
+            Bokde Travels
           </span>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

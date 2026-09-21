@@ -160,6 +160,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-stone-200 px-4 pt-3 pb-6 space-y-3 shadow-lg animate-in slide-in-from-top-2">
+          <div className="pb-2 border-b border-stone-100 flex items-center justify-between">
+            <BokdeLogo size="sm" variant="dark" />
+            <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">Nagpur Cabs</span>
+          </div>
           <button
             type="button"
             onClick={() => scrollToSection('booking-section')}

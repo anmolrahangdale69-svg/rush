@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from '@supabase/supabase-js';
 import { sendResendBookingEmail, BookingEmailPayload } from './src/utils/bookingEmail';
@@ -9,6 +10,37 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+
+// Dynamic Logo endpoint: serves WhatsApp image or uploaded logo automatically
+app.get('/api/logo', (req: Request, res: Response) => {
+  const dirs = [
+    path.join(process.cwd(), 'public'),
+    path.join(process.cwd(), 'public', 'images'),
+    process.cwd(),
+  ];
+
+  for (const dir of dirs) {
+    if (!fs.existsSync(dir)) continue;
+    try {
+      const files = fs.readdirSync(dir);
+      const userUploaded = files.find(f => 
+        f.toLowerCase().includes('whatsapp') || 
+        f.toLowerCase().includes('screenshot')
+      );
+      if (userUploaded) {
+        return res.sendFile(path.join(dir, userUploaded));
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const defaultLogo = path.join(process.cwd(), 'public', 'logo.png');
+  if (fs.existsSync(defaultLogo)) {
+    return res.sendFile(defaultLogo);
+  }
+  return res.status(404).send('Logo not found');
+});
 
 // Bokde Travels Configuration
 const BUSINESS_NAME = 'Bokde Travels';
