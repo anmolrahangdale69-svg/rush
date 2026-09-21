@@ -173,11 +173,12 @@ export const POPULAR_ROUTES_FROM_NAGPUR: PopularRoute[] = [
 
 export const POPULAR_NAGPUR_ROUTES = POPULAR_ROUTES_FROM_NAGPUR;
 
-// 3 Configurable Client Confirmation Points
+// Important Client Confirmation Points
 export const CLIENT_CONFIRMATION_POINTS: string[] = [
   'Driver and vehicle details will be shared via SMS/WhatsApp prior to scheduled departure.',
   'Toll taxes, state entry tax, and parking charges are payable directly by customer on actuals.',
-  'Night driving allowance (10:00 PM – 6:00 AM) or multi-day halt charges payable to driver if applicable.'
+  'Night driving allowance (10:00 PM – 6:00 AM) or multi-day halt charges payable to driver if applicable.',
+  'Any extra kilometers traveled beyond the booked route or estimated package will be charged at the vehicle’s standard per-km rate.'
 ];
 
 // FAQs for Bokde Travels
