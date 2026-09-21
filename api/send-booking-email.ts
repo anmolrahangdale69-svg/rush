@@ -4,20 +4,59 @@ import { BookingEmailPayload, sendResendBookingEmail } from '../src/utils/bookin
 // Handles direct automated email notifications for Bokde Travels bookings via Resend
 
 export default async function handler(req: any, res: any) {
+  // CORS Headers for Vercel Serverless Function
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
+  );
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method === 'GET') {
+    const hasApiKey = Boolean(process.env.RESEND_API_KEY);
     return res.status(200).json({
       status: 'Bokde Travels Resend Email Notification Endpoint Operational',
+      configured: hasApiKey,
       sender: process.env.RESEND_FROM_EMAIL || 'Bokde Travels <booking@bokdetravels.in>',
-      recipient: process.env.BOOKING_RECIPIENT_EMAIL || 'travelsbokde@gmail.com'
+      recipient: process.env.BOOKING_RECIPIENT_EMAIL || 'travelsbokde@gmail.com',
+      note: hasApiKey
+        ? 'Resend API key detected'
+        : 'RESEND_API_KEY environment variable is not set'
     });
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ success: false, emailSent: false, error: 'Method Not Allowed' });
   }
 
   try {
-    const body: BookingEmailPayload = req.body;
+    let body: any = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (parseErr) {
+        return res.status(400).json({
+          success: false,
+          emailSent: false,
+          error: 'Invalid JSON payload in request body'
+        });
+      }
+    } else if (Buffer.isBuffer(body)) {
+      try {
+        body = JSON.parse(body.toString('utf8'));
+      } catch (parseErr) {
+        return res.status(400).json({
+          success: false,
+          emailSent: false,
+          error: 'Invalid Buffer JSON payload in request body'
+        });
+      }
+    }
 
     // Validate required fields
     if (!body || !body.bookingReference || !body.customerName || !body.customerPhone) {

@@ -245,29 +245,46 @@ export async function sendResendBookingEmail(payload: BookingEmailPayload): Prom
   id?: string;
   error?: string;
 }> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const recipient = process.env.BOOKING_RECIPIENT_EMAIL || 'travelsbokde@gmail.com';
-  const sender = process.env.RESEND_FROM_EMAIL || 'Bokde Travels <booking@bokdetravels.in>';
+  const apiKey = (process.env.RESEND_API_KEY || '').trim();
+  const recipient = (process.env.BOOKING_RECIPIENT_EMAIL || 'travelsbokde@gmail.com').trim();
+  const sender = (process.env.RESEND_FROM_EMAIL || 'Bokde Travels <booking@bokdetravels.in>').trim();
 
   if (!apiKey) {
-    console.warn('[Resend] RESEND_API_KEY environment variable is not configured. Email skipped.');
+    console.warn('[Resend] RESEND_API_KEY environment variable is not configured on server.');
     return {
       success: false,
       emailSent: false,
-      error: 'RESEND_API_KEY environment variable is not configured on server'
+      error: 'RESEND_API_KEY environment variable is not configured on server. Please add your Resend API Key in Settings or environment variables.'
     };
   }
 
   try {
     const { subject, text, html } = buildEmailContent(payload);
     const resend = new Resend(apiKey);
-    const result = await resend.emails.send({
+    
+    let result = await resend.emails.send({
       from: sender,
       to: [recipient],
       subject,
       text,
       html,
     });
+
+    // If initial send returned an error and sender had display name format, retry with plain email
+    if (result.error && sender.includes('<')) {
+      const plainSender = sender.match(/<([^>]+)>/)?.[1] || sender;
+      console.warn(`[Resend Sender Fallback] Retrying with plain sender: ${plainSender} due to: ${result.error.message}`);
+      const retryResult = await resend.emails.send({
+        from: plainSender,
+        to: [recipient],
+        subject,
+        text,
+        html,
+      });
+      if (!retryResult.error) {
+        result = retryResult;
+      }
+    }
 
     if (result.error) {
       console.error('[Resend Email Error]:', result.error);

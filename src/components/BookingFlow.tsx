@@ -21,7 +21,8 @@ import {
   ChevronRight,
   QrCode,
   Copy,
-  RotateCcw
+  RotateCcw,
+  AlertTriangle
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { TripType, AirportTransferType, PaymentMethod, VehicleConfig, BookingSubmission } from '../types';
@@ -96,6 +97,70 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   // Step 5 & 6: Submission & Confirmation
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [confirmedBooking, setConfirmedBooking] = useState<BookingSubmission | null>(null);
+  const [emailDispatchStatus, setEmailDispatchStatus] = useState<{
+    attempted: boolean;
+    sent: boolean;
+    message: string;
+    id?: string;
+  } | null>(null);
+  const [isRetryingEmail, setIsRetryingEmail] = useState<boolean>(false);
+
+  const handleRetryEmail = async () => {
+    if (!confirmedBooking || isRetryingEmail) return;
+    setIsRetryingEmail(true);
+    try {
+      const emailRes = await fetch('/api/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingReference: confirmedBooking.bookingReference,
+          customerName: confirmedBooking.customerName,
+          customerPhone: confirmedBooking.customerPhone,
+          customerEmail: confirmedBooking.customerEmail,
+          specialRequests: confirmedBooking.specialRequests || '',
+          tripType: confirmedBooking.tripType,
+          airportTransferType: confirmedBooking.airportTransferType,
+          pickupLocation: confirmedBooking.pickupLocation,
+          dropLocation: confirmedBooking.dropLocation,
+          travelDate: confirmedBooking.travelDate,
+          travelTime: confirmedBooking.travelTime,
+          returnDate: confirmedBooking.returnDate,
+          returnTime: confirmedBooking.returnTime,
+          passengers: confirmedBooking.passengers,
+          distanceKm: confirmedBooking.distanceKm ? `${confirmedBooking.distanceKm} km` : undefined,
+          vehicleName: confirmedBooking.vehicleName,
+          estimatedFare: confirmedBooking.estimatedFare,
+          paymentMethod: confirmedBooking.paymentMethod,
+          hasCompletedUpiPayment: confirmedBooking.paymentMethod === 'upi',
+          upiTransactionRef: confirmedBooking.specialRequests?.includes('UTR:') ? confirmedBooking.specialRequests.match(/UTR: ([^)]+)/)?.[1] : undefined
+        })
+      });
+
+      const emailData = await emailRes.json().catch(() => null);
+      if (emailRes.ok && emailData?.emailSent) {
+        setEmailDispatchStatus({
+          attempted: true,
+          sent: true,
+          message: 'Booking notification email delivered to travelsbokde@gmail.com',
+          id: emailData.id
+        });
+      } else {
+        setEmailDispatchStatus({
+          attempted: true,
+          sent: false,
+          message: emailData?.error || `Email dispatch failed (Status: ${emailRes.status})`
+        });
+      }
+    } catch (err: any) {
+      setEmailDispatchStatus({
+        attempted: true,
+        sent: false,
+        message: err?.message || 'Network error while contacting email endpoint'
+      });
+    } finally {
+      setIsRetryingEmail(false);
+    }
+  };
 
   // Pre-fill updates if props change
   useEffect(() => {
@@ -337,7 +402,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
 
     try {
       // 2. Dispatch booking notification email to travelsbokde@gmail.com via server Resend endpoint
-      await fetch('/api/send-booking-email', {
+      const emailRes = await fetch('/api/send-booking-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -363,9 +428,29 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
           upiTransactionRef
         })
       });
-    } catch (emailErr) {
-      // Do not break the booking if email sending temporarily fails
+
+      const emailData = await emailRes.json().catch(() => null);
+      if (emailRes.ok && emailData?.emailSent) {
+        setEmailDispatchStatus({
+          attempted: true,
+          sent: true,
+          message: 'Booking notification email dispatched to travelsbokde@gmail.com',
+          id: emailData.id
+        });
+      } else {
+        setEmailDispatchStatus({
+          attempted: true,
+          sent: false,
+          message: emailData?.error || `Email delivery failed (Status: ${emailRes.status})`
+        });
+      }
+    } catch (emailErr: any) {
       console.warn('Resend booking email dispatch error (booking confirmed):', emailErr);
+      setEmailDispatchStatus({
+        attempted: true,
+        sent: false,
+        message: emailErr?.message || 'Network error while contacting email service'
+      });
     }
 
     // Save in localStorage
@@ -1614,6 +1699,49 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Real-time Email Dispatch Notice */}
+            {emailDispatchStatus && (
+              <div className="max-w-md mx-auto w-full">
+                {emailDispatchStatus.sent ? (
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-left flex items-start gap-3 shadow-2xs">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div className="text-xs">
+                      <p className="font-bold text-emerald-900">Email Notification Sent</p>
+                      <p className="text-emerald-700 mt-0.5">
+                        Booking details sent to <span className="font-semibold">travelsbokde@gmail.com</span>
+                        {emailDispatchStatus.id && (
+                          <span className="block text-[11px] font-mono text-emerald-600 mt-0.5">Ref: {emailDispatchStatus.id}</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-left flex flex-col gap-2.5 shadow-2xs text-xs">
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-bold text-amber-900">Email Notification Notice</p>
+                        <p className="text-amber-800 mt-0.5 leading-relaxed">
+                          {emailDispatchStatus.message}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-amber-200/70">
+                      <span className="text-[11px] text-amber-700">Booking {confirmedBooking.bookingReference} is confirmed.</span>
+                      <button
+                        type="button"
+                        onClick={handleRetryEmail}
+                        disabled={isRetryingEmail}
+                        className="px-3 py-1.5 text-xs font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 rounded-lg transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                      >
+                        {isRetryingEmail ? 'Retrying...' : 'Retry Email'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* WhatsApp & Call CTAs as requested */}
             <div className="max-w-md mx-auto flex flex-col sm:flex-row items-center gap-3 pt-2">
