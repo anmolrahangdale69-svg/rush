@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface BokdeLogoProps {
   className?: string;
@@ -13,6 +13,15 @@ export const BokdeLogo: React.FC<BokdeLogoProps> = ({
 }) => {
   const [imgSrc, setImgSrc] = useState('/api/logo');
   const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setImgSrc(`/api/logo?t=${Date.now()}`);
+      setLoadError(false);
+    };
+    window.addEventListener('bokde-logo-updated', handleUpdate);
+    return () => window.removeEventListener('bokde-logo-updated', handleUpdate);
+  }, []);
 
   // Height and responsive boundary definitions ensuring crisp visibility
   const sizeClasses = {

@@ -11,6 +11,7 @@ import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
 import { StickyMobileBar } from './components/StickyMobileBar';
 import { BookingModal } from './components/BookingModal';
+import { LogoUploadModal } from './components/LogoUploadModal';
 import { VehicleConfig, BookingSubmission } from './types';
 import { BUSINESS_CONFIG } from './data/cabConfig';
 
@@ -139,6 +140,9 @@ export default function App() {
         initialDrop={bookingPrefill.drop}
         initialVehicleId={bookingPrefill.vehicleId}
       />
+
+      {/* 12. Direct Official Logo Uploader */}
+      <LogoUploadModal />
 
     </div>
   );

@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
+import { execSync } from 'child_process';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from '@supabase/supabase-js';
 import { sendResendBookingEmail, BookingEmailPayload } from './src/utils/bookingEmail';
@@ -9,13 +10,17 @@ import { sendResendBookingEmail, BookingEmailPayload } from './src/utils/booking
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Dynamic Logo endpoint: serves WhatsApp image or uploaded logo automatically
 app.get('/api/logo', (req: Request, res: Response) => {
   const dirs = [
     path.join(process.cwd(), 'public'),
     path.join(process.cwd(), 'public', 'images'),
+    path.join(process.cwd(), 'src', 'assets', 'images'),
+    path.join(process.cwd(), 'src', 'assets'),
+    path.join(process.cwd(), 'src'),
     process.cwd(),
   ];
 
@@ -23,10 +28,11 @@ app.get('/api/logo', (req: Request, res: Response) => {
     if (!fs.existsSync(dir)) continue;
     try {
       const files = fs.readdirSync(dir);
-      const userUploaded = files.find(f => 
-        f.toLowerCase().includes('whatsapp') || 
-        f.toLowerCase().includes('screenshot')
-      );
+      const userUploaded = files.find(f => {
+        const lower = f.toLowerCase();
+        return (lower.includes('whatsapp') || lower.includes('screenshot')) &&
+          (lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.webp'));
+      });
       if (userUploaded) {
         return res.sendFile(path.join(dir, userUploaded));
       }
@@ -40,6 +46,59 @@ app.get('/api/logo', (req: Request, res: Response) => {
     return res.sendFile(defaultLogo);
   }
   return res.status(404).send('Logo not found');
+});
+
+// Upload and process official logo directly from browser
+app.post('/api/upload-logo-json', (req: Request, res: Response) => {
+  try {
+    const { dataUrl, cropWindow } = req.body;
+    if (!dataUrl) {
+      return res.status(400).json({ error: 'No image data provided' });
+    }
+    const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+    const targetPath = path.join(process.cwd(), 'public', 'logo.png');
+    const tempPath = path.join(process.cwd(), 'public', 'temp_uploaded_logo.png');
+
+    fs.writeFileSync(tempPath, buffer);
+
+    // Identify dimensions
+    const identifyOutput = execSync(`identify -format "%w %h" "${tempPath}"`).toString().trim();
+    const [w, h] = identifyOutput.split(' ').map(Number);
+
+    // If it's a desktop screenshot (where the logo is in the Preview window on the left)
+    if (cropWindow || (w >= 1400 && h >= 800)) {
+      // Crop the left half (Mac Preview window) and auto-trim the white background margins with 30px padding
+      const cropW = Math.round(w * 0.52);
+      const cropH = Math.round(h * 0.90);
+      const cropY = Math.round(h * 0.05);
+
+      execSync(`convert "${tempPath}" -crop ${cropW}x${cropH}+0+${cropY} +repage "${tempPath}"`);
+      execSync(`convert "${tempPath}" -fuzz 5% -trim -bordercolor white -border 30x30 +repage "${targetPath}"`);
+    } else {
+      // It's the direct logo file! Auto-trim excess outer margins while leaving clean 20px padding
+      try {
+        execSync(`convert "${tempPath}" -fuzz 4% -trim -bordercolor white -border 20x20 +repage "${targetPath}"`);
+      } catch {
+        fs.copyFileSync(tempPath, targetPath);
+      }
+    }
+
+    try {
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+    } catch {}
+
+    // Also mirror to public/images/logo.png for redundancy
+    try {
+      fs.copyFileSync(targetPath, path.join(process.cwd(), 'public', 'images', 'logo.png'));
+    } catch {}
+
+    console.log(`Logo updated successfully: ${w}x${h}`);
+    return res.json({ success: true, width: w, height: h });
+  } catch (err: any) {
+    console.error('Logo upload error:', err);
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 // Bokde Travels Configuration
