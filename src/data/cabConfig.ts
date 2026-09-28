@@ -6,11 +6,22 @@ export const BUSINESS_CONFIG = {
   city: 'Nagpur',
   state: 'Maharashtra',
   country: 'India',
-  phone: '8983275497',
-  displayPhone: '+91 8983275497',
+  // Owner Contact (Calling & WhatsApp)
+  ownerPhone: '8830853261',
+  displayOwnerPhone: '+91 8830853261',
+  phone: '8830853261',
+  displayPhone: '+91 8830853261',
+  whatsappNumber: '918830853261',
+
+  // 24/7 Helpline & Support (Calling & WhatsApp)
+  helplinePhone: '8983275497',
+  displayHelplinePhone: '+91 8983275497',
+  phoneAlt: '8983275497',
+  displayPhoneAlt: '+91 8983275497',
+  whatsappNumberAlt: '918983275497',
+
   email: 'bokdetravels@gmail.com',
   upiId: 'sonalbokde786-7@okaxis',
-  whatsappNumber: '918983275497',
   address: 'Nagpur, Maharashtra, India',
   airportName: 'Dr. Babasaheb Ambedkar International Airport (NAG), Nagpur',
 };
@@ -210,6 +221,10 @@ export const FAQS: FaqItem[] = [
   {
     question: 'What payment options are available?',
     answer: 'You can pay comfortably via Cash on Delivery / Pay to Driver at the trip destination, or via direct UPI QR code / UPI ID transfer to sonalbokde786-7@okaxis using Google Pay, PhonePe, Paytm, or BHIM.'
+  },
+  {
+    question: 'How do I contact Bokde Travels directly or speak with the owner?',
+    answer: 'You can directly call or message the owner of Bokde Travels on WhatsApp at +91 8830853261. You can also reach our 24/7 customer helpline for bookings and road assistance at +91 8983275497.'
   }
 ];
 

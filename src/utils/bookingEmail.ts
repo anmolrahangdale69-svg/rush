@@ -227,7 +227,7 @@ FARE & PAYMENT
           Bokde Travels &bull; Nagpur, Maharashtra
         </p>
         <p style="margin: 4px 0 0 0; font-size: 12px; color: #a8a29e;">
-          Phone: <a href="tel:8983275497" style="color: #78716c; text-decoration: none;">8983275497</a> &bull; Email: <a href="mailto:travelsbokde@gmail.com" style="color: #78716c; text-decoration: none;">travelsbokde@gmail.com</a>
+          Owner: <a href="tel:8830853261" style="color: #78716c; text-decoration: none;">8830853261</a> &bull; Helpline: <a href="tel:8983275497" style="color: #78716c; text-decoration: none;">8983275497</a> &bull; Email: <a href="mailto:travelsbokde@gmail.com" style="color: #78716c; text-decoration: none;">travelsbokde@gmail.com</a>
         </p>
       </td>
     </tr>

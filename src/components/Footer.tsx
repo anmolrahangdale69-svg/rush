@@ -75,36 +75,75 @@ export const Footer: React.FC = () => {
               <span>{BUSINESS_CONFIG.city}, {BUSINESS_CONFIG.state}, India</span>
             </div>
 
-            <div className="flex items-center gap-2.5 text-xs text-stone-300">
-              <Phone className="w-4 h-4 text-amber-500 shrink-0" />
-              <a href={`tel:${BUSINESS_CONFIG.phone}`} className="hover:text-white font-bold">
-                {BUSINESS_CONFIG.phone}
-              </a>
+            {/* Owner Contact */}
+            <div className="bg-stone-800/80 p-2.5 rounded-xl border border-stone-700/60 space-y-1">
+              <div className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
+                <span>Owner (Direct)</span>
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded font-normal">Calling &amp; WA</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <a href={`tel:${BUSINESS_CONFIG.ownerPhone}`} className="hover:text-white font-mono font-bold text-stone-100 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{BUSINESS_CONFIG.displayOwnerPhone}</span>
+                </a>
+                <a
+                  href={`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello Bokde Travels, I want to book a cab from Nagpur.')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-bold flex items-center gap-1"
+                >
+                  <MessageSquare className="w-3 h-3" />
+                  <span>Chat</span>
+                </a>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2.5 text-xs text-stone-300">
+            {/* Helpline Contact */}
+            <div className="bg-stone-800/80 p-2.5 rounded-xl border border-stone-700/60 space-y-1">
+              <div className="text-[11px] font-bold text-stone-300 uppercase tracking-wider flex items-center justify-between">
+                <span>24/7 Helpline &amp; Support</span>
+                <span className="text-[10px] bg-stone-700 text-stone-300 px-1 py-0.2 rounded font-normal">Calling &amp; WA</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <a href={`tel:${BUSINESS_CONFIG.helplinePhone}`} className="hover:text-white font-mono font-bold text-stone-100 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-stone-400" />
+                  <span>{BUSINESS_CONFIG.displayHelplinePhone}</span>
+                </a>
+                <a
+                  href={`https://wa.me/${BUSINESS_CONFIG.whatsappNumberAlt}?text=${encodeURIComponent('Hello Bokde Travels Helpline, I need assistance with cab booking.')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2 py-0.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-[11px] font-bold flex items-center gap-1"
+                >
+                  <MessageSquare className="w-3 h-3" />
+                  <span>Chat</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 text-xs text-stone-300 pt-1">
               <Mail className="w-4 h-4 text-amber-500 shrink-0" />
               <a href={`mailto:${BUSINESS_CONFIG.email}`} className="hover:text-white">
                 {BUSINESS_CONFIG.email}
               </a>
             </div>
 
-            <div className="pt-2 flex flex-col gap-2">
+            <div className="pt-2 grid grid-cols-2 gap-2">
               <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="py-2 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span>WhatsApp Booking</span>
-              </a>
-              <a
-                href={`tel:${BUSINESS_CONFIG.phone}`}
-                className="py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+                href={`tel:${BUSINESS_CONFIG.ownerPhone}`}
+                className="py-2 px-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors text-center"
               >
                 <Phone className="w-3.5 h-3.5" />
-                <span>Call {BUSINESS_CONFIG.phone}</span>
+                <span>Call Owner</span>
+              </a>
+              <a
+                href={`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello Bokde Travels, I need assistance with cab booking.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-2 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors text-center"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>WhatsApp</span>
               </a>
             </div>
           </div>

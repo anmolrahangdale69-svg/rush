@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Calendar, ArrowRight, ShieldCheck, MapPin, CheckCircle2, Navigation } from 'lucide-react';
+import { Phone, Calendar, ArrowRight, ShieldCheck, MapPin, CheckCircle2, Navigation, MessageSquare } from 'lucide-react';
 import { BUSINESS_CONFIG } from '../data/cabConfig';
 
 interface HeroSectionProps {
@@ -35,22 +35,46 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onBookClick }) => {
           </p>
 
           {/* Action CTAs */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+          <div className="mt-8 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3">
             <button
               type="button"
               onClick={onBookClick}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer group"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer group"
             >
               <span>Book a Cab</span>
               <ArrowRight className="w-5 h-5 text-stone-900 group-hover:translate-x-1 transition-transform" />
             </button>
 
+            {/* Call Owner */}
             <a
-              href={`tel:${BUSINESS_CONFIG.phone}`}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white hover:bg-stone-50 text-stone-900 border border-stone-300 font-bold text-base shadow-2xs transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+              href={`tel:${BUSINESS_CONFIG.ownerPhone}`}
+              className="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-white hover:bg-stone-50 text-stone-900 border border-stone-300 font-bold text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              title="Call Owner of Bokde Travels (8830853261)"
             >
               <Phone className="w-4 h-4 text-amber-600" />
-              <span>Call Now: <strong>{BUSINESS_CONFIG.phone}</strong></span>
+              <span>Call Owner: <strong>{BUSINESS_CONFIG.ownerPhone}</strong></span>
+            </a>
+
+            {/* Call Helpline */}
+            <a
+              href={`tel:${BUSINESS_CONFIG.helplinePhone}`}
+              className="w-full sm:w-auto px-4 py-3.5 rounded-xl bg-white hover:bg-stone-50 text-stone-700 hover:text-stone-900 border border-stone-200 font-semibold text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              title="Call 24/7 Helpline (8983275497)"
+            >
+              <Phone className="w-4 h-4 text-stone-400" />
+              <span>Helpline: <strong>{BUSINESS_CONFIG.helplinePhone}</strong></span>
+            </a>
+
+            {/* Chat on WhatsApp */}
+            <a
+              href={`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello Bokde Travels, I want to book a cab from Nagpur.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              title="Chat on WhatsApp (8830853261)"
+            >
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
+              <span>WhatsApp</span>
             </a>
           </div>
 

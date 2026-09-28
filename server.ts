@@ -103,7 +103,9 @@ app.post('/api/upload-logo-json', (req: Request, res: Response) => {
 
 // Bokde Travels Configuration
 const BUSINESS_NAME = 'Bokde Travels';
-const BUSINESS_PHONE = '8983275497';
+const OWNER_PHONE = '8830853261';
+const HELPLINE_PHONE = '8983275497';
+const BUSINESS_PHONE = '8830853261';
 const BUSINESS_EMAIL = 'travelsbokde@gmail.com';
 const OWNER_EMAIL = process.env.OWNER_EMAIL || 'travelsbokde@gmail.com';
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
@@ -421,7 +423,7 @@ app.post('/api/route-distance', async (req: Request, res: Response) => {
     return res.json({
       success: false,
       distanceKm: 0,
-      error: `Could not calculate road distance between "${pickup}" and "${drop}". Please check place spelling or call Bokde Travels directly at 8983275497.`
+      error: `Could not calculate road distance between "${pickup}" and "${drop}". Please check place spelling or call Bokde Travels directly at 8830853261 / 8983275497.`
     });
   } catch (err: any) {
     return res.status(500).json({

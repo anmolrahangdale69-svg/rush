@@ -1795,25 +1795,65 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               </div>
             )}
 
-            {/* WhatsApp & Call CTAs as requested */}
-            <div className="max-w-md mx-auto flex flex-col sm:flex-row items-center gap-3 pt-2">
-              <a
-                href={`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${getWhatsAppBookingText(confirmedBooking)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-1/2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Send on WhatsApp</span>
-              </a>
+            {/* WhatsApp & Call CTAs for both Owner and Helpline */}
+            <div className="max-w-lg mx-auto space-y-2.5 pt-2 text-left">
+              <div className="text-xs font-bold text-stone-700 text-center uppercase tracking-wider">
+                Direct Driver &amp; Cab Dispatch Contacts
+              </div>
 
-              <a
-                href={`tel:${BUSINESS_CONFIG.phone}`}
-                className="w-full sm:w-1/2 py-3 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all"
-              >
-                <Phone className="w-4 h-4 text-amber-400" />
-                <span>Call {BUSINESS_CONFIG.phone}</span>
-              </a>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Owner Actions */}
+                <div className="p-3 bg-amber-50/80 rounded-2xl border border-amber-200">
+                  <div className="text-xs font-bold text-amber-950 flex items-center justify-between mb-1.5">
+                    <span>Owner (Direct)</span>
+                    <span className="font-mono text-[11px] text-amber-900">{BUSINESS_CONFIG.displayOwnerPhone}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <a
+                      href={`tel:${BUSINESS_CONFIG.ownerPhone}`}
+                      className="py-2 px-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs flex items-center justify-center gap-1 shadow-2xs"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Call</span>
+                    </a>
+                    <a
+                      href={`https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${getWhatsAppBookingText(confirmedBooking)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-2xs"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Helpline Actions */}
+                <div className="p-3 bg-stone-50 rounded-2xl border border-stone-200">
+                  <div className="text-xs font-bold text-stone-800 flex items-center justify-between mb-1.5">
+                    <span>24/7 Helpline</span>
+                    <span className="font-mono text-[11px] text-stone-600">{BUSINESS_CONFIG.displayHelplinePhone}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <a
+                      href={`tel:${BUSINESS_CONFIG.helplinePhone}`}
+                      className="py-2 px-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-2xs"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Call</span>
+                    </a>
+                    <a
+                      href={`https://wa.me/${BUSINESS_CONFIG.whatsappNumberAlt}?text=${getWhatsAppBookingText(confirmedBooking)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2 px-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-2xs"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Book Another Cab Button */}
