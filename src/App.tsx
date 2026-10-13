@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { ReviewsTicker } from './components/ReviewsTicker';
 import { BookingFlow } from './components/BookingFlow';
+import { PreviousBookingsRibbon } from './components/PreviousBookingsRibbon';
 import { ServicesSection } from './components/ServicesSection';
 import { CustomerReviews } from './components/CustomerReviews';
 import { PopularRoutesSection } from './components/PopularRoutesSection';
@@ -13,6 +14,7 @@ import { StickyMobileBar } from './components/StickyMobileBar';
 import { BookingModal } from './components/BookingModal';
 import { AuthModal } from './components/AuthModal';
 import { MyBookingsModal } from './components/MyBookingsModal';
+import { CancelRideModal } from './components/CancelRideModal';
 import { AuthProvider } from './context/AuthContext';
 import { VehicleConfig, BookingSubmission } from './types';
 import { BUSINESS_CONFIG } from './data/cabConfig';
@@ -23,6 +25,7 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
   const [isMyBookingsOpen, setIsMyBookingsOpen] = useState<boolean>(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false);
   
   // Prefill state for the booking engine
   const [bookingPrefill, setBookingPrefill] = useState<{
@@ -34,6 +37,18 @@ export default function App() {
     drop: 'Wardha',
     vehicleId: 'suzuki-dzire'
   });
+
+  // Prompt authentication modal immediately upon opening the website as requested
+  useEffect(() => {
+    const hasPrompted = sessionStorage.getItem('bokde_auto_auth_shown');
+    if (!hasPrompted) {
+      const timer = setTimeout(() => {
+        setIsAuthModalOpen(true);
+        sessionStorage.setItem('bokde_auto_auth_shown', 'true');
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Handle selecting a popular route
   const handleSelectPopularRoute = (from: string, to: string) => {
@@ -76,7 +91,7 @@ export default function App() {
     }
   };
 
-  // Handle "Book Again" from My Bookings history
+  // Handle "Book Again" from Previous Rides / My Bookings history
   const handleBookAgain = (prefill: { pickup: string; drop: string; vehicleId?: string }) => {
     setBookingPrefill({
       pickup: prefill.pickup,
@@ -96,7 +111,7 @@ export default function App() {
     <AuthProvider>
       <div className="min-h-screen bg-white text-stone-900 flex flex-col selection:bg-amber-200 selection:text-stone-900 font-sans">
         
-        {/* 1. Brand Navbar */}
+        {/* 1. Brand Navbar with Login, My Bookings, and Cancel Ride */}
         <Navbar 
           onOpenBooking={handleOpenBooking} 
           onOpenAuth={() => {
@@ -104,6 +119,7 @@ export default function App() {
             setIsAuthModalOpen(true);
           }}
           onOpenMyBookings={() => setIsMyBookingsOpen(true)}
+          onOpenCancelRide={() => setIsCancelModalOpen(true)}
         />
 
         {/* Live Verified Reviews & Rating Ticker Ribbon (Visible immediately upon opening website) */}
@@ -130,6 +146,12 @@ export default function App() {
                   Enter your pickup &amp; drop to automatically calculate highway distance and view live per-km vehicle fares.
                 </p>
               </div>
+
+              {/* Previous Rides / Fast 1-Click Rebooking Ribbon */}
+              <PreviousBookingsRibbon
+                onSelectBooking={handleBookAgain}
+                onOpenMyBookings={() => setIsMyBookingsOpen(true)}
+              />
 
               <BookingFlow
                 initialPickup={bookingPrefill.pickup}
@@ -170,14 +192,12 @@ export default function App() {
           initialVehicleId={bookingPrefill.vehicleId}
         />
 
-        {/* 12. User Authentication Dialog (Google, Email/Password, Phone OTP) */}
+        {/* 12. User Authentication Dialog (Phone OTP & Google Primary) */}
         <AuthModal
           isOpen={isAuthModalOpen}
           onClose={() => setIsAuthModalOpen(false)}
           initialMode={authModalMode}
-          onSuccess={() => {
-            // Optional: open bookings after login if requested
-          }}
+          onSuccess={() => {}}
         />
 
         {/* 13. My Bookings Dialog (History, Cards, Cancel & Book Again) */}
@@ -189,6 +209,12 @@ export default function App() {
             setAuthModalMode('signin');
             setIsAuthModalOpen(true);
           }}
+        />
+
+        {/* 14. Quick Cancel Existing Ride Dialog */}
+        <CancelRideModal
+          isOpen={isCancelModalOpen}
+          onClose={() => setIsCancelModalOpen(false)}
         />
 
       </div>

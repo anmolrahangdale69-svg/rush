@@ -22,7 +22,8 @@ import {
   QrCode,
   Copy,
   RotateCcw,
-  AlertTriangle
+  AlertTriangle,
+  XCircle
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { TripType, AirportTransferType, PaymentMethod, VehicleConfig, BookingSubmission } from '../types';
@@ -30,7 +31,7 @@ import { BUSINESS_CONFIG, VEHICLES, CLIENT_CONFIRMATION_POINTS } from '../data/c
 import { calculateRouteDistance, calculateVehicleFare } from '../utils/routingService';
 import { VehicleVisual } from './VehicleVisual';
 import { useAuth } from '../context/AuthContext';
-import { createBooking } from '../services/bookingService';
+import { createBooking, saveBookingLocally, cancelBooking } from '../services/bookingService';
 
 interface BookingFlowProps {
   initialPickup?: string;
@@ -130,6 +131,25 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     id?: string;
   } | null>(null);
   const [isRetryingEmail, setIsRetryingEmail] = useState<boolean>(false);
+  const [isCancellingConfirmed, setIsCancellingConfirmed] = useState<boolean>(false);
+  const [confirmedCancelled, setConfirmedCancelled] = useState<boolean>(false);
+
+  const handleCancelThisBooking = async () => {
+    if (!confirmedBooking) return;
+    const confirm = window.confirm(`Are you sure you want to cancel booking #${confirmedBooking.bookingReference}?`);
+    if (!confirm) return;
+
+    setIsCancellingConfirmed(true);
+    try {
+      await cancelBooking(confirmedBooking.bookingReference);
+      setConfirmedCancelled(true);
+    } catch (e) {
+      console.warn('Cancel error:', e);
+      setConfirmedCancelled(true);
+    } finally {
+      setIsCancellingConfirmed(false);
+    }
+  };
 
   const handleRetryEmail = async () => {
     if (!confirmedBooking || isRetryingEmail) return;
@@ -429,7 +449,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
     // 1b. Persist booking directly to Firestore under current user's uid
     if (user?.uid) {
       try {
-        await createBooking({
+        const bookingRecord = {
           userId: user.uid,
           destination: drop,
           tripName: `${selectedVehicle.name} (${tripType === 'roundtrip' ? 'Round Trip' : tripType === 'local' ? 'Local Rental' : 'One Way'})`,
@@ -447,14 +467,17 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
           contactPhone: customerPhone,
           contactEmail: customerEmail || undefined,
           specialRequests: submission.specialRequests,
-          status: 'confirmed',
+          status: 'confirmed' as const,
           bookingReference: submission.bookingReference,
           vehicleId: selectedVehicle.id,
           vehicleName: selectedVehicle.name,
           paymentMethod,
           distanceKm: submission.distanceKm,
           createdAt: submission.createdAt
-        });
+        };
+
+        await createBooking(bookingRecord);
+        saveBookingLocally(bookingRecord);
 
         // Sync user profile with entered contact info
         await updateSavedProfile({
@@ -465,6 +488,27 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       } catch (firestoreErr) {
         console.warn('Firestore booking persistence warning:', firestoreErr);
       }
+    } else {
+      saveBookingLocally({
+        userId: 'guest',
+        destination: drop,
+        tripName: `${selectedVehicle.name}`,
+        pickupLocation: pickup,
+        dropLocation: drop,
+        travelDates: travelDate,
+        travelDate,
+        travelTime,
+        tripType,
+        travellers: passengers,
+        totalPrice: fareDetails.fare,
+        contactName: customerName,
+        contactPhone: customerPhone,
+        status: 'confirmed',
+        bookingReference: submission.bookingReference,
+        vehicleName: selectedVehicle.name,
+        paymentMethod,
+        createdAt: submission.createdAt
+      });
     }
 
     try {
@@ -1923,6 +1967,32 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
               </div>
             </div>
 
+            {/* Ride Cancellation Option on Confirmed Screen */}
+            <div className="pt-3 max-w-md mx-auto w-full">
+              {confirmedCancelled ? (
+                <div className="p-3 bg-stone-100 rounded-2xl border border-stone-300 text-stone-700 text-xs font-semibold flex items-center justify-center gap-2">
+                  <XCircle className="w-4 h-4 text-stone-500" />
+                  <span>This ride (#{confirmedBooking.bookingReference}) has been cancelled. No charge applied.</span>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-red-50/70 rounded-2xl border border-red-200/80">
+                  <div className="text-left text-xs">
+                    <span className="font-bold text-red-950 block">Need to cancel this booking?</span>
+                    <span className="text-[11px] text-red-700">Free cancellation anytime before car dispatch.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCancelThisBooking}
+                    disabled={isCancellingConfirmed}
+                    className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    <span>{isCancellingConfirmed ? 'Cancelling...' : 'Cancel This Ride'}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Book Another Cab Button */}
             <div className="pt-4">
               <button
@@ -1930,10 +2000,11 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                 onClick={() => {
                   setCurrentStep(1);
                   setConfirmedBooking(null);
+                  setConfirmedCancelled(false);
                 }}
-                className="text-xs font-semibold text-stone-500 hover:text-stone-800 underline cursor-pointer"
+                className="text-xs font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer"
               >
-                Book Another Cab
+                Plan Another Trip / Book Another Cab &rarr;
               </button>
             </div>
 

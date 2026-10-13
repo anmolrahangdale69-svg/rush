@@ -463,15 +463,16 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
                     {/* Card Actions: Book Again & Cancel */}
                     <div className="flex items-center justify-end gap-2 pt-1">
-                      {/* Cancel option for pending bookings */}
+                      {/* Cancel option for active bookings */}
                       {booking.status !== 'cancelled' && (
                         <button
                           type="button"
                           onClick={() => handleCancelBooking(booking)}
                           disabled={cancellingId === booking.id}
-                          className="px-3 py-2 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                          className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                         >
-                          {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
+                          <XCircle className="w-3.5 h-3.5 text-red-600" />
+                          <span>{cancellingId === booking.id ? 'Cancelling...' : 'Cancel Ride'}</span>
                         </button>
                       )}
 

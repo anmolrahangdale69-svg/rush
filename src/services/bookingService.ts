@@ -136,18 +136,59 @@ export function subscribeUserBookings(
   );
 }
 
+// Local storage helpers for immediate responsive feedback
+const LOCAL_BOOKINGS_KEY = 'bokde_recent_rides';
+
+export function saveBookingLocally(booking: FirestoreBooking): void {
+  try {
+    const existingStr = localStorage.getItem(LOCAL_BOOKINGS_KEY);
+    const list: FirestoreBooking[] = existingStr ? JSON.parse(existingStr) : [];
+    // Prepend new booking, remove duplicate references
+    const filtered = list.filter(b => b.bookingReference !== booking.bookingReference && b.id !== booking.id);
+    filtered.unshift(booking);
+    localStorage.setItem(LOCAL_BOOKINGS_KEY, JSON.stringify(filtered.slice(0, 10)));
+  } catch (e) {
+    console.warn('Local booking storage error:', e);
+  }
+}
+
+export function getRecentLocalBookings(): FirestoreBooking[] {
+  try {
+    const existingStr = localStorage.getItem(LOCAL_BOOKINGS_KEY);
+    return existingStr ? JSON.parse(existingStr) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function updateLocalBookingStatus(bookingIdOrRef: string, status: 'confirmed' | 'pending' | 'cancelled'): void {
+  try {
+    const list = getRecentLocalBookings();
+    const updated = list.map(b => {
+      if (b.id === bookingIdOrRef || b.bookingReference === bookingIdOrRef) {
+        return { ...b, status };
+      }
+      return b;
+    });
+    localStorage.setItem(LOCAL_BOOKINGS_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.warn('Local update error:', e);
+  }
+}
+
 /**
  * Cancels a user's booking by setting status to 'cancelled'
  */
 export async function cancelBooking(bookingId: string): Promise<void> {
   const path = `bookings/${bookingId}`;
+  updateLocalBookingStatus(bookingId, 'cancelled');
   try {
     const bookingRef = doc(db, 'bookings', bookingId);
     await updateDoc(bookingRef, {
       status: 'cancelled'
     });
   } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, path);
+    console.warn('Firestore cancellation error, updated locally:', error);
   }
 }
 

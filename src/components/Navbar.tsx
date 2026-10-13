@@ -9,7 +9,9 @@ import {
   User, 
   LogOut, 
   ChevronDown, 
-  Sparkles 
+  Sparkles,
+  XCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { BUSINESS_CONFIG } from '../data/cabConfig';
 import { BokdeLogo } from './BokdeLogo';
@@ -19,12 +21,14 @@ interface NavbarProps {
   onOpenBooking: (prefill?: { pickup?: string; drop?: string; vehicleId?: string }) => void;
   onOpenAuth?: () => void;
   onOpenMyBookings?: () => void;
+  onOpenCancelRide?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
   onOpenBooking, 
   onOpenAuth, 
-  onOpenMyBookings 
+  onOpenMyBookings,
+  onOpenCancelRide
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState<boolean>(false);
@@ -169,6 +173,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
           </div>
 
+          {/* Cancel Ride Button */}
+          <button
+            type="button"
+            onClick={() => onOpenCancelRide?.()}
+            className="px-2.5 py-2 rounded-xl border border-red-200 hover:border-red-300 bg-red-50 hover:bg-red-100 text-red-800 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Cancel an existing booking"
+          >
+            <XCircle className="w-3.5 h-3.5 text-red-600" />
+            <span>Cancel Ride</span>
+          </button>
+
           {/* Dedicated My Bookings Button */}
           <button
             type="button"
@@ -228,6 +243,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                     type="button"
                     onClick={() => {
                       setProfileMenuOpen(false);
+                      onOpenCancelRide?.();
+                    }}
+                    className="w-full text-left px-3.5 py-2 hover:bg-red-50 text-red-700 font-semibold flex items-center gap-2.5 transition-colors cursor-pointer"
+                  >
+                    <XCircle className="w-4 h-4 text-red-600" />
+                    <span>Cancel Existing Ride</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileMenuOpen(false);
                       logout();
                     }}
                     className="w-full text-left px-3.5 py-2 hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2.5 transition-colors cursor-pointer border-t border-stone-100"
@@ -259,8 +286,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* Mobile quick actions (My Bookings + Call + Menu) */}
+        {/* Mobile quick actions (Cancel + My Bookings + Call + Menu) */}
         <div className="flex lg:hidden items-center gap-1.5">
+          {/* Quick mobile Cancel Ride button */}
+          <button
+            type="button"
+            onClick={() => onOpenCancelRide?.()}
+            className="p-2 rounded-xl bg-red-50 text-red-800 border border-red-200 flex items-center justify-center cursor-pointer"
+            aria-label="Cancel Ride"
+            title="Cancel a Ride"
+          >
+            <XCircle className="w-4 h-4 text-red-600" />
+          </button>
+
           {/* Quick mobile My Bookings button */}
           <button
             type="button"
@@ -335,12 +373,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   onOpenAuth?.();
                 }}
-                className="text-xs bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-3 py-1.5 rounded-xl shadow-2xs"
+                className="text-xs bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-3 py-1.5 rounded-xl shadow-2xs cursor-pointer"
               >
                 Login / Sign up
               </button>
             </div>
           )}
+
+          {/* Dedicated Cancel a Ride Button in Drawer */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenCancelRide?.();
+            }}
+            className="w-full text-left py-2.5 px-3 rounded-xl font-bold text-red-900 bg-red-50 border border-red-200 flex items-center justify-between"
+          >
+            <span className="flex items-center gap-2">
+              <XCircle className="w-4 h-4 text-red-600" />
+              <span>Cancel an Existing Ride</span>
+            </span>
+            <span className="text-[11px] text-red-700 font-semibold">Free</span>
+          </button>
 
           {/* Dedicated My Bookings Drawer Option */}
           <button
