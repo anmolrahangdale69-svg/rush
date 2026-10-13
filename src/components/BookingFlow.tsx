@@ -29,6 +29,8 @@ import { TripType, AirportTransferType, PaymentMethod, VehicleConfig, BookingSub
 import { BUSINESS_CONFIG, VEHICLES, CLIENT_CONFIRMATION_POINTS } from '../data/cabConfig';
 import { calculateRouteDistance, calculateVehicleFare } from '../utils/routingService';
 import { VehicleVisual } from './VehicleVisual';
+import { useAuth } from '../context/AuthContext';
+import { createBooking } from '../services/bookingService';
 
 interface BookingFlowProps {
   initialPickup?: string;
@@ -79,12 +81,36 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   // Step 2: Selected Vehicle
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>(initialVehicleId);
 
+  // Auth & Saved Profile integration
+  const { user, userProfile, updateSavedProfile } = useAuth();
+
   // Step 3: Passenger Details
   const [customerName, setCustomerName] = useState<string>('');
   const [customerPhone, setCustomerPhone] = useState<string>('');
   const [customerEmail, setCustomerEmail] = useState<string>('');
   const [specialRequests, setSpecialRequests] = useState<string>('');
   const [passengerFormErrors, setPassengerFormErrors] = useState<{ name?: string; phone?: string }>({});
+
+  // Automatically prefill passenger form when user or userProfile is available
+  useEffect(() => {
+    if (userProfile?.name && !customerName) {
+      setCustomerName(userProfile.name);
+    } else if (user?.displayName && !customerName) {
+      setCustomerName(user.displayName);
+    }
+
+    if (userProfile?.phone && !customerPhone) {
+      setCustomerPhone(userProfile.phone);
+    } else if (user?.phoneNumber && !customerPhone) {
+      setCustomerPhone(user.phoneNumber.replace('+91', ''));
+    }
+
+    if (userProfile?.email && !customerEmail) {
+      setCustomerEmail(userProfile.email);
+    } else if (user?.email && !customerEmail) {
+      setCustomerEmail(user.email);
+    }
+  }, [user, userProfile]);
 
   // Step 4: Payment Method & UPI State
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
@@ -398,6 +424,47 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
       }
     } catch (err) {
       console.warn('Backend booking sync error (local confirmation preserved):', err);
+    }
+
+    // 1b. Persist booking directly to Firestore under current user's uid
+    if (user?.uid) {
+      try {
+        await createBooking({
+          userId: user.uid,
+          destination: drop,
+          tripName: `${selectedVehicle.name} (${tripType === 'roundtrip' ? 'Round Trip' : tripType === 'local' ? 'Local Rental' : 'One Way'})`,
+          pickupLocation: pickup,
+          dropLocation: drop,
+          travelDates: tripType === 'roundtrip' ? `${travelDate} to ${returnDate}` : travelDate,
+          travelDate,
+          travelTime,
+          returnDate: tripType === 'roundtrip' ? returnDate : undefined,
+          returnTime: tripType === 'roundtrip' ? returnTime : undefined,
+          tripType,
+          travellers: passengers,
+          totalPrice: fareDetails.fare,
+          contactName: customerName,
+          contactPhone: customerPhone,
+          contactEmail: customerEmail || undefined,
+          specialRequests: submission.specialRequests,
+          status: 'confirmed',
+          bookingReference: submission.bookingReference,
+          vehicleId: selectedVehicle.id,
+          vehicleName: selectedVehicle.name,
+          paymentMethod,
+          distanceKm: submission.distanceKm,
+          createdAt: submission.createdAt
+        });
+
+        // Sync user profile with entered contact info
+        await updateSavedProfile({
+          name: customerName,
+          phone: customerPhone,
+          email: customerEmail || undefined
+        });
+      } catch (firestoreErr) {
+        console.warn('Firestore booking persistence warning:', firestoreErr);
+      }
     }
 
     try {

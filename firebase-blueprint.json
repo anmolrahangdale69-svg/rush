@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile document indexed by Firebase Auth UID",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["createdAt"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Travel booking record created by guest or registered user",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "destination": { "type": "string", "maxLength": 250 },
+        "tripName": { "type": "string", "maxLength": 250 },
+        "pickupLocation": { "type": "string", "maxLength": 200 },
+        "dropLocation": { "type": "string", "maxLength": 200 },
+        "travelDates": { "type": "string", "maxLength": 100 },
+        "travelDate": { "type": "string", "maxLength": 50 },
+        "travelTime": { "type": "string", "maxLength": 50 },
+        "returnDate": { "type": "string", "maxLength": 50 },
+        "returnTime": { "type": "string", "maxLength": 50 },
+        "tripType": { "type": "string", "maxLength": 50 },
+        "travellers": { "type": "number" },
+        "totalPrice": { "type": "number" },
+        "contactName": { "type": "string", "maxLength": 100 },
+        "contactPhone": { "type": "string", "maxLength": 50 },
+        "contactEmail": { "type": "string", "maxLength": 200 },
+        "specialRequests": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] },
+        "bookingReference": { "type": "string", "maxLength": 100 },
+        "vehicleId": { "type": "string", "maxLength": 100 },
+        "vehicleName": { "type": "string", "maxLength": 100 },
+        "paymentMethod": { "type": "string", "maxLength": 50 },
+        "distanceKm": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["userId", "destination", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile data accessible only by the owner user ID"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Travel bookings accessible and manageable solely by the booking owner"
+    }
+  }
+}

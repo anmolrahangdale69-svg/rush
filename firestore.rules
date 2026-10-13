@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['createdAt'])
+        && data.keys().hasOnly(['name', 'email', 'phone', 'createdAt'])
+        && (!('name' in data) || (data.name is string && data.name.size() <= 100))
+        && (!('email' in data) || (data.email is string && data.email.size() <= 200))
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 50))
+        && (data.createdAt is string && data.createdAt.size() <= 100);
+    }
+
+    function isValidBooking(data) {
+      return data.keys().hasAll(['userId', 'destination', 'status', 'createdAt'])
+        && data.keys().hasOnly([
+          'userId', 'destination', 'tripName', 'pickupLocation', 'dropLocation',
+          'travelDates', 'travelDate', 'travelTime', 'returnDate', 'returnTime',
+          'tripType', 'travellers', 'totalPrice', 'contactName', 'contactPhone',
+          'contactEmail', 'specialRequests', 'status', 'bookingReference',
+          'vehicleId', 'vehicleName', 'paymentMethod', 'distanceKm', 'createdAt'
+        ])
+        && data.userId is string && data.userId.size() <= 128
+        && data.destination is string && data.destination.size() <= 250
+        && data.status in ['pending', 'confirmed', 'cancelled']
+        && data.createdAt is string && data.createdAt.size() <= 100
+        && (!('tripName' in data) || (data.tripName is string && data.tripName.size() <= 250))
+        && (!('pickupLocation' in data) || (data.pickupLocation is string && data.pickupLocation.size() <= 200))
+        && (!('dropLocation' in data) || (data.dropLocation is string && data.dropLocation.size() <= 200))
+        && (!('travelDates' in data) || (data.travelDates is string && data.travelDates.size() <= 100))
+        && (!('travelDate' in data) || (data.travelDate is string && data.travelDate.size() <= 50))
+        && (!('travelTime' in data) || (data.travelTime is string && data.travelTime.size() <= 50))
+        && (!('returnDate' in data) || (data.returnDate is string && data.returnDate.size() <= 50))
+        && (!('returnTime' in data) || (data.returnTime is string && data.returnTime.size() <= 50))
+        && (!('tripType' in data) || (data.tripType is string && data.tripType.size() <= 50))
+        && (!('travellers' in data) || (data.travellers is number))
+        && (!('totalPrice' in data) || (data.totalPrice is number))
+        && (!('contactName' in data) || (data.contactName is string && data.contactName.size() <= 100))
+        && (!('contactPhone' in data) || (data.contactPhone is string && data.contactPhone.size() <= 50))
+        && (!('contactEmail' in data) || (data.contactEmail is string && data.contactEmail.size() <= 200))
+        && (!('specialRequests' in data) || (data.specialRequests is string && data.specialRequests.size() <= 1000))
+        && (!('bookingReference' in data) || (data.bookingReference is string && data.bookingReference.size() <= 100))
+        && (!('vehicleId' in data) || (data.vehicleId is string && data.vehicleId.size() <= 100))
+        && (!('vehicleName' in data) || (data.vehicleName is string && data.vehicleName.size() <= 100))
+        && (!('paymentMethod' in data) || (data.paymentMethod is string && data.paymentMethod.size() <= 50))
+        && (!('distanceKm' in data) || (data.distanceKm is number));
+    }
+
+    // Connection testing doc
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if false;
+      allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidUser(incoming());
+      allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId && isValidUser(incoming()) && incoming().createdAt == existing().createdAt;
+      allow delete: if false;
+    }
+
+    // Bookings Collection
+    match /bookings/{bookingId} {
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && isValidId(bookingId) && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(bookingId) && incoming().userId == request.auth.uid && isValidBooking(incoming());
+      allow update: if isSignedIn()
+        && isValidId(bookingId)
+        && existing().userId == request.auth.uid
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == existing().createdAt
+        && isValidBooking(incoming())
+        && (
+          (incoming().diff(existing()).affectedKeys().hasOnly(['status']) && incoming().status == 'cancelled')
+          ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['specialRequests', 'contactPhone', 'contactName']))
+        );
+      allow delete: if false;
+    }
+  }
+}
