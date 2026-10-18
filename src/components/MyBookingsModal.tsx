@@ -57,6 +57,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
   // Cancellation state
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [confirmingCancelId, setConfirmingCancelId] = useState<string | null>(null);
   const [cancelSuccessMsg, setCancelSuccessMsg] = useState<string | null>(null);
 
   // Status Filter
@@ -111,8 +112,6 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
   }, [isOpen, user?.uid]);
 
   if (!isOpen) return null;
-
-  const [confirmingCancelId, setConfirmingCancelId] = useState<string | null>(null);
 
   const handleCancelBooking = async (booking: FirestoreBooking) => {
     const bookingId = booking.bookingReference || booking.id;

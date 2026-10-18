@@ -33,15 +33,17 @@ interface CancelRideModalProps {
   isOpen: boolean;
   onClose: () => void;
   onBookingCancelled?: (bookingId: string) => void;
+  initialSearchTerm?: string;
 }
 
 export const CancelRideModal: React.FC<CancelRideModalProps> = ({
   isOpen,
   onClose,
-  onBookingCancelled
+  onBookingCancelled,
+  initialSearchTerm
 }) => {
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm || '');
   const [searching, setSearching] = useState<boolean>(false);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [confirmingCancelId, setConfirmingCancelId] = useState<string | null>(null);
@@ -53,6 +55,31 @@ export const CancelRideModal: React.FC<CancelRideModalProps> = ({
   const [copiedRef, setCopiedRef] = useState<boolean>(false);
 
   const [allBookings, setAllBookings] = useState<FirestoreBooking[]>(() => getRecentLocalBookings());
+
+  // Handle initialSearchTerm or prefilled booking reference
+  useEffect(() => {
+    if (isOpen) {
+      setSuccessMsg(null);
+      if (initialSearchTerm) {
+        setSearchTerm(initialSearchTerm);
+        setSearching(true);
+        setSearched(true);
+        lookupBookingDetails(initialSearchTerm).then(res => {
+          if (res) {
+            setFoundBooking(res);
+            setSearchError(null);
+          } else {
+            setFoundBooking(null);
+            setSearchError(`No booking details found for "${initialSearchTerm}".`);
+          }
+        }).catch(() => {
+          setSearchError('Error looking up booking.');
+        }).finally(() => {
+          setSearching(false);
+        });
+      }
+    }
+  }, [isOpen, initialSearchTerm]);
 
   // Keep allBookings synchronized
   useEffect(() => {
@@ -236,9 +263,31 @@ export const CancelRideModal: React.FC<CancelRideModalProps> = ({
                 )}
               </button>
             </form>
-            <span className="text-[11px] text-stone-500 block">
-              Supports reference codes like BT-2026-XXXX or passenger phone numbers.
-            </span>
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
+              <span className="text-stone-500 font-medium">Quick suggestions:</span>
+              {['BT-2026-4821', 'BT-2026-1042', 'BT-2026-8850'].map(code => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm(code);
+                    setSearching(true);
+                    setSearched(true);
+                    lookupBookingDetails(code).then(res => {
+                      setFoundBooking(res);
+                      setSearchError(res ? null : `No booking found for ${code}`);
+                    }).catch(() => {
+                      setSearchError('Error looking up booking.');
+                    }).finally(() => {
+                      setSearching(false);
+                    });
+                  }}
+                  className="px-2 py-0.5 bg-stone-200/80 hover:bg-amber-100 hover:text-amber-900 text-stone-700 rounded-md font-mono font-bold cursor-pointer transition-colors"
+                >
+                  #{code}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Search Results / Detailed Booking Card */}
@@ -366,57 +415,26 @@ export const CancelRideModal: React.FC<CancelRideModalProps> = ({
 
                   {/* Cancellation Action or Cancelled Banner */}
                   {foundBooking.status !== 'cancelled' ? (
-                    <div className="space-y-2">
-                      {confirmingCancelId === (foundBooking.bookingReference || foundBooking.id) ? (
-                        <div className="p-3 bg-red-100 border-2 border-red-400 rounded-xl space-y-2 animate-in fade-in">
-                          <div className="text-xs font-bold text-red-950 flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4 text-red-600" />
-                            <span>Confirm cancellation for #{foundBooking.bookingReference}?</span>
-                          </div>
-                          <p className="text-[11px] text-red-800">
-                            Zero cancellation charge will be applied. Your ride will be cancelled immediately.
-                          </p>
-                          <div className="flex gap-2 pt-1">
-                            <button
-                              type="button"
-                              onClick={() => handlePerformCancel(foundBooking)}
-                              disabled={cancellingId !== null}
-                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
-                            >
-                              {cancellingId ? (
-                                <>
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                  <span>Cancelling Ride...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <XCircle className="w-3.5 h-3.5" />
-                                  <span>Yes, Cancel This Ride</span>
-                                </>
-                              )}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setConfirmingCancelId(null)}
-                              className="px-3 py-2 bg-white hover:bg-stone-100 text-stone-800 font-bold text-xs rounded-lg border border-stone-300 cursor-pointer"
-                            >
-                              Keep Booking
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="text-xs text-stone-500 font-medium">Free cancellation guaranteed</span>
-                          <button
-                            type="button"
-                            onClick={() => setConfirmingCancelId(foundBooking.bookingReference || foundBooking.id || null)}
-                            className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
-                          >
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-xs text-stone-500 font-medium">Free cancellation guaranteed</span>
+                      <button
+                        type="button"
+                        onClick={() => handlePerformCancel(foundBooking)}
+                        disabled={cancellingId !== null}
+                        className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                      >
+                        {cancellingId === (foundBooking.bookingReference || foundBooking.id) ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Cancelling Ride...</span>
+                          </>
+                        ) : (
+                          <>
                             <XCircle className="w-4 h-4" />
                             <span>Cancel This Ride</span>
-                          </button>
-                        </div>
-                      )}
+                          </>
+                        )}
+                      </button>
                     </div>
                   ) : (
                     <div className="p-3 bg-stone-100 rounded-xl text-xs text-stone-600 flex items-center gap-2 font-semibold">
@@ -470,41 +488,25 @@ export const CancelRideModal: React.FC<CancelRideModalProps> = ({
                           </div>
                         </div>
 
-                        {!isConfirming && (
-                          <button
-                            type="button"
-                            onClick={() => setConfirmingCancelId(bId)}
-                            disabled={cancellingId === bId}
-                            className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer disabled:opacity-50"
-                          >
-                            Cancel Ride
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handlePerformCancel(b)}
+                          disabled={cancellingId === bId}
+                          className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                        >
+                          {cancellingId === bId ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>Cancelling...</span>
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="w-3.5 h-3.5" />
+                              <span>Cancel Ride</span>
+                            </>
+                          )}
+                        </button>
                       </div>
-
-                      {/* Inline Confirmation */}
-                      {isConfirming && (
-                        <div className="p-2.5 bg-red-50 border border-red-300 rounded-xl flex items-center justify-between gap-2 text-xs">
-                          <span className="text-red-950 font-bold">Confirm cancellation?</span>
-                          <div className="flex gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => handlePerformCancel(b)}
-                              disabled={cancellingId === bId}
-                              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg cursor-pointer"
-                            >
-                              {cancellingId === bId ? 'Cancelling...' : 'Confirm'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setConfirmingCancelId(null)}
-                              className="px-2.5 py-1.5 bg-white text-stone-700 font-bold text-xs rounded-lg border border-stone-200 cursor-pointer"
-                            >
-                              Back
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}

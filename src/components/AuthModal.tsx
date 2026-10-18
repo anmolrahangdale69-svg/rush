@@ -176,6 +176,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         if (onSuccess) onSuccess();
       }, 500);
     } catch (err: any) {
+      setStatusMessage(null);
       console.warn('OTP verify error:', err);
     } finally {
       setLoading(false);
@@ -249,6 +250,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         if (onSuccess) onSuccess();
       }, 500);
     } catch (err: any) {
+      setStatusMessage(null);
       console.warn('Email auth error:', err);
     } finally {
       setLoading(false);
