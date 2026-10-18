@@ -133,19 +133,19 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
   const [isRetryingEmail, setIsRetryingEmail] = useState<boolean>(false);
   const [isCancellingConfirmed, setIsCancellingConfirmed] = useState<boolean>(false);
   const [confirmedCancelled, setConfirmedCancelled] = useState<boolean>(false);
+  const [confirmingCancel, setConfirmingCancel] = useState<boolean>(false);
 
   const handleCancelThisBooking = async () => {
     if (!confirmedBooking) return;
-    const confirm = window.confirm(`Are you sure you want to cancel booking #${confirmedBooking.bookingReference}?`);
-    if (!confirm) return;
-
     setIsCancellingConfirmed(true);
     try {
       await cancelBooking(confirmedBooking.bookingReference);
       setConfirmedCancelled(true);
+      setConfirmingCancel(false);
     } catch (e) {
       console.warn('Cancel error:', e);
       setConfirmedCancelled(true);
+      setConfirmingCancel(false);
     } finally {
       setIsCancellingConfirmed(false);
     }
@@ -1974,6 +1974,29 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                   <XCircle className="w-4 h-4 text-stone-500" />
                   <span>This ride (#{confirmedBooking.bookingReference}) has been cancelled. No charge applied.</span>
                 </div>
+              ) : confirmingCancel ? (
+                <div className="p-3.5 bg-red-100 border-2 border-red-300 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                  <span className="font-extrabold text-red-950">
+                    Confirm cancellation of #{confirmedBooking.bookingReference}?
+                  </span>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleCancelThisBooking}
+                      disabled={isCancellingConfirmed}
+                      className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-xl cursor-pointer disabled:opacity-50"
+                    >
+                      {isCancellingConfirmed ? 'Cancelling...' : 'Yes, Cancel Ride'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingCancel(false)}
+                      className="px-3 py-1.5 bg-white text-stone-800 font-bold rounded-xl border border-stone-300 cursor-pointer"
+                    >
+                      Keep Ride
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-red-50/70 rounded-2xl border border-red-200/80">
                   <div className="text-left text-xs">
@@ -1982,12 +2005,11 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                   </div>
                   <button
                     type="button"
-                    onClick={handleCancelThisBooking}
-                    disabled={isCancellingConfirmed}
-                    className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+                    onClick={() => setConfirmingCancel(true)}
+                    className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer shrink-0 flex items-center gap-1.5"
                   >
                     <XCircle className="w-3.5 h-3.5" />
-                    <span>{isCancellingConfirmed ? 'Cancelling...' : 'Cancel This Ride'}</span>
+                    <span>Cancel This Ride</span>
                   </button>
                 </div>
               )}

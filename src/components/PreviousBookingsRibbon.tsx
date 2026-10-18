@@ -8,7 +8,8 @@ import {
   Sparkles,
   ChevronRight,
   Clock,
-  Compass
+  Compass,
+  XCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -20,18 +21,19 @@ import {
 interface PreviousBookingsRibbonProps {
   onSelectBooking: (prefill: { pickup: string; drop: string; vehicleId?: string }) => void;
   onOpenMyBookings?: () => void;
+  onOpenCancelRide?: () => void;
 }
 
 export const PreviousBookingsRibbon: React.FC<PreviousBookingsRibbonProps> = ({
   onSelectBooking,
-  onOpenMyBookings
+  onOpenMyBookings,
+  onOpenCancelRide
 }) => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [recentBookings, setRecentBookings] = useState<FirestoreBooking[]>(() => getRecentLocalBookings());
 
   // Listen to Firestore bookings as well
   useEffect(() => {
-    // Start with local storage for instant render
     const local = getRecentLocalBookings();
     if (local.length > 0) {
       setRecentBookings(local);
@@ -57,7 +59,7 @@ export const PreviousBookingsRibbon: React.FC<PreviousBookingsRibbonProps> = ({
     );
 
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, [user?.uid, userProfile?.phone]);
 
   const hasPreviousBookings = recentBookings.length > 0;
 
@@ -73,7 +75,7 @@ export const PreviousBookingsRibbon: React.FC<PreviousBookingsRibbonProps> = ({
     <div className="mb-6 bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-800 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-800 flex items-center justify-center shrink-0">
             {hasPreviousBookings ? (
               <History className="w-4 h-4 text-amber-700" />
             ) : (
@@ -84,46 +86,61 @@ export const PreviousBookingsRibbon: React.FC<PreviousBookingsRibbonProps> = ({
             <h3 className="text-sm sm:text-base font-black text-stone-900 tracking-tight flex items-center gap-2">
               <span>{hasPreviousBookings ? 'Your Previous Bookings' : 'Quick 1-Click Destinations'}</span>
               <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-full border border-amber-300">
-                {hasPreviousBookings ? 'Repeat & Book Again' : 'Popular'}
+                {hasPreviousBookings ? 'Tap to Rebook' : 'Popular'}
               </span>
             </h3>
             <p className="text-[11px] text-stone-500">
               {hasPreviousBookings
-                ? 'Select a past destination below to pre-fill the form instantly'
-                : 'Click any frequent destination to calculate fare and book in seconds'}
+                ? 'Click any past destination below to pre-fill pickup & drop instantly'
+                : 'Click any frequent route to calculate highway fare and book in seconds'}
             </p>
           </div>
         </div>
 
-        {hasPreviousBookings && onOpenMyBookings && (
-          <button
-            type="button"
-            onClick={onOpenMyBookings}
-            className="text-xs font-bold text-amber-800 hover:text-amber-950 flex items-center gap-1 self-start sm:self-auto cursor-pointer"
-          >
-            <span>View All History</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        )}
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          {onOpenCancelRide && (
+            <button
+              type="button"
+              onClick={onOpenCancelRide}
+              className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg border border-red-200 transition-colors"
+            >
+              <XCircle className="w-3.5 h-3.5 text-red-500" />
+              <span>Cancel Existing Ride</span>
+            </button>
+          )}
+
+          {hasPreviousBookings && onOpenMyBookings && (
+            <button
+              type="button"
+              onClick={onOpenMyBookings}
+              className="text-xs font-bold text-amber-800 hover:text-amber-950 flex items-center gap-1 cursor-pointer"
+            >
+              <span>All History</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Cards Scroll Container */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
         {hasPreviousBookings ? (
           recentBookings.slice(0, 4).map((booking) => (
-            <button
+            <div
               key={booking.id || booking.bookingReference}
-              type="button"
-              onClick={() => {
-                onSelectBooking({
-                  pickup: booking.pickupLocation || 'Nagpur',
-                  drop: booking.dropLocation || booking.destination,
-                  vehicleId: booking.vehicleId || 'suzuki-dzire'
-                });
-              }}
-              className="group text-left p-3 rounded-2xl bg-stone-50 hover:bg-amber-50/80 border border-stone-200/80 hover:border-amber-400 transition-all cursor-pointer flex flex-col justify-between"
+              className="group text-left p-3 rounded-2xl bg-stone-50 hover:bg-amber-50/80 border border-stone-200/80 hover:border-amber-400 transition-all flex flex-col justify-between"
             >
-              <div>
+              <button
+                type="button"
+                onClick={() => {
+                  onSelectBooking({
+                    pickup: booking.pickupLocation || 'Nagpur',
+                    drop: booking.dropLocation || booking.destination,
+                    vehicleId: booking.vehicleId || 'suzuki-dzire'
+                  });
+                }}
+                className="w-full text-left cursor-pointer"
+              >
                 <div className="flex items-center justify-between text-[10px] font-mono text-stone-500 mb-1">
                   <span>#{booking.bookingReference?.slice(-6) || 'TRIP'}</span>
                   <span className={`font-bold px-1.5 py-0.2 rounded ${
@@ -151,16 +168,35 @@ export const PreviousBookingsRibbon: React.FC<PreviousBookingsRibbonProps> = ({
                     </span>
                   )}
                 </div>
-              </div>
+              </button>
 
-              <div className="mt-2.5 pt-2 border-t border-stone-200/60 flex items-center justify-between text-xs font-bold text-amber-800">
-                <span className="flex items-center gap-1 text-[11px]">
+              <div className="mt-2.5 pt-2 border-t border-stone-200/60 flex items-center justify-between text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelectBooking({
+                      pickup: booking.pickupLocation || 'Nagpur',
+                      drop: booking.dropLocation || booking.destination,
+                      vehicleId: booking.vehicleId || 'suzuki-dzire'
+                    });
+                  }}
+                  className="font-bold text-amber-800 hover:text-amber-950 flex items-center gap-1 text-[11px] cursor-pointer"
+                >
                   <RotateCcw className="w-3 h-3" />
                   <span>Book this again</span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                {booking.status !== 'cancelled' && onOpenCancelRide && (
+                  <button
+                    type="button"
+                    onClick={onOpenCancelRide}
+                    className="text-[10px] font-bold text-red-600 hover:text-red-700 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                )}
               </div>
-            </button>
+            </div>
           ))
         ) : (
           popularFastRoutes.map((route, i) => (

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Phone, MessageSquare, Car, X } from 'lucide-react';
+import { Phone, MessageSquare, Car, X, XCircle } from 'lucide-react';
 import { BUSINESS_CONFIG } from '../data/cabConfig';
 
 interface StickyMobileBarProps {
   onBookClick: () => void;
+  onCancelRide?: () => void;
 }
 
-export const StickyMobileBar: React.FC<StickyMobileBarProps> = ({ onBookClick }) => {
+export const StickyMobileBar: React.FC<StickyMobileBarProps> = ({ onBookClick, onCancelRide }) => {
   const [showContactSheet, setShowContactSheet] = useState(false);
 
   const ownerWhatsappUrl = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${encodeURIComponent('Hello Bokde Travels, I want to book a cab from Nagpur.')}`;
@@ -14,7 +15,7 @@ export const StickyMobileBar: React.FC<StickyMobileBarProps> = ({ onBookClick })
 
   return (
     <>
-      {/* Mobile Contact Sheet with both Owner and Helpline */}
+      {/* Mobile Contact Sheet with both Owner, Helpline, and Cancel Ride */}
       {showContactSheet && (
         <div className="fixed inset-0 z-50 bg-stone-950/75 backdrop-blur-xs flex items-end sm:hidden animate-in fade-in duration-150">
           <div className="w-full bg-stone-900 rounded-t-3xl border-t border-stone-800 p-5 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
@@ -32,6 +33,27 @@ export const StickyMobileBar: React.FC<StickyMobileBarProps> = ({ onBookClick })
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Quick Cancel Ride Option for Mobile */}
+            {onCancelRide && (
+              <div className="bg-red-950/40 rounded-2xl p-3 border border-red-800/60 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-red-300">Need to Cancel a Ride?</div>
+                  <div className="text-[11px] text-stone-400">Zero cancellation charges before dispatch</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowContactSheet(false);
+                    onCancelRide();
+                  }}
+                  className="py-1.5 px-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-xs flex items-center gap-1 shadow-sm cursor-pointer"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                  <span>Cancel Ride</span>
+                </button>
+              </div>
+            )}
 
             {/* Owner Contact Card */}
             <div className="bg-stone-800/90 rounded-2xl p-3.5 border border-amber-500/40">
@@ -92,15 +114,15 @@ export const StickyMobileBar: React.FC<StickyMobileBarProps> = ({ onBookClick })
       )}
 
       {/* Main sticky mobile bar */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-stone-900/95 backdrop-blur-md border-t border-stone-800 p-2.5 shadow-2xl flex items-center gap-2">
-        {/* Call Button (Owner) with quick tap */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-stone-900/95 backdrop-blur-md border-t border-stone-800 p-2 shadow-2xl flex items-center gap-1.5">
+        {/* Call Button (Owner) */}
         <a
           href={`tel:${BUSINESS_CONFIG.ownerPhone}`}
-          className="flex-1 py-2.5 px-1.5 bg-stone-800 hover:bg-stone-700 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-stone-700"
+          className="flex-1 py-2 px-1.5 bg-stone-800 hover:bg-stone-700 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-stone-700"
           title={`Call Owner (${BUSINESS_CONFIG.ownerPhone})`}
         >
           <Phone className="w-3.5 h-3.5 text-amber-400" />
-          <span>Call Owner</span>
+          <span>Call</span>
         </a>
 
         {/* WhatsApp Button (Owner) */}
@@ -108,28 +130,41 @@ export const StickyMobileBar: React.FC<StickyMobileBarProps> = ({ onBookClick })
           href={ownerWhatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 py-2.5 px-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-emerald-600"
+          className="flex-1 py-2 px-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border border-emerald-600"
           title="WhatsApp Owner"
         >
           <MessageSquare className="w-3.5 h-3.5" />
           <span>WhatsApp</span>
         </a>
 
+        {/* Cancel Ride Button for quick 1-tap mobile cancel */}
+        {onCancelRide && (
+          <button
+            type="button"
+            onClick={onCancelRide}
+            className="py-2 px-2 bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-800 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1"
+            title="Cancel an existing booking"
+          >
+            <XCircle className="w-3 h-3 text-red-400" />
+            <span>Cancel</span>
+          </button>
+        )}
+
         {/* Options / Both Numbers Button */}
         <button
           type="button"
           onClick={() => setShowContactSheet(true)}
-          className="py-2.5 px-2 bg-stone-800 text-amber-400 border border-amber-500/40 rounded-xl text-[11px] font-bold flex items-center justify-center"
+          className="py-2 px-1.5 bg-stone-800 text-amber-400 border border-amber-500/40 rounded-xl text-[10px] font-bold flex items-center justify-center"
           title="View both owner and helpline numbers"
         >
-          <span>Both #</span>
+          <span>Numbers</span>
         </button>
 
         {/* Book Button */}
         <button
           type="button"
           onClick={onBookClick}
-          className="flex-1 py-2.5 px-2 bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1 shadow-md cursor-pointer"
+          className="flex-1 py-2 px-2 bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1 shadow-md cursor-pointer"
         >
           <Car className="w-3.5 h-3.5" />
           <span>Book</span>

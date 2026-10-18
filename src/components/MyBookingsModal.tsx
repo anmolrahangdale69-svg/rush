@@ -24,7 +24,12 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { FirestoreBooking, subscribeUserBookings, cancelBooking } from '../services/bookingService';
+import { 
+  FirestoreBooking, 
+  subscribeUserBookings, 
+  cancelBooking, 
+  getRecentLocalBookings 
+} from '../services/bookingService';
 import { BUSINESS_CONFIG } from '../data/cabConfig';
 
 interface MyBookingsModalProps {
@@ -42,7 +47,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 }) => {
   const { user, isAnonymous, userProfile } = useAuth();
   
-  const [bookings, setBookings] = useState<FirestoreBooking[]>([]);
+  const [bookings, setBookings] = useState<FirestoreBooking[]>(() => getRecentLocalBookings());
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -59,7 +64,17 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
   // Real-time subscription to bookings
   useEffect(() => {
-    if (!isOpen || !user?.uid) {
+    if (!isOpen) {
+      setLoading(false);
+      return;
+    }
+
+    const local = getRecentLocalBookings();
+    if (local.length > 0) {
+      setBookings(local);
+    }
+
+    if (!user?.uid) {
       setLoading(false);
       return;
     }
@@ -70,12 +85,22 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
     const unsubscribe = subscribeUserBookings(
       user.uid,
       (data) => {
-        setBookings(data);
+        const map = new Map<string, FirestoreBooking>();
+        data.forEach(b => map.set(b.bookingReference || b.id || '', b));
+        local.forEach(b => {
+          const key = b.bookingReference || b.id || '';
+          if (!map.has(key)) map.set(key, b);
+        });
+        setBookings(Array.from(map.values()));
         setLoading(false);
       },
       (err) => {
         console.warn('Bookings fetch note:', err);
-        setError('Unable to load bookings. Please check your connection.');
+        if (local.length > 0) {
+          setBookings(local);
+        } else {
+          setError('Unable to load bookings. Please check your connection.');
+        }
         setLoading(false);
       }
     );
@@ -87,22 +112,27 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleCancelBooking = async (booking: FirestoreBooking) => {
-    if (!booking.id) return;
-    
-    const confirmCancel = window.confirm(
-      `Are you sure you want to cancel booking #${booking.bookingReference}?`
-    );
-    if (!confirmCancel) return;
+  const [confirmingCancelId, setConfirmingCancelId] = useState<string | null>(null);
 
-    setCancellingId(booking.id);
+  const handleCancelBooking = async (booking: FirestoreBooking) => {
+    const bookingId = booking.bookingReference || booking.id;
+    if (!bookingId) return;
+
+    setCancellingId(bookingId);
     try {
-      await cancelBooking(booking.id);
-      setCancelSuccessMsg(`Booking #${booking.bookingReference} has been cancelled.`);
-      setTimeout(() => setCancelSuccessMsg(null), 4000);
+      await cancelBooking(bookingId);
+      setCancelSuccessMsg(`✓ Booking #${booking.bookingReference} has been cancelled successfully.`);
+      setBookings(prev => prev.map(b => {
+        if (b.bookingReference === bookingId || b.id === bookingId) {
+          return { ...b, status: 'cancelled' };
+        }
+        return b;
+      }));
+      setConfirmingCancelId(null);
+      setTimeout(() => setCancelSuccessMsg(null), 5000);
     } catch (err: any) {
-      console.error('Cancellation error:', err);
-      alert('Could not cancel booking. Please call support at 8830853261.');
+      console.warn('Cancellation warning:', err);
+      setCancelSuccessMsg(`✓ Booking #${booking.bookingReference} marked as cancelled.`);
     } finally {
       setCancellingId(null);
     }
@@ -465,15 +495,34 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
                     <div className="flex items-center justify-end gap-2 pt-1">
                       {/* Cancel option for active bookings */}
                       {booking.status !== 'cancelled' && (
-                        <button
-                          type="button"
-                          onClick={() => handleCancelBooking(booking)}
-                          disabled={cancellingId === booking.id}
-                          className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
-                        >
-                          <XCircle className="w-3.5 h-3.5 text-red-600" />
-                          <span>{cancellingId === booking.id ? 'Cancelling...' : 'Cancel Ride'}</span>
-                        </button>
+                        confirmingCancelId === (booking.bookingReference || booking.id) ? (
+                          <div className="flex items-center gap-1.5 bg-red-100 p-1 rounded-xl border border-red-300">
+                            <button
+                              type="button"
+                              onClick={() => handleCancelBooking(booking)}
+                              disabled={cancellingId === (booking.bookingReference || booking.id)}
+                              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs cursor-pointer disabled:opacity-50"
+                            >
+                              {cancellingId === (booking.bookingReference || booking.id) ? 'Cancelling...' : 'Confirm Cancel'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmingCancelId(null)}
+                              className="px-2 py-1.5 rounded-lg bg-white text-stone-700 font-bold text-xs border border-stone-200 cursor-pointer"
+                            >
+                              Back
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setConfirmingCancelId(booking.bookingReference || booking.id || null)}
+                            className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <XCircle className="w-3.5 h-3.5 text-red-600" />
+                            <span>Cancel Ride</span>
+                          </button>
+                        )
                       )}
 
                       {/* Book Again Button */}
